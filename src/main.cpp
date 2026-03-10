@@ -1,3 +1,4 @@
+#include <FL/Enumerations.H>
 #include <print>
 #include <string>
 #include <thread>
@@ -34,29 +35,38 @@ struct AppState{
 
 int main(void){
     Fl::scheme("gtk+"); 
-    Fl::background(245, 245, 247); 
-    Fl::set_font(FL_HELVETICA, "Segoe UI, Arial, sans-serif"); 
+    Fl::background(195, 195, 202); 
+    Fl::set_font(FL_FREE_FONT, "Noto Sans JP"); 
+    Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Google Sans Code Bold");
 
-    Fl_Window* win = new Fl_Window(400, 300, "Japanese Helper");
+    Fl_Window* win = new Fl_Window(800, 600, "Japanese Helper");
 
     AppState app;
-    
-    app.input = new Fl_Input(80, 10, 220, 30, "Word:");
+   
+    // note: i need to remove some of these magic numbers
+
+    app.input = new Fl_Input(200, 10, 400, 30, "Word:");
     app.input->box(FL_FLAT_BOX);
     app.input->color(FL_WHITE);
+    app.input->textfont(FL_FREE_FONT);
     app.input->textsize(14);
+    app.input->textcolor(FL_BLACK);
+    app.input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     app.input->labelsize(14);
+    app.input->labelcolor(FL_BLACK);
 
-    app.output = new Fl_Multiline_Output(10, 50, 380, 240);
+    app.output = new Fl_Multiline_Output(10, 50, 780, 540);
     app.output->wrap(1);
     app.output->box(FL_FLAT_BOX);
+    app.output->textfont(FL_FREE_FONT);
     app.output->color(FL_WHITE);
-    app.output->textsize(14);
+    app.output->textsize(18);
 
-    Fl_Button* btn = new Fl_Button(310, 10, 80, 30, "Search");
+    Fl_Button* btn = new Fl_Button(620, 10, 80, 30, "Search");
     btn->box(FL_FLAT_BOX);
     btn->color(fl_rgb_color(0, 120, 215)); 
     btn->labelcolor(FL_WHITE);
+    btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     btn->labelsize(14);
     btn->callback(on_search, &app);
 
