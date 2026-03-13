@@ -1,3 +1,6 @@
+#include <curl/urlapi.h>
+#include <exception>
+#include <stdexcept>
 #include <string>
 
 #include <curl/curl.h>
@@ -28,7 +31,12 @@ std::string jisho_lookup(const std::string& word){
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                // what headers to attach
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);       // which function handles incoming data chunks
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);               // where that function should write data into
-    curl_easy_perform(curl);
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK){       // if we had an injury during bicep curls
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
+        throw std::runtime_error(curl_easy_strerror(res));
+    }
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
 
@@ -64,7 +72,10 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
     CURL* curl = curl_easy_init();      // initialize bicep curls
     std::string response;
 
-    std::string postfields = "text=" + text + "&target_lang=EN-US";         // build the message (i.e. text=こにちわ&target_lang=EN-US)
+    char* encoded = curl_easy_escape(curl, text.c_str(), text.length());
+
+    std::string postfields = "text=" + std::string(encoded) + "&target_lang=EN-US";         // build the message (i.e. text=こにちわ&target_lang=EN-US)
+    curl_free(encoded);
     struct curl_slist* headers = nullptr;
     headers = curl_slist_append(headers, ("Authorization: DeepL-Auth-Key " + api_key).c_str());
 
@@ -75,7 +86,12 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);                       // use chunk collector (minecraft chunks)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);                               // collect into this string (response)
 
-    curl_easy_perform(curl);            // send it
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK){
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
+        throw std::runtime_error(curl_easy_strerror(res));
+    }
 
     auto parsed = json::parse(response);
     std::string translation = parsed["translations"][0]["text"];
