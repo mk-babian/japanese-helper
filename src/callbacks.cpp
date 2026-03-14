@@ -1,11 +1,12 @@
+#include <FL/Fl_Button.H>
 #include <thread>
 
 #include <Fl/Fl_Choice.H>
 
 #include "include/callbacks.h"
 #include "include/api.h"
-#include "include/api_key.h"
 #include "include/app_state.h"
+#include "include/settings.h"
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -49,7 +50,7 @@ void on_search_deepl(Fl_Widget*, void* data){
 
     std::thread([app, word](){
         try {
-            std::string result = deepl_translate(word, api_key);
+            std::string result = deepl_translate(word, app->deepl_key);
             Fl::lock();
             app->output->value(result.c_str());
             Fl::unlock();
@@ -72,4 +73,22 @@ void choice_callback(Fl_Widget* w, void* data){
     // 1 for deepl
     // and so on...
     app->selected_api = choice->value();
+}
+
+void open_settings(Fl_Widget* w, void* data){
+    AppState* app = static_cast<AppState*>(data);
+
+    app->settings_win->show();
+}
+
+void on_save_btn(Fl_Widget *w, void *data){
+    AppState* app = static_cast<AppState*>(data); 
+
+    std::string key = app->settings_key_input->value(); 
+    if (key.empty()) return;
+    app->deepl_key = key;
+
+    save_config(app);
+
+    app->settings_win->hide();
 }

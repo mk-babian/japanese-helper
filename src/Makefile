@@ -6,7 +6,7 @@ FLTK_LDFLAGS  := $(shell fltk-config --ldflags)
 CXXFLAGS := -std=c++23 -Wall -Wextra $(FLTK_CXXFLAGS)
 LIBS     := $(FLTK_LDFLAGS) -lstdc++exp -lcurl
 TARGET   := translator
-SRC      := main.cpp api.cpp api_key.cpp callbacks.cpp
+SRC      := main.cpp api.cpp settings.cpp callbacks.cpp
 
 all: $(TARGET)
 
