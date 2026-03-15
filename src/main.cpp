@@ -62,6 +62,7 @@ int main(void){
     choice->callback(choice_callback, &app);
 
     Fl_Button* search_btn = new Fl_Button(620, margin, 80, 30, "Search");
+    app.search_btn = search_btn;
     search_btn->box(FL_RSHADOW_BOX);
     search_btn->color(accent_blue); 
     search_btn->labelcolor(FL_WHITE);

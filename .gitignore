@@ -1,3 +1,6 @@
 *.exe
 api_key.cpp
 *.ini
+*.png
+*.ico
+src/dist

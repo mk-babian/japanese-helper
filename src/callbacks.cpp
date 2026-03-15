@@ -1,3 +1,4 @@
+#include <FL/Enumerations.H>
 #include <FL/Fl_Button.H>
 #include <thread>
 
@@ -8,8 +9,20 @@
 #include "include/app_state.h"
 #include "include/settings.h"
 
+const Fl_Color bg_color = fl_rgb_color(202, 202, 205);
+const Fl_Color accent_blue = fl_rgb_color(0, 120, 215);
+
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
+    app->search_btn->deactivate();
+    app->search_btn->color(bg_color);
+
+    std::string text = app->input->value();
+    if (text.empty()){
+        app->search_btn->activate();
+        app->search_btn->color(accent_blue);
+        return;
+    }
 
     if (app->selected_api == 0){
         on_search_jisho(w, data);
@@ -22,7 +35,6 @@ void on_search_jisho(Fl_Widget*, void* data){
     auto* app = (AppState*)data;	// cast data to AppState
 
     std::string word = app->input->value();
-    if (word.empty()) return;
 
     // create new thread and give it copies of app and word
     std::thread([app, word](){
@@ -30,11 +42,15 @@ void on_search_jisho(Fl_Widget*, void* data){
         try {
             std::string result = jisho_lookup(word);
             Fl::lock();					        // lock mutex
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
             app->output->value(result.c_str());	// perform operation
             Fl::unlock();				        // unlock mutex
             Fl::awake();				        // tell the main thread that smth changed
         } catch (const std::exception& e) {		// if jisho_lookup crashes, display error
             Fl::lock();
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
             app->output->value(e.what()); 	 	// show the error
             Fl::unlock();
             Fl::awake();
@@ -46,17 +62,20 @@ void on_search_deepl(Fl_Widget*, void* data){
     auto* app = (AppState*)data;	// cast data to AppState
 
     std::string word = app->input->value();
-    if (word.empty()) return;
 
     std::thread([app, word](){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
             Fl::lock();
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
             app->output->value(result.c_str());
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e) {
             Fl::lock();
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
             app->output->value(e.what());
             Fl::unlock();
             Fl::awake();

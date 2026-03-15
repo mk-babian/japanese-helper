@@ -20,12 +20,14 @@ std::string jisho_lookup(const std::string& word){
     CURL* curl = curl_easy_init();
 
     std::string response;
+
     char* encoded = curl_easy_escape(curl, word.c_str(), word.size());  // convert "illegal" characters to hex format
     std::string url = "https://jisho.org/api/v1/search/words?keyword=" + std::string(encoded);
     curl_free(encoded);
 
     struct curl_slist* headers = nullptr;
-    headers = curl_slist_append(headers, "User-Agent: Mozilla/5.0");    // tell Jisho that we're Mozilla-man
+    headers = curl_slist_append(headers, 
+            "User-Agent: Mozilla/5.0 (Windows 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());                   // where to make the request
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                // what headers to attach
@@ -39,6 +41,16 @@ std::string jisho_lookup(const std::string& word){
     }
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
+
+    if (response.empty() || response[0] != '{'){
+        throw std::runtime_error("Jisho returned non-JSON response:\n" + response.substr(0, 200));
+    }
+
+    long http_code = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+    if (http_code != 200){
+        throw std::runtime_error("Jisho HTTP error: " + std::to_string(http_code));
+    }
 
     // std::println("{}", response);
 
