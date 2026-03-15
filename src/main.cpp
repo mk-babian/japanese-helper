@@ -1,6 +1,5 @@
-#include <FL/Enumerations.H>
-#include <algorithm>
 #include <print>
+#include <windows.h>
 
 // FLTK
 #include <FL/Fl.H>
@@ -33,6 +32,7 @@ int main(void){
 
     Fl_Window* main_win = new Fl_Window(800, 600, "Japanese Helper");
     main_win->color(bg_color);
+    main_win->icon((const void*)LoadIconA(GetModuleHandleA(NULL), "MAINICON"));
 
     AppState app;
    

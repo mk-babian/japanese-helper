@@ -10,11 +10,11 @@ SRC      := main.cpp api.cpp settings.cpp callbacks.cpp
 
 all: $(TARGET)
 
-$(TARGET): $(SRC)
+$(TARGET): $(SRC) resources.o
 	$(CXX) $(CXXFLAGS) $(SRC) resources.o -o $(TARGET) $(LIBS)
 
 resources.o: ../app_icon.ico resources.rc
 	windres resources.rc -o resources.o
 
 clean:
-	rm -f $(TARGET).exe
+	rm -f $(TARGET).exe resources.o

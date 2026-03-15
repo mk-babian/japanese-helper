@@ -3,4 +3,5 @@ api_key.cpp
 *.ini
 *.png
 *.ico
+*.o
 src/dist
