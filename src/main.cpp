@@ -1,4 +1,3 @@
-#include <print>
 #include <windows.h>
 
 // FLTK
@@ -10,7 +9,6 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Multiline_Output.H>
 
-#include "include/api.h"
 #include "include/settings.h"
 #include "include/callbacks.h"
 #include "include/app_state.h"
