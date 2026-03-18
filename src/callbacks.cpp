@@ -1,5 +1,3 @@
-#include <FL/Enumerations.H>
-#include <FL/Fl_Button.H>
 #include <thread>
 
 #include <Fl/Fl_Choice.H>

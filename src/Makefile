@@ -1,10 +1,10 @@
 CXX      := g++
 
 FLTK_CXXFLAGS := $(shell fltk-config --cxxflags)
-FLTK_LDFLAGS  := $(shell fltk-config --ldflags)
+FLTK_LDFLAGS  := $(shell fltk-config --ldflags --use-images)
 
 CXXFLAGS := -std=c++23 -Wall -Wextra $(FLTK_CXXFLAGS)
-LIBS     := $(FLTK_LDFLAGS) -lstdc++exp -lcurl
+LIBS     := $(FLTK_LDFLAGS) -lstdc++exp -lcurl -Wl,--subsystem,console
 TARGET   := translator
 SRC      := main.cpp api.cpp settings.cpp callbacks.cpp
 
