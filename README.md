@@ -67,9 +67,11 @@ There is a `makefile` in the `src` directory of the project. It can be used to b
 git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
 ```
 
-2. Make your changes, or leave as is.
+2. You must manually build **Whisper.cpp**. For instructions on how to do so, visit [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Now%20build) 
 
-3. Do make (make sure you are in the src directory).
+3. Make your changes, or leave as is.
+
+4. Do make (make sure you are in the src directory).
 
 ```bash
 make
