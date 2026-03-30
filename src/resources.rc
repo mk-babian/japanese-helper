@@ -1,2 +1,7 @@
+/*
+ * This .rc file is responsible for assigning the final executable the app icon.
+ * Do note that this is Windows only.
+*/
+
 MAINICON ICON "../app_icon.ico"
 1        ICON "../app_icon.ico"

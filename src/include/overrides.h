@@ -1,9 +1,9 @@
-#include <FL/Enumerations.H>
 #include <iostream>
 #include <string>
 
 #include <FL/Fl_Input.H>
-#include <Fl/Fl_Window.H>
+#include <FL/Fl_Window.H>
+#include <FL/Enumerations.H>
 
 // override the main window
 class MainWindow : public Fl_Window{

@@ -7,14 +7,18 @@
 #include <FL/Fl_Multiline_Output.H>
 #include <string>
 
+#include "speech_to_text.h"
+
 struct AppState{
     Fl_Window* settings_win;
-    Fl_Button* vtt_btn;
+    Fl_Button* stt_btn;
     Fl_Button* search_btn;
     Fl_Choice* api_selector;
     Fl_Input* settings_key_input;
     Fl_Input* input;
     Fl_Multiline_Output* output;
+
+    StreamData stream_data;
 
     int selected_api = 0;
     std::string deepl_key;

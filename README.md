@@ -2,7 +2,7 @@
 
 A **minimalistic** desktop application for Japanese vocabulary lookup and translation.
 
-It has multiple API integrations, a classic-style user interface using FLTK, and voice-to-text (WIP).
+It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text.
 
 ## Screenshot(s):
 
@@ -26,6 +26,16 @@ This **API** simply translates anything in the input field from Japanese to Engl
 
 The **DeepL Translate API** can only be used with an **API key**. The free version supports up to **500,000 characters a month**.
 
+## Speech-To-Text:
+
+Japanese Helper has a built-in speech-to-text, allowing the user to transcribe Japanese speech into text that automatically goes into the search bar (input).
+
+STT uses **Whisper.cpp** with the `base` model. Additional models can be downloaded and configured manually.
+For more information on downloading models, please see `README.md` for **Whisper.cpp** or click [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Then%2C%20download%20one%20of%20the%20Whisper%20models).
+
+You can also modify the settings and paramaters for **Whisper.cpp** and its structs in `speech_to_text.cpp`.
+Notably, you can change the language that **Whisper.cpp** takes in as input.
+
 ## Dependencies:
 
 The distribution version that will be uploaded (eventually) doesn't require any other dependencies, except the Windows header files that every Windows system has. It's also bundled with .dll files that are required to run the program.
@@ -44,11 +54,9 @@ If you're planning to build this yourself, you'll need these:
 
 - **libcurl (C/C++ Network Transfer Library)**
 
-- **nlohmann/json (Bringing JSON to C++)**
-
 ## Building:
 
-There is a `Makefile` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
+There is a `makefile` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
 
 ### Step-By-Step Instructions:
 

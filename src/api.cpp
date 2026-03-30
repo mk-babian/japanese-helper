@@ -1,21 +1,35 @@
-#include <stdexcept>
-#include <string>
+// For HTTP codes
 #include <map>
 
+// CURL
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <curl/urlapi.h>
 
+// JSON
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
 #include "include/api.h"
 
-static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* out) {
-    out->append((char*)contents, size * nmemb);
-    return size * nmemb;    // check if all the data has been dealt with
+
+
+// COUNTS HOW MANY BYTES HANDLED IN CHUNK & COMPARE WITH RECEIVED AMOUNT
+static size_t write_callback(void* contents, size_t size, size_t nmemb, std::string* out) {
+    out->append((char*)contents, size * nmemb); // Append to contents.
+    return size * nmemb;    // Check if all the data has been dealt with.
+                            // If handled bytes don't match with received bytes,
+                            // then libcurl aborts with CURLE_WRITE_ERROR.
 }
 
+/* RESOURCE ACQUISISTION IS INITIALIZATION (RAII)
+ *
+ * RAII lets an object own the resource,
+ * and let it clean itself up with its destructor.
+ *
+ * Destructors run automatically when the object
+ * goes out of scope (return, exit, throw, etc.).
+*/
 struct Cleanup{
     CURL* curl;
     struct curl_slist* headers;
@@ -31,56 +45,81 @@ struct Cleanup{
     }
 };
 
+// Looks up a word on Jisho and returns a formatted string of definitions, Kanji, and Hiragana (reading).
+// Throws std::runtime_error on network failure or malformed response.
 std::string jisho_lookup(const std::string& word){
-    CURL* curl = curl_easy_init();
+    CURL* curl = curl_easy_init();                                      // Initialize bicep curls.
+                                                                        // Allocate and return a CURL* handle.
     std::string response;
+    std::string result;
 
-    char* encoded = curl_easy_escape(curl, word.c_str(), word.size());  // convert "illegal" characters to hex format
+    // Encode the chracters since URLs only allow a limited set of characters.
+    // Everything else must be percent encoded (like Japanese characters, だってばよ).
+    char* encoded = curl_easy_escape(curl, word.c_str(), word.size());
     std::string url = "https://jisho.org/api/v1/search/words?keyword=" + std::string(encoded);
     curl_free(encoded);
 
-    struct curl_slist* headers = nullptr;
-    headers = curl_slist_append(headers, 
+    // Give User-Agent headers since Jisho gives 403 Forbidden;
+    // It blocks requests with no User-Agent.
+    struct curl_slist* headers = nullptr; 
+    curl_slist_append(headers, 
             "User-Agent: Mozilla/5.0 (Windows 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    
+    // Create object, own the curl + headers;
     Cleanup cl(curl, headers);
 
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());                   // where to make the request
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                // what headers to attach
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);       // which function handles incoming data chunks
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);               // where that function should write data into
+    // Use c_str since libcurl is a C library, therefore it needs C-like strings.
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());                   // Where to make the request.
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                // What headers to attach.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);      // Which function handles incoming data chunks.
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);               // Where that function should write data into.
     CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK){       // if we had an injury during bicep curls
+    if (res != CURLE_OK){                                               // Check for errors.
         throw std::runtime_error(curl_easy_strerror(res));
     }
 
+    // Check if the response is emtpy using two methods.
+    // A response is empty when it's not a JSON, a garbage HTML,
+    // an error page, or entirely empty.
     if (response.empty() || response[0] != '{'){
+        // Thorws an error at runtime if the above if statement is met.
+        // The exception travels up the call stack to the main caller.
+        // The catcher can call .what() on this exception to get the message back.
         throw std::runtime_error("Jisho returned non-JSON response:\n" + response.substr(0, 200));
     }
 
-    // std::println("{}", response);
-
+    // Parse the raw bytes/characters into std::string result.
     auto parsed = json::parse(response);
     auto data = parsed["data"];
-    std::string result;
-
+    // Check if the data is empty, and Jisho could not actually
+    // find any relative inforamtion.
     if (data.empty()){
         result = "No results found.";
         return result;
     }
 
+    // Integer counter for the formatting
     int n = 1;
-    // loops to extract all the definitions and etc.
+
+    // Loops to extract all the definitions and etc. from the parsed data
+    // and puts them into std::string result.
+    /*
+     * The ":" means "for each element in".
+     * auto means to "figure out the type yourself, compiler-san".
+     * & means "reference, not copy" - without it, entry would be a copy of each JSON element.
+    */
     for (auto& entry : data) {
         for (auto& jp : entry["japanese"]) {
-            if (jp.contains("word"))    result += jp["word"].get<std::string>() + " ";              // get the kanji
-            if (jp.contains("reading")) result += "(" + jp["reading"].get<std::string>() + ") ";    // get the hiragana
+            if (jp.contains("word"))    result += jp["word"].get<std::string>() + " ";              // Get the Kanji
+            if (jp.contains("reading")) result += "(" + jp["reading"].get<std::string>() + ") ";    // Get the Hiragana
         }
         result += "\n\t";
+        // Reset the visual counter after each new form of the word.
         n = 1;
         for (auto& sense : entry["senses"]) {
             result += std::to_string(n++) + ". "; 
             for (auto& def : sense["english_definitions"]) {
-                result += def.get<std::string>() + ";  ";        // get the english definitions
+                result += def.get<std::string>() + ";  ";        // Get the english definitions
             }
             result += "\n\t";
         }
@@ -89,26 +128,34 @@ std::string jisho_lookup(const std::string& word){
 
     return result + '\n';
 }
-
+// IN: std::string text and the DeepL API key
+// OUT: parsed std::string translation
 std::string deepl_translate(const std::string& text, const std::string& api_key) {
-    CURL* curl = curl_easy_init();      // initialize bicep curls
+    CURL* curl = curl_easy_init();
     std::string response;
 
+    // Encode the chracters since URLs only allow a limited set of characters.
+    // Everything else must be percent encoded (like Japanese characters, だってばよ).
     char* encoded = curl_easy_escape(curl, text.c_str(), text.length());
 
-    std::string postfields = "text=" + std::string(encoded) + "&target_lang=EN-US";         // build the message (i.e. text=こにちわ&target_lang=EN-US)
-    curl_free(encoded);
-    struct curl_slist* headers = nullptr;
-    headers = curl_slist_append(headers, ("Authorization: DeepL-Auth-Key " + api_key).c_str());
+    // Build the message with a bunch of addition.
+    std::string postfields = "text=" + std::string(encoded) + "&target_lang=EN-US";
+    // Free the encoded text.
+    curl_free(encoded); 
+    // Create headers.
+    struct curl_slist* headers = nullptr; 
+    curl_slist_append(headers, ("Authorization: DeepL-Auth-Key " + api_key).c_str());
+    // Create object and give it curl and headers.
     Cleanup cl(curl, headers);
 
-    // configure thingamabobs
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api-free.deepl.com/v2/translate");     // where to send
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postfields.c_str());                     // what to send
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                                // credentials
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);                       // use chunk collector (minecraft chunks)
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);                               // collect into this string (response)
+    // Use c_str since libcurl is a C library, therefore it needs C-like strings.
+    curl_easy_setopt(curl, CURLOPT_URL, "https://api-free.deepl.com/v2/translate");     // Where to send.
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postfields.c_str());                     // What to send.
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);                                // Credentials.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);                      // Which function handles received.
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);                               // Collect into response.
 
+    // Error check.
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK){
         throw std::runtime_error(curl_easy_strerror(res));
