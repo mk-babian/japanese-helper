@@ -1,5 +1,10 @@
-*.exe
+src/dist
+
+translator
+
 api_key.cpp
+
+*.exe
 *.ini
 *.o
-src/dist
+
