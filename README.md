@@ -61,9 +61,10 @@ There is a `makefile` in the `src` directory of the project. It can be used to b
 ### Step-By-Step Instructions:
 
 1. First clone the repository.
+- Ensure "--recurse-submodules" is included in the command to clone the necessary dependency repositories.
 
 ```bash
-git clone https://github.com/mk-babian/japanese-helper.git
+git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
 ```
 
 2. Make your changes, or leave as is.
