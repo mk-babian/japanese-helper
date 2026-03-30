@@ -72,7 +72,7 @@ git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
 - By default, Japanese Helper uses the `base` model.
 - Command to download the base model:
 ```bash
-sh ./models/download-ggml-model.sh base.en
+sh ./models/download-ggml-model.sh base
 
 # Make sure you're in the whisper.cpp directory.
 ```
