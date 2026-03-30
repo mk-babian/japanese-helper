@@ -68,6 +68,14 @@ git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
 ```
 
 2. You must manually build **Whisper.cpp**. For instructions on how to do so, visit [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Now%20build). 
+- Make sure you also download the model(s). Instructions are in the **Whisper.cpp** `README.md`.
+- By default, Japanese Helper uses the `base` model.
+- Command to download the base model:
+```bash
+sh ./models/download-ggml-model.sh base.en
+
+# Make sure you're in the whisper.cpp directory.
+```
 
 3. Make your changes, or leave as is.
 
