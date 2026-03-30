@@ -54,6 +54,8 @@ If you're planning to build this yourself, you'll need these:
 
 - **libcurl (C/C++ Network Transfer Library)**
 
+- **CMake (to build Whisper.cpp)**
+
 ## Building:
 
 There is a `makefile` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
