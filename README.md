@@ -6,9 +6,9 @@ It has multiple API integrations, a classic-style user interface using FLTK, and
 
 ## Screenshot(s):
 
-![](images/screenshots/translator_NeKcgVjKlQ.png)
+![](images/screenshots/Screenshot_20260409_005732.png)
 
-![](images/screenshots/translator_iaLs99Yd4P.png)
+![](images/screenshots/Screenshot_20260409_005830.png)
 
 ## Usage:
 
@@ -48,44 +48,38 @@ It's also worth to noting that these fonts are required to be installed on your 
 
 If you're planning to build this yourself, you'll need these:
 
+- **CMake**
+
 - **GNU Compiler Collection (GCC)**
 
 - **FLTK (Fast Light Toolkit)**
 
 - **libcurl (C/C++ Network Transfer Library)**
 
-- **CMake (to build Whisper.cpp)**
-
 ## Building:
 
-There is a `makefile` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
+There is a `CMakeLists.txt` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
 
 ### Step-By-Step Instructions:
 
 1. First clone the repository.
-- Ensure "--recurse-submodules" is included in the command to clone the necessary dependency repositories.
+- **Ensure** "--recurse-submodules" is included in the command to clone the necessary dependency repositories.
+  
+  ```bash
+  git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
+  ```
+2. Run CMake using the following command while in the `src` directory:    
+   
+   ```bash
+   cmake -S . -B ../build -DCMAKE_BUILD_TYPE=Release
+   ```
+- By default, Japanese Helper uses the `base` model of Whisper.cpp.
 
-```bash
-git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
-```
-
-2. You must manually build **Whisper.cpp**. For instructions on how to do so, visit [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Now%20build). 
-- Make sure you also download the model(s). Instructions are in the **Whisper.cpp** `README.md`.
-- By default, Japanese Helper uses the `base` model.
 - Command to download the base model:
-```bash
-sh ./models/download-ggml-model.sh base
-
-# Make sure you're in the whisper.cpp directory.
-```
-
-3. Make your changes, or leave as is.
-
-4. Do make (make sure you are in the src directory).
-
-```bash
-make
-```
+  
+  ```bash
+  cmake --build ../build --target download_whisper_model
+  ```
 
 ## Configuration:
 
