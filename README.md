@@ -87,6 +87,6 @@ For now, there is only one option for configuring the application. You can impor
 
 ## License:
 
-MIT License - See `LICENSE` file.
+PolyForm Noncommercial License 1.0.0 - See `LICENSE` file.
 
 Copyright (c) 2025 Saba
