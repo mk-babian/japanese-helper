@@ -106,7 +106,7 @@ std::string whisper_transcribe(void* user_data){
 
     whisper_context_params w_context_params = whisper_context_default_params();
     struct whisper_context* ctx = whisper_init_from_file_with_params(
-            "whisper.cpp/models/ggml-base.bin", w_context_params);
+                "whisper.cpp/models/ggml-base.bin", w_context_params);
     if (ctx == nullptr) throw std::runtime_error("Failed to load model file for Whisper.cpp\n");
 
     whisper_full_params w_params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY); 
