@@ -1,15 +1,18 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 
 #include "include/app_state.h"
 
 void load_config(AppState* app){
+    std::string executable_path = std::filesystem::canonical("/proc/self/exe").parent_path().string();
+    std::cout << executable_path + '\n';
     // Create class for the config file.
-    std::ifstream config("config.ini");
+    std::ifstream config(executable_path + "/config.ini");
     // Check for errors while opening the file.
     if (!config.is_open()){
-        std::cerr << "ERR | Error opening file" << std::endl;
+        std::cerr << "ERR | Error opening config file" << std::endl;
         return; 
     }
 
@@ -43,9 +46,10 @@ void load_config(AppState* app){
 
 // Handles writing the file.
 void save_config(const AppState* app){
-    std::ofstream config("config.ini");
+    std::string executable_path = std::filesystem::canonical("/proc/self/exe").parent_path().string();
+    std::ofstream config(executable_path + "/config.ini");
     if (!config.is_open()){
-        std::cerr << "ERR | Error opening file" << std::endl;
+        std::cerr << "ERR | Error opening config file to save" << std::endl;
         return;
     }
     
