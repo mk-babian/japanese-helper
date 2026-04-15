@@ -1,4 +1,5 @@
 #include <print>
+#include <filesystem>
 
 // FLTK
 #include <FL/Fl.H>
@@ -15,6 +16,11 @@
 #include "include/app_state.h"
 #include "include/overrides.h"
 
+// Platform specific
+#if defined(_WIN32)
+    #define <windows.h>
+#endif
+
 int main(void){
     Fl::scheme("gtk+"); 
 
@@ -23,11 +29,25 @@ int main(void){
     const int medium_font = 14;
     const int large_font = 18;
 
-    Fl::set_font(FL_FREE_FONT, "Noto Sans JP"); 
-    Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Google Sans Code Bold");
-
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
+    // Set the platform specific stuff
+    #if defined(_WIN32)
+        main_win->icon((const void*)LoadIconA(GetModuleHandleA(NULL), "MAINICON"))
+        Fl::set_font(FL_FREE_FONT, "Yu Gothic");
+        Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Consolas Bold");
+    #elif defined(__APPLE__)
+        Fl::set_font(FL_FREE_FONT, "Hiragino Sans");
+        Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Menlo Bold");
+    #else
+        Fl::set_font(FL_FREE_FONT, "Noto Sans CJK JP");
+        Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "DejaVu Sans Mono Bold");
+    #endif
     main_win->color(bg_color);
+
+    // Get the path to the executable.
+    // Useful for fiding the damn images directory.
+    std::string executable_path = std::filesystem::canonical("/proc/self/exe").parent_path().string();
+    // std::print("{}", executable_path);
 
     AppState app;
 
@@ -81,7 +101,7 @@ int main(void){
     app.stt_btn->box(FL_UP_BOX);
     app.stt_btn->callback(on_stt_btn, &app);
     // Create a new Fl_PNG_Image.
-    Fl_PNG_Image* mic_icon = new Fl_PNG_Image("../images/microphone.png");
+    Fl_PNG_Image* mic_icon = new Fl_PNG_Image((executable_path + "/images/microphone.png").c_str());
     // Check for errors loading the image file.
     if (mic_icon->fail()){
         std::println("Couldn't load mic_image");
@@ -100,7 +120,7 @@ int main(void){
 
     // Create and configure the settings button.
     Fl_Button* settings_btn = new Fl_Button(main_win->w() - 40, 10, 30, 30);
-    Fl_PNG_Image* settings_icon = new Fl_PNG_Image("../images/settings.png");
+    Fl_PNG_Image* settings_icon = new Fl_PNG_Image((executable_path + "/images/settings.png").c_str());
     if (settings_icon->fail()){
         std::println("Couldn't load settings_image");
     }else{
@@ -154,6 +174,16 @@ int main(void){
     app.settings_key_input->textfont(FL_FREE_FONT);
     app.settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     app.settings_key_input->labelcolor(FL_BLACK);
+
+    app.whisper_model_selector = new Fl_Choice(10, 510, 120, 30); 
+    app.whisper_model_selector->add("");
+    app.whisper_model_selector->add("tiny");
+    app.whisper_model_selector->add("base");
+    app.whisper_model_selector->add("small");
+    app.whisper_model_selector->add("medium");
+    app.whisper_model_selector->add("large");
+    app.api_selector->value(0);
+
     settings_win->color(bg_color);
     settings_win->end();
 
