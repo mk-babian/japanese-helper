@@ -18,7 +18,7 @@
 
 // Platform specific
 #if defined(_WIN32)
-    #define <windows.h>
+    #include <windows.h>
 #endif
 
 int main(void){
@@ -32,7 +32,7 @@ int main(void){
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
     // Set the platform specific stuff
     #if defined(_WIN32)
-        main_win->icon((const void*)LoadIconA(GetModuleHandleA(NULL), "MAINICON"))
+        main_win->icon((const void*)LoadIconA(GetModuleHandleA(NULL), "MAINICON"));
         Fl::set_font(FL_FREE_FONT, "Yu Gothic");
         Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Consolas Bold");
     #elif defined(__APPLE__)
