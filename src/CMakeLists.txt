@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 4.3.1)
-project(translator CXX)
+cmake_minimum_required(VERSION 3.5...4.3.1)
+project(translator C CXX)
 
 # Require C++23
 set(CMAKE_CXX_STANDARD 23)
@@ -18,6 +18,14 @@ if(NOT CURL_FOUND)
         curl
         URL https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz 
     )
+    # Remove unnecessary parts of curl
+    set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)
+    set(CURL_USE_LIBSSH2 OFF CACHE BOOL "" FORCE)
+    set(CURL_ZLIB OFF CACHE BOOL "" FORCE)
+    set(CURL_BROTLI OFF CACHE BOOL "" FORCE)
+    set(CURL_ZSTD OFF CACHE BOOL "" FORCE)
+    set(USE_NGHTTP2 OFF CACHE BOOL "" FORCE)
+    set(CURL_USE_LIBIDN2 OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(curl)
 endif()
 
@@ -31,11 +39,18 @@ if(NOT FLTK_FOUND)
         GIT_TAG release-1.4.4
     )
     FetchContent_MakeAvailable(fltk)
+    # FetchContent doesn't set find_package variables, so set them manually.
+    # fltk_BINARY_DIR is needed because FL/fl_config.h is generated there.
+    set(FLTK_INCLUDE_DIR ${fltk_SOURCE_DIR} ${fltk_BINARY_DIR})
+    set(FLTK_LIBRARIES fltk fltk_images)
 endif()
 
 # --- PortAudio ---
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PORTAUDIO QUIET portaudio-2.0)
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(PORTAUDIO QUIET portaudio-2.0)
+endif()
+
 if(NOT PORTAUDIO_FOUND)
     message(STATUS "PortAudio not found, trying to fetch...")
     FetchContent_Declare(
@@ -43,6 +58,9 @@ if(NOT PORTAUDIO_FOUND)
         GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
         GIT_TAG v19.7.0
     )
+    # PortAudio v19.7.0 declares cmake_minimum_required(VERSION 3.0),
+    # which CMake 4.x rejects. This override silences the error.
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
     FetchContent_MakeAvailable(portaudio)
     set(PORTAUDIO_LIBRARIES portaudio)
     set(PORTAUDIO_INCLUDE_DIRS ${portaudio_SOURCE_DIR}/include)
@@ -64,8 +82,6 @@ if(WIN32)
         DEPENDS ${RESOURCE_RC} ${CMAKE_CURRENT_SOURCE_DIR}/../app_icon.ico
         COMMENT "Compiling Windows resources..."
     )
-
-    target_sources(translator PRIVATE ${RESOURCE_OBJ})
 endif()
 
 # Files for executable
@@ -75,6 +91,7 @@ add_executable(translator
     settings.cpp
     callbacks.cpp
     speech_to_text.cpp
+    ${RESOURCE_OBJ}
 )
 
 # Combine includes
