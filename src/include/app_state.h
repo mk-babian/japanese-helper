@@ -14,6 +14,10 @@ struct AppState{
     Fl_Button* stt_btn;
     Fl_Button* search_btn;
     Fl_Choice* api_selector;
+
+    Fl_Choice* whisper_model_selector;
+    Fl_Button* install_whisper_model;
+
     Fl_Input* settings_key_input;
     Fl_Input* input;
     Fl_Multiline_Output* output;
