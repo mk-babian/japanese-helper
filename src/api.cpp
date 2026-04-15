@@ -144,7 +144,7 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
     curl_free(encoded); 
     // Create headers.
     struct curl_slist* headers = nullptr; 
-    curl_slist_append(headers, ("Authorization: DeepL-Auth-Key " + api_key).c_str());
+    headers = curl_slist_append(headers, ("Authorization: DeepL-Auth-Key " + api_key).c_str());
     // Create object and give it curl and headers.
     Cleanup cl(curl, headers);
 
@@ -191,3 +191,13 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
 
     return translation;
 }
+/* todo:
+std::string google_translate(const std::string& text){
+    CURL* curl = curl_easy_init();
+    std::string response;
+
+    char* encoded = curl_easy_escape(curl, text.c_str(), text.length());
+
+    std::string 
+}
+*/
