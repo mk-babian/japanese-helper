@@ -91,8 +91,13 @@ add_executable(translator
     settings.cpp
     callbacks.cpp
     speech_to_text.cpp
+    get_exec_path.cpp
     ${RESOURCE_OBJ}
 )
+
+if(WIN32)
+    target_compile_definitions(translator PRIVATE WIN32 _WIN32)
+endif()
 
 # Combine includes
 target_include_directories(translator PRIVATE

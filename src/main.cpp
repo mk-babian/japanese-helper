@@ -1,5 +1,4 @@
 #include <print>
-#include <filesystem>
 
 // FLTK
 #include <FL/Fl.H>
@@ -10,18 +9,29 @@
 #include <FL/Fl_Multiline_Output.H>
 #include <FL/Fl_PNG_Image.H>
 
+// japanese-helper/src/include
 #include "include/colors.h"
 #include "include/settings.h"
 #include "include/callbacks.h"
 #include "include/app_state.h"
 #include "include/overrides.h"
+#include "include/get_exec_path.h"
 
-// Platform specific
-#if defined(_WIN32)
-    #include <windows.h>
-#endif
+
+// This function handles file path getting for both Linux and
+// Windows operating systems
+namespace fs = std::filesystem;
+
+fs::path get_executable_path();
 
 int main(void){
+
+#if defined(_WIN32)
+    std::println("Compiler says: This is Windows");
+#else
+    std::println("Compiler says: This is NOT Windows (Linux/Unix)");
+#endif
+
     Fl::scheme("gtk+"); 
 
     // Hard coded font sizes
@@ -46,7 +56,7 @@ int main(void){
 
     // Get the path to the executable.
     // Useful for fiding the damn images directory.
-    std::string executable_path = std::filesystem::canonical("/proc/self/exe").parent_path().string();
+    std::string executable_path = get_executable_path().parent_path().string();
     // std::print("{}", executable_path);
 
     AppState app;
