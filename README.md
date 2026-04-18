@@ -2,7 +2,7 @@
 
 A **minimalistic** desktop application for Japanese vocabulary lookup and translation.
 
-It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text.
+It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text. Compatible both with Windows and Linux.
 
 ## Screenshot(s):
 
@@ -47,6 +47,8 @@ If you're planning to build this yourself, you'll need these:
 - **FLTK (Fast Light Toolkit)**
 
 - **libcurl (C/C++ Network Transfer Library)**
+
+- **PortAudio (real-time audio I/O)**
 
 ## 🔨 Building:
 

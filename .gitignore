@@ -9,3 +9,4 @@ api_key.cpp
 *.ini
 *.o
 
+.vscode
