@@ -10,3 +10,4 @@ api_key.cpp
 *.o
 
 .vscode
+cmake-problems.txt

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5...4.3.1)
+cmake_minimum_required(VERSION 3.21...4.3.1)
 project(translator C CXX)
 
 # Require C++23
@@ -53,14 +53,21 @@ endif()
 
 if(NOT PORTAUDIO_FOUND)
     message(STATUS "PortAudio not found, trying to fetch...")
+
+    # Create a patch script to bump the minimum CMake version from 3.0 to 3.5
+    file(WRITE ${CMAKE_BINARY_DIR}/patch_portaudio.cmake "
+        file(READ CMakeLists.txt content)
+        string(REPLACE \"VERSION 3.0\" \"VERSION 3.5\" content \"\${content}\")
+        file(WRITE CMakeLists.txt \"\${content}\")
+        ")
+
     FetchContent_Declare(
         portaudio
         GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
         GIT_TAG v19.7.0
+        # Apply the patch immediately after downloading
+        PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/patch_portaudio.cmake
     )
-    # PortAudio v19.7.0 declares cmake_minimum_required(VERSION 3.0),
-    # which CMake 4.x rejects. This override silences the error.
-    set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
     FetchContent_MakeAvailable(portaudio)
     set(PORTAUDIO_LIBRARIES portaudio)
     set(PORTAUDIO_INCLUDE_DIRS ${portaudio_SOURCE_DIR}/include)
@@ -121,6 +128,14 @@ target_link_libraries(translator PRIVATE
 )
 
 if(WIN32)
+    add_custom_command(TARGET translator POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:translator>
+            $<TARGET_FILE_DIR:translator>
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying required runtime DLLs to the build directory..."
+    )
+    
     add_custom_target(download_whisper_model
         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
         COMMAND ${CMAKE_COMMAND} -E rename
