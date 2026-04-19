@@ -137,21 +137,25 @@ if(WIN32)
     )
     
     add_custom_target(download_whisper_model
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/ggml-base.bin
-            ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
-        COMMENT "Downloading Whisper base model..."
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models
+    COMMAND ${CMAKE_COMMAND} -E rename
+        ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/ggml-base.bin
+        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
+    COMMENT "Downloading Whisper base model..."
     )
 else()
     add_custom_target(download_whisper_model
-        COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.sh base
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/ggml-base.bin
-            ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
-        COMMENT "Downloading Whisper base model..."
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models
+    COMMAND ${CMAKE_COMMAND} -E rename
+        ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/ggml-base.bin          # <-- no /models/
+        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
+    COMMENT "Downloading Whisper base model..."
     )
 endif()
 
