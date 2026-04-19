@@ -62,7 +62,7 @@ std::string jisho_lookup(const std::string& word){
     // Give User-Agent headers since Jisho gives 403 Forbidden;
     // It blocks requests with no User-Agent.
     struct curl_slist* headers = nullptr; 
-    curl_slist_append(headers, 
+    headers = curl_slist_append(headers, 
             "User-Agent: Mozilla/5.0 (Windows 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
     
     // Create object, own the curl + headers;

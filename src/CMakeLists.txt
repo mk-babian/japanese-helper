@@ -10,22 +10,29 @@ add_compile_options(-Wall -Wextra)
 # Used to download dependencies
 include(FetchContent)
 
+set(CURL_INCLUDE_DIR "C:/libs/curl/include")
+set(CURL_LIBRARIES "C:/libs/curl/lib/libcurl.lib")
+
 # --- CURL ---
 find_package(CURL QUIET)
 if(NOT CURL_FOUND)
     message(STATUS "CURL not found, trying to fetch...")
     FetchContent_Declare(
         curl
-        URL https://github.com/curl/curl/releases/download/curl-8_19_0/curl-8.19.0.tar.gz 
+        GIT_REPOSITORY https://github.com/curl/curl.git
+        GIT_TAG curl-8_7_1 # Or your preferred version
+        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl-src
     )
-    # Remove unnecessary parts of curl
-    set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)
-    set(CURL_USE_LIBSSH2 OFF CACHE BOOL "" FORCE)
-    set(CURL_ZLIB OFF CACHE BOOL "" FORCE)
-    set(CURL_BROTLI OFF CACHE BOOL "" FORCE)
-    set(CURL_ZSTD OFF CACHE BOOL "" FORCE)
-    set(USE_NGHTTP2 OFF CACHE BOOL "" FORCE)
-    set(CURL_USE_LIBIDN2 OFF CACHE BOOL "" FORCE)
+    set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+    set(CURL_USE_LIBPSL OFF CACHE INTERNAL "")
+    
+    if(WIN32)
+        set(CURL_USE_SCHANNEL ON CACHE INTERNAL "")
+    else()
+        set(CURL_USE_OPENSSL ON CACHE INTERNAL "")
+    endif()
+
     FetchContent_MakeAvailable(curl)
 endif()
 
@@ -54,19 +61,12 @@ endif()
 if(NOT PORTAUDIO_FOUND)
     message(STATUS "PortAudio not found, trying to fetch...")
 
-    # Create a patch script to bump the minimum CMake version from 3.0 to 3.5
-    file(WRITE ${CMAKE_BINARY_DIR}/patch_portaudio.cmake "
-        file(READ CMakeLists.txt content)
-        string(REPLACE \"VERSION 3.0\" \"VERSION 3.5\" content \"\${content}\")
-        file(WRITE CMakeLists.txt \"\${content}\")
-        ")
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
     FetchContent_Declare(
         portaudio
         GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
         GIT_TAG v19.7.0
-        # Apply the patch immediately after downloading
-        PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/patch_portaudio.cmake
     )
     FetchContent_MakeAvailable(portaudio)
     set(PORTAUDIO_LIBRARIES portaudio)
