@@ -1,3 +1,4 @@
+#pragma once
 #include <filesystem>
 
 #if defined(_WIN32)

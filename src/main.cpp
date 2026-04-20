@@ -17,7 +17,6 @@
 #include "include/overrides.h"
 #include "include/get_exec_path.h"
 
-
 // This function handles file path getting for both Linux and
 // Windows operating systems
 namespace fs = std::filesystem;
@@ -27,9 +26,9 @@ fs::path get_executable_path();
 int main(void){
 
 #if defined(_WIN32)
-    std::println("Compiler says: This is Windows");
+    std::println("INFO | Compiler says: This is Windows");
 #else
-    std::println("Compiler says: This is NOT Windows (Linux/Unix)");
+    std::println("INFO | Compiler says: This is NOT Windows (Linux/Unix)");
 #endif
 
     Fl::scheme("gtk+"); 
@@ -114,7 +113,7 @@ int main(void){
     Fl_PNG_Image* mic_icon = new Fl_PNG_Image((executable_path + "/images/microphone.png").c_str());
     // Check for errors loading the image file.
     if (mic_icon->fail()){
-        std::println("Couldn't load mic_image");
+        std::println("W | Couldn't load mic-icon image!");
     }else{
         app.stt_btn->image(mic_icon);
     }
@@ -128,19 +127,27 @@ int main(void){
     app.search_btn->labelsize(medium_font);
     app.search_btn->callback(master_on_search, &app);
 
+    Fl_Button* history_btn = new Fl_Button(main_win->w() - 75, 10, 30, 30);
+    Fl_PNG_Image* history_icon = new Fl_PNG_Image((executable_path + "/images/history-icon.png").c_str());
+    if (history_icon->fail()){
+        std::println("W | Couldn't load history-icon!");
+    }else{
+        history_btn->image(history_icon);
+    }
+    history_btn->box(FL_UP_BOX);
+    history_btn->callback(on_history_btn, &app);
+
     // Create and configure the settings button.
     Fl_Button* settings_btn = new Fl_Button(main_win->w() - 40, 10, 30, 30);
     Fl_PNG_Image* settings_icon = new Fl_PNG_Image((executable_path + "/images/settings.png").c_str());
     if (settings_icon->fail()){
-        std::println("Couldn't load settings_image");
+        std::println("W | Couldn't load settings-icon!");
     }else{
         settings_btn->image(settings_icon);
     }
     settings_btn->box(FL_UP_BOX);
     settings_btn->color(accent_blue);
     settings_btn->labelcolor(FL_WHITE);
-    settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    settings_btn->labelsize(medium_font);
     settings_btn->callback(open_settings, &app);
 
     // Make the main window resizable.
@@ -156,7 +163,7 @@ int main(void){
 
 
     // Create new settings window.
-    Fl_Window* settings_win = new Fl_Window(700, 550, "Settings");
+    app.settings_win = new Fl_Window(700, 550, "Settings");
     Fl_Box* box = new Fl_Box(4, 40, 692, 4);
     box->box(FL_UP_BOX);
     box->color(bg_color);
@@ -170,7 +177,7 @@ int main(void){
     save_button->callback(on_save_btn, &app);
 
     // Create and configure the cancel button that closes the window.
-    Fl_Button* cancel_button = new Fl_Button(settings_win->w() - 85, 5, 80, 30, "Cancel");
+    Fl_Button* cancel_button = new Fl_Button(app.settings_win->w() - 85, 5, 80, 30, "Cancel");
     cancel_button->box(FL_UP_BOX);
     cancel_button->color(accent_red);
     cancel_button->labelcolor(FL_WHITE);
@@ -194,15 +201,16 @@ int main(void){
     app.whisper_model_selector->add("large");
     app.api_selector->value(0);
 
-    settings_win->color(bg_color);
-    settings_win->end();
+    app.settings_win->color(bg_color);
+    app.settings_win->end();
+
+    // ============================ HISTORY WINDOW
+
+    app.history_win = new Fl_Window(300, 500, "History");
 
     // Create a keybind to call master_on_search when ENTER is pressed.
     app.input->when(FL_WHEN_ENTER_KEY);
     app.input->callback(master_on_search, &app);
-
-    // Give app settings_win.
-    app.settings_win = settings_win;
 
     // Load the config (the one that the settings window writes).
     // For now, the config is written to the same directory as the executable.

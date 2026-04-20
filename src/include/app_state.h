@@ -5,20 +5,25 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Multiline_Output.H>
+
+#include <vector>
 #include <string>
 
 #include "speech_to_text.h"
 
 struct AppState{
     Fl_Window* settings_win;
+    Fl_Input* settings_key_input;
+    Fl_Choice* whisper_model_selector;
+    Fl_Button* install_whisper_model;
+
+    Fl_Window* history_win;
+    std::vector<std::string> search_history;
+
     Fl_Button* stt_btn;
     Fl_Button* search_btn;
     Fl_Choice* api_selector;
 
-    Fl_Choice* whisper_model_selector;
-    Fl_Button* install_whisper_model;
-
-    Fl_Input* settings_key_input;
     Fl_Input* input;
     Fl_Multiline_Output* output;
 

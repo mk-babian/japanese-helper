@@ -178,3 +178,10 @@ void on_stt_btn(Fl_Widget* w, void* data){
         }     
     }).detach();
 }
+
+void on_history_btn(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+    
+    app->history_win->show();
+}

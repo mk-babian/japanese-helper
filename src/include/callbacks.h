@@ -8,3 +8,4 @@ void open_settings(Fl_Widget* w, void* data);
 void on_save_btn(Fl_Widget* w, void* data);
 void on_cancel_btn(Fl_Widget* w, void* data);
 void on_stt_btn(Fl_Widget* w, void* data);
+void on_history_btn(Fl_Widget* w, void* data);
