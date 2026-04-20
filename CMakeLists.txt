@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21...4.3.1)
 project(translator C CXX)
 
+set(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+
 # Require C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,7 +78,7 @@ endif()
 # Whisper.cpp
 set(WHISPER_BUILD_TESTS OFF CACHE BOOL "Disable whisper tests" FORCE)
 set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "Disable whisper examples" FORCE)
-add_subdirectory(whisper.cpp)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp)
 
 # Windows-only icon stuff using resources.rc (found in `src`)
 if(WIN32)
@@ -93,12 +95,12 @@ endif()
 
 # Files for executable
 add_executable(translator
-    main.cpp
-    api.cpp
-    settings.cpp
-    callbacks.cpp
-    speech_to_text.cpp
-    get_exec_path.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/api.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/settings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/callbacks.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/speech_to_text.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/get_exec_path.cpp
     ${RESOURCE_OBJ}
 )
 
@@ -161,7 +163,7 @@ endif()
 
 add_custom_command(TARGET translator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/../images
+        ${CMAKE_SOURCE_DIR}/images
         ${CMAKE_BINARY_DIR}/images
     COMMENT "Copying images directory to build..."
 )
