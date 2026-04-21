@@ -1,6 +1,7 @@
 #include <exception>
 #include <portaudio.h>
 #include <thread>
+#include <print>
 
 #include <FL/Fl_Choice.H>
 
@@ -41,6 +42,8 @@ void on_search_jisho(Fl_Widget* w, void* data){
         // run at the same time as the main thread (that handles fltk)
         try {
             std::string result = jisho_lookup(word);
+            enqueue(*app->history_buf, result);
+            std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();					        // lock mutex
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
@@ -67,6 +70,8 @@ void on_search_deepl(Fl_Widget* w, void* data){
     std::thread([app, word](){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
+            enqueue(*app->history_buf, result);
+            std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
             app->search_btn->color(accent_blue);

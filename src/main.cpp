@@ -16,15 +16,15 @@
 #include "include/app_state.h"
 #include "include/overrides.h"
 #include "include/get_exec_path.h"
+#include "include/history_circ_buffer.h"
+
+namespace fs = std::filesystem;
 
 // This function handles file path getting for both Linux and
 // Windows operating systems
-namespace fs = std::filesystem;
-
 fs::path get_executable_path();
 
 int main(void){
-
 #if defined(_WIN32)
     std::println("INFO | Compiler says: This is Windows");
 #else
@@ -33,10 +33,43 @@ int main(void){
 
     Fl::scheme("gtk+"); 
 
-    // Hard coded font sizes
+    // Font sizes
     const int small_font = 12;
     const int medium_font = 14;
     const int large_font = 18;
+
+    // Get the path to the executable.
+    // Useful for fiding the damn images directory.
+    std::string executable_path = get_executable_path().parent_path().string();
+    // std::print("{}", executable_path);
+
+    AppState app;
+
+    // Create the circular buffer to hold the search history
+    CircularBuffer history_circle;
+    app.history_buf = &history_circle;
+    app.history_buf->size = 0;
+    app.history_buf->capacity = 100;
+
+    // Allocate memory for strings
+    app.history_buf->data.resize(app.history_buf->capacity);
+
+    // Set the tail and head to 0
+    app.history_buf->head = 0;
+    app.history_buf->tail = 0;
+
+    /* 
+     * The code below creates all of the necessary FLTK widgets.
+     *
+     * Most of them are passed to AppState, a struct defined in include\app_state.h
+     * It's used as a way for callback functions to comunicate with the FLTK widgets.
+     *
+     * Without it, most of these operations could not be completed, since the callback
+     * functions can only accept one other variable as an argument, therefore a struct is necessary.
+    */
+
+
+    // ============================ MAIN WINDOW
 
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
     // Set the platform specific stuff
@@ -52,26 +85,6 @@ int main(void){
         Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "DejaVu Sans Mono Bold");
     #endif
     main_win->color(bg_color);
-
-    // Get the path to the executable.
-    // Useful for fiding the damn images directory.
-    std::string executable_path = get_executable_path().parent_path().string();
-    // std::print("{}", executable_path);
-
-    AppState app;
-
-    /* 
-     * The code below creates all of the necessary FLTK widgets.
-     *
-     * Most of them are passed to AppState, a struct defined in include\app_state.h
-     * It's used as a way for callback functions to comunicate with the FLTK widgets.
-     *
-     * Without it, most of these operations could not be completed, since the callback
-     * functions can only accept one other variable as an argument, therefore a struct is necessary.
-    */
-
-
-    // ============================ MAIN WINDOW
 
     // Create and configure the main "search" input box.
     app.input = new MainInput(250, 10, 400, 30, "");
@@ -204,7 +217,9 @@ int main(void){
     app.settings_win->color(bg_color);
     app.settings_win->end();
 
+
     // ============================ HISTORY WINDOW
+
 
     app.history_win = new Fl_Window(300, 500, "History");
 

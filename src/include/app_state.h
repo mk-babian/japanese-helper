@@ -10,6 +10,7 @@
 #include <string>
 
 #include "speech_to_text.h"
+#include "history_circ_buffer.h"
 
 struct AppState{
     Fl_Window* settings_win;
@@ -18,7 +19,7 @@ struct AppState{
     Fl_Button* install_whisper_model;
 
     Fl_Window* history_win;
-    std::vector<std::string> search_history;
+    CircularBuffer* history_buf;
 
     Fl_Button* stt_btn;
     Fl_Button* search_btn;

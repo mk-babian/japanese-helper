@@ -1,4 +1,0 @@
--std=c++23
--I/msys64/mingw64/include
--I/msys64/mingw64/include/c++/15.2.0
--I/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32
