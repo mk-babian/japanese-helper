@@ -1,7 +1,6 @@
 #pragma once
 #include <FL/Enumerations.H>
 
-
 // Light gray, or grey background color.
 const Fl_Color bg_color = fl_rgb_color(202, 202, 205);
 // Blue in the middle of dark and light.

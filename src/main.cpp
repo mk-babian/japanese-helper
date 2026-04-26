@@ -48,15 +48,14 @@ int main(void){
     // Create the circular buffer to hold the search history
     CircularBuffer history_circle;
     app.history_buf = &history_circle;
-    app.history_buf->size = 0;
     app.history_buf->capacity = 100;
-
     // Allocate memory for strings
     app.history_buf->data.resize(app.history_buf->capacity);
-
-    // Set the tail and head to 0
     app.history_buf->head = 0;
     app.history_buf->tail = 0;
+    app.history_buf->size = 0;
+
+    load_buffer(*app.history_buf);
 
     /* 
      * The code below creates all of the necessary FLTK widgets.
@@ -72,6 +71,9 @@ int main(void){
     // ============================ MAIN WINDOW
 
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
+
+    
+
     // Set the platform specific stuff
     #if defined(_WIN32)
         main_win->icon((const void*)LoadIconA(GetModuleHandleA(NULL), "MAINICON"));
@@ -170,7 +172,9 @@ int main(void){
     // End the main window's parenting spree (I don't know how else to phrase this).
     // Basically, anything after this point is not owned by main_win.
     main_win->end();
-
+    // Give the main window a callback when hiding it
+    // The callback writes to the search history file before closing
+    main_win->callback(on_main_win_close, &app);
 
     // ============================ SETTINGS WINDOW
 

@@ -42,13 +42,15 @@ void on_search_jisho(Fl_Widget* w, void* data){
         // run at the same time as the main thread (that handles fltk)
         try {
             std::string result = jisho_lookup(word);
-            enqueue(*app->history_buf, result);
-            std::println("Last Search: {}", dequeue(*app->history_buf));
-            Fl::lock();					        // lock mutex
+            enqueue(*app->history_buf, word);
+            int last = (app->history_buf->tail - 1 + app->history_buf->capacity) % app->history_buf->capacity;
+            std::println("INFO | Last search: {}", app->history_buf->data[last]);
+            // std::println("Last Search: {}", dequeue(*app->history_buf));
+            Fl::lock();
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(result.c_str());	// perform operation
-            Fl::unlock();				        // unlock mutex
+            Fl::unlock();
             Fl::awake();				        // tell the main thread that smth changed
         } catch (const std::exception& e) {		// if jisho_lookup crashes, display error
             Fl::lock();
@@ -70,8 +72,10 @@ void on_search_deepl(Fl_Widget* w, void* data){
     std::thread([app, word](){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
-            enqueue(*app->history_buf, result);
-            std::println("Last Search: {}", dequeue(*app->history_buf));
+            enqueue(*app->history_buf, word);
+            int last = (app->history_buf->tail - 1 + app->history_buf->capacity) % app->history_buf->capacity;
+            std::println("INFO | Last search: {}", app->history_buf->data[last]);
+            // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
@@ -189,4 +193,10 @@ void on_history_btn(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
     
     app->history_win->show();
+}
+
+void on_main_win_close(Fl_Widget* w, void* data) {
+    AppState* app = static_cast<AppState*>(data);
+    write_buffer(*app->history_buf);
+    w->hide();
 }

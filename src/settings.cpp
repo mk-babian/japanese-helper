@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 #include <fstream>
 #include <string>
 #include <filesystem>
@@ -8,12 +8,12 @@
 
 void load_config(AppState* app){
     std::string executable_path = get_executable_path().parent_path().string();
-    std::cout << executable_path + '\n';
+    std::println("INFO | Executable directory: {}", executable_path);
     // Create class for the config file.
     std::ifstream config(executable_path + "/config.ini");
     // Check for errors while opening the file.
     if (!config.is_open()){
-        std::cerr << "ERR | Error opening config file" << std::endl;
+        std::println("ERR | Error while LOADING config file!");
         return; 
     }
 
@@ -50,7 +50,7 @@ void save_config(const AppState* app){
     std::string executable_path = get_executable_path().parent_path().string();
     std::ofstream config(executable_path + "/config.ini");
     if (!config.is_open()){
-        std::cerr << "ERR | Error opening config file to save" << std::endl;
+        std::println("ERR | Error while SAVING config file!");
         return;
     }
     
