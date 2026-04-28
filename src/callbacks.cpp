@@ -43,8 +43,6 @@ void on_search_jisho(Fl_Widget* w, void* data){
         try {
             std::string result = jisho_lookup(word);
             enqueue(*app->history_buf, word);
-            int last = (app->history_buf->tail - 1 + app->history_buf->capacity) % app->history_buf->capacity;
-            std::println("INFO | Last search: {}", app->history_buf->data[last]);
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
@@ -73,8 +71,6 @@ void on_search_deepl(Fl_Widget* w, void* data){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
             enqueue(*app->history_buf, word);
-            int last = (app->history_buf->tail - 1 + app->history_buf->capacity) % app->history_buf->capacity;
-            std::println("INFO | Last search: {}", app->history_buf->data[last]);
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();

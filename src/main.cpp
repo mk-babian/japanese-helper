@@ -51,11 +51,13 @@ int main(void){
     app.history_buf->capacity = 100;
     // Allocate memory for strings
     app.history_buf->data.resize(app.history_buf->capacity);
+    app.history_buf->time.resize(app.history_buf->capacity);
     app.history_buf->head = 0;
     app.history_buf->tail = 0;
     app.history_buf->size = 0;
 
     load_buffer(*app.history_buf);
+    print_buffers(*app.history_buf);
 
     /* 
      * The code below creates all of the necessary FLTK widgets.
@@ -176,6 +178,7 @@ int main(void){
     // The callback writes to the search history file before closing
     main_win->callback(on_main_win_close, &app);
 
+    
     // ============================ SETTINGS WINDOW
 
 
