@@ -102,7 +102,7 @@ add_executable(translator
     ${CMAKE_CURRENT_SOURCE_DIR}/speech_to_text.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/get_exec_path.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/history_circ_buffer.cpp
-    ${RESOURCE_OBJ}
+    ${CMAKE_CURRENT_SOURCE_DIR}/truncate_label.cpp
 )
 
 if(WIN32)

@@ -4,6 +4,7 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Window.H>
+#include <FL/Fl_Scroll.H>
 #include <FL/Fl_Multiline_Output.H>
 
 #include <vector>
@@ -19,6 +20,7 @@ struct AppState{
     Fl_Button* install_whisper_model;
 
     Fl_Window* history_win;
+    Fl_Scroll* history_scroll;
     CircularBuffer* history_buf;
 
     Fl_Button* stt_btn;

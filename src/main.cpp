@@ -8,6 +8,8 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Multiline_Output.H>
 #include <FL/Fl_PNG_Image.H>
+#include <FL/Fl_Scroll.H>
+#include <FL/Fl_Tooltip.H>
 
 // japanese-helper/src/include
 #include "include/colors.h"
@@ -32,6 +34,7 @@ int main(void){
 #endif
 
     Fl::scheme("gtk+"); 
+    Fl_Tooltip::color(FL_WHITE); 
 
     // Font sizes
     const int small_font = 12;
@@ -228,7 +231,11 @@ int main(void){
     // ============================ HISTORY WINDOW
 
 
-    app.history_win = new Fl_Window(300, 500, "History");
+    app.history_win = new Fl_Window(320, 500, "History");
+    Fl_Scroll* scroll = new Fl_Scroll(0, 0, 320, 500);
+    app.history_scroll = scroll;
+    scroll->end();
+    app.history_win->end();
 
     // Create a keybind to call master_on_search when ENTER is pressed.
     app.input->when(FL_WHEN_ENTER_KEY);

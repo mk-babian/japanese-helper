@@ -11,6 +11,7 @@
 #include "include/settings.h"
 #include "include/speech_to_text.h"
 #include "include/colors.h"
+#include "include/truncate_label.h"
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -187,8 +188,29 @@ void on_stt_btn(Fl_Widget* w, void* data){
 void on_history_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
-    
+
+    app->history_scroll->clear(); // destroy existing child widgets
+    app->history_scroll->begin(); // new widgets go into this window
+
+    int y = 10;
+    for (int i = 0; i < app->history_buf->size; i++){
+        int idx = (app->history_buf->head + i) % app->history_buf->capacity;
+
+        std::string label  = app->history_buf->data[idx];
+        std::string date   = app->history_buf->time[idx];
+
+        Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
+        std::string result = truncate_label(label + "  —  " + date, btn->w() - 10);
+        btn->copy_label(result.c_str());
+        std::string tooltip = label + "  —  " + date;
+        btn->copy_tooltip(tooltip.c_str());
+        y += 35;
+    }
+
+    app->history_scroll->end();
+    app->history_scroll->redraw();
     app->history_win->show();
+    app->history_win->take_focus();
 }
 
 void on_main_win_close(Fl_Widget* w, void* data) {
