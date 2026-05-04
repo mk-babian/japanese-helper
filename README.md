@@ -4,11 +4,11 @@ A **minimalistic** desktop application for Japanese vocabulary lookup and transl
 
 It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text. Compatible both with Windows and Linux.
 
-## Screenshot(s):
+## Screenshots:
 
-![](images/screenshots/Screenshot_20260409_005732.png)
+![](images/screenshots/translator_bEI5b21csT.png)
 
-![](images/screenshots/Screenshot_20260409_005830.png)
+![](images/screenshots/translator_bNfkxPuuSa.png)
 
 ## Usage:
 
@@ -63,10 +63,10 @@ There is a `CMakeLists.txt` in the `src` directory of the project. It can be use
     git clone --recurse-submodules https://github.com/mk-babian/japanese-helper.git
   ```
 
-- For installation with a single command, run this (in the `root` directory):
+- For building with a single command, run this (in the `root` directory):
   
   ```bash
-  cmake -S ./src/ -B ./build/ -DCMAKE_BUILD_TYPE=Release && cmake --build ./build/ && ./build/translator
+  cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Release && cmake --build build/ && ./build/translator
   ```
   
   ##### Note on Whisper.cpp:
@@ -76,12 +76,32 @@ There is a `CMakeLists.txt` in the `src` directory of the project. It can be use
 - You can use the command below to download the `base` model:
   
   ```bash
-  cmake --build ./build/ --target download_whisper_model
+  cmake --build build/ --target download_whisper_model
   ```
 
-## ⚙️ Configuration:
+## ⚙️ Configuration & Misc:
 
 For now, there is only one option for configuring the application. You can import your DeepL API key from the settings window.
+
+The program also has a search history window where you can view your recent searches. The history is stored in history.json along with the date and time.
+
+Example of the JSON file:
+```json
+{
+    "search": [
+        "今日",
+        "完璧",
+        "質問",
+        "虎が人を噛もうとするときのうなり声"
+    ],
+    "time": [
+        "Tuesday, April 28 11:57 AM",
+        "Tuesday, April 28 11:58 AM",
+        "Saturday, May 02 12:02 PM",
+        "Monday, May 04 10:29 AM",
+    ]
+}
+```
 
 ## 🙏 Acknowledgments:
 
