@@ -193,14 +193,14 @@ void on_history_btn(Fl_Widget* w, void* data){
     app->history_scroll->begin(); // new widgets go into this window
 
     int y = 10;
-    for (int i = 0; i < app->history_buf->size; i++){
+    for (int i = app->history_buf->size - 1; i >= 0; i--){
         int idx = (app->history_buf->head + i) % app->history_buf->capacity;
 
-        std::string label  = app->history_buf->data[idx];
-        std::string date   = app->history_buf->time[idx];
+        std::string label   = app->history_buf->data[idx];
+        std::string date    = app->history_buf->time[idx];
 
         Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
-        std::string result = truncate_label(label + "  —  " + date, btn->w() - 10);
+        std::string result  = truncate_label(label + "  —  " + date, btn->w() - 10);
         btn->copy_label(result.c_str());
         std::string tooltip = label + "  —  " + date;
         btn->copy_tooltip(tooltip.c_str());

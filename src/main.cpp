@@ -35,6 +35,7 @@ int main(void){
 
     Fl::scheme("gtk+"); 
     Fl_Tooltip::color(FL_WHITE); 
+    Fl_Tooltip::delay(0.25f); 
 
     // Font sizes
     const int small_font = 12;
@@ -88,6 +89,8 @@ int main(void){
         Fl::set_font(FL_FREE_FONT, "Hiragino Sans");
         Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "Menlo Bold");
     #else
+        Fl_PNG_Image icon("../app_icon.png");
+        main_win->icon(&icon);
         Fl::set_font(FL_FREE_FONT, "Noto Sans CJK JP");
         Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "DejaVu Sans Mono Bold");
     #endif
