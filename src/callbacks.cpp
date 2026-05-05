@@ -4,6 +4,7 @@
 #include <print>
 
 #include <FL/Fl_Choice.H>
+#include <FL/Fl_Box.H>
 
 #include "include/callbacks.h"
 #include "include/api.h"
@@ -43,7 +44,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
         // run at the same time as the main thread (that handles fltk)
         try {
             std::string result = jisho_lookup(word);
-            enqueue(*app->history_buf, word);
+            enqueue(app, word);
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
@@ -71,7 +72,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
     std::thread([app, word](){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
-            enqueue(*app->history_buf, word);
+            enqueue(app, word);
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
@@ -118,7 +119,7 @@ void on_save_btn(Fl_Widget* w, void* data){
 
     save_config(app);
 
-    app->settings_win->hide();
+    // app->settings_win->hide();
 }
 
 void on_cancel_btn(Fl_Widget* w, void* data){
@@ -189,22 +190,40 @@ void on_history_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
 
-    app->history_scroll->clear(); // destroy existing child widgets
-    app->history_scroll->begin(); // new widgets go into this window
+    app->history_scroll->begin();
+    app->history_scroll->clear(); // destroy existing child widgets inside the scroll
 
     int y = 10;
-    for (int i = app->history_buf->size - 1; i >= 0; i--){
-        int idx = (app->history_buf->head + i) % app->history_buf->capacity;
+    const int history_width = 320;
+    const int history_height_default = 500;
+    const int history_height_empty = 50;
 
-        std::string label   = app->history_buf->data[idx];
-        std::string date    = app->history_buf->time[idx];
+    if (app->history_buf->size == 0){
+        app->history_win->size(history_width, history_height_empty);
+        app->history_scroll->resize(0, 0, history_width, history_height_empty);
 
-        Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
-        std::string result  = truncate_label(label + "  —  " + date, btn->w() - 10);
-        btn->copy_label(result.c_str());
-        std::string tooltip = label + "  —  " + date;
-        btn->copy_tooltip(tooltip.c_str());
-        y += 35;
+        Fl_Box* box = new Fl_Box(10, y, 280, 30, "No history yet!");
+        box->align(FL_ALIGN_CENTER);
+        box->labelfont(FL_ITALIC);
+        box->labelcolor(FL_BLACK);
+    }
+    else{
+        app->history_win->size(history_width, history_height_default);
+        app->history_scroll->resize(0, 0, history_width, history_height_default);
+
+        for (int i = app->history_buf->size - 1; i >= 0; i--){
+            int idx = (app->history_buf->head + i) % app->history_buf->capacity;
+
+            std::string label   = app->history_buf->data[idx];
+            std::string date    = app->history_buf->time[idx];
+
+            Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
+            std::string result  = truncate_label(label + "  —  " + date, btn->w() - 10);
+            btn->copy_label(result.c_str());
+            std::string tooltip = label + "  —  " + date;
+            btn->copy_tooltip(tooltip.c_str());
+            y += 35;
+        }
     }
 
     app->history_scroll->end();
@@ -215,6 +234,62 @@ void on_history_btn(Fl_Widget* w, void* data){
 
 void on_main_win_close(Fl_Widget* w, void* data) {
     AppState* app = static_cast<AppState*>(data);
-    write_buffer(*app->history_buf);
+    write_buffer(app);
     w->hide();
+}
+
+void on_settings_win_change(Fl_Widget* w, void* data){
+    AppState* app = static_cast<AppState*>(data);
+
+    // Determine which button was pressed by comparing widget pointers
+    if (w == app->general_settings_btn) {
+        app->selected_settings_win = 0;
+    } else if (w == app->history_settings_btn) {
+        app->selected_settings_win = 1;
+    } else if (w == app->api_settings_btn) {
+        app->selected_settings_win = 2;
+    } else if (w == app->stt_settings_btn) {
+        app->selected_settings_win = 3;
+    }
+
+    std::println("INFO | Selected settings tab: {}", app->selected_settings_win);
+
+    if (app->selected_settings_win == 0){
+        app->settings_content->clear();
+        app->settings_content->begin();
+        
+        // Display general settings
+
+        app->settings_content->end();
+        app->settings_win->redraw();
+    } else if (app->selected_settings_win == 1){
+        app->settings_content->clear();
+        app->settings_content->begin();
+
+        // Display history settings
+
+        app->settings_content->end();
+        app->settings_win->redraw();
+    } else if (app->selected_settings_win == 2){
+        app->settings_content->clear();
+        app->settings_content->begin();
+
+        // Display API settings
+        Fl_Box* api_box = new Fl_Box(310, 10, 300, 30, "DeepL API Key:");
+        app->settings_key_input = new Fl_Input(310, 10, 380, 30);
+        api_box->align(FL_ALIGN_LEFT);
+        api_box->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        
+        
+        app->settings_win->end();
+        app->settings_win->redraw();
+    } else if (app->selected_settings_win == 3){
+        app->settings_content->clear();
+        app->settings_content->begin();
+
+        // Display STT settings
+
+        app->settings_content->end();
+        app->settings_win->redraw();
+    }
 }

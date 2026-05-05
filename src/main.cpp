@@ -35,7 +35,7 @@ int main(void){
 
     Fl::scheme("gtk+"); 
     Fl_Tooltip::color(FL_WHITE); 
-    Fl_Tooltip::delay(0.25f); 
+    Fl_Tooltip::delay(0.25f);
 
     // Font sizes
     const int small_font = 12;
@@ -56,12 +56,13 @@ int main(void){
     // Allocate memory for strings
     app.history_buf->data.resize(app.history_buf->capacity);
     app.history_buf->time.resize(app.history_buf->capacity);
+    app.history_buf->api.resize(app.history_buf->capacity);
     app.history_buf->head = 0;
     app.history_buf->tail = 0;
     app.history_buf->size = 0;
 
-    load_buffer(*app.history_buf);
-    print_buffers(*app.history_buf);
+    load_buffer(&app);
+    print_buffers(&app);
 
     /* 
      * The code below creates all of the necessary FLTK widgets.
@@ -190,12 +191,53 @@ int main(void){
 
     // Create new settings window.
     app.settings_win = new Fl_Window(700, 550, "Settings");
-    Fl_Box* box = new Fl_Box(4, 40, 692, 4);
-    box->box(FL_UP_BOX);
-    box->color(bg_color);
+    // Fl_Box* box = new Fl_Box(4, 40, 692, 4);
+    // box->box(FL_UP_BOX);
+    // box->color(bg_color);
+
+    app.settings_content = new Fl_Group(180, 0, 520, 550);
+    app.settings_content->box(FL_FLAT_BOX);
+    app.settings_content->color(bg_color);
+    app.settings_content->end();
+
+    Fl_Box* left_box = new Fl_Box(0, 0, 180, 550);
+    left_box->box(FL_FLAT_BOX);
+    left_box->color(fl_rgb_color(180, 180, 185));
+
+    Fl_Button* general_btn = new Fl_Button(10, 10, 160, 30, "General");
+    general_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    general_btn->box(FL_UP_BOX);
+    general_btn->color(accent_blue);
+    general_btn->labelcolor(FL_WHITE);
+    general_btn->callback(on_settings_win_change, &app);
+    app.general_settings_btn = general_btn;
+
+    Fl_Button* history_settings_btn = new Fl_Button(10, 45, 160, 30, "History");
+    history_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    history_settings_btn->box(FL_UP_BOX);
+    history_settings_btn->color(accent_blue);
+    history_settings_btn->labelcolor(FL_WHITE);
+    history_settings_btn->callback(on_settings_win_change, &app);
+    app.history_settings_btn = history_settings_btn;
+
+    Fl_Button* api_settings_btn = new Fl_Button(10, 80, 160, 30, "API");
+    api_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    api_settings_btn->box(FL_UP_BOX);
+    api_settings_btn->color(accent_blue);
+    api_settings_btn->labelcolor(FL_WHITE);
+    api_settings_btn->callback(on_settings_win_change, &app);
+    app.api_settings_btn = api_settings_btn;
+
+    Fl_Button* stt_settings_btn = new Fl_Button(10, 115, 160, 30, "Speech-to-Text");
+    stt_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    stt_settings_btn->box(FL_UP_BOX);
+    stt_settings_btn->color(accent_blue);
+    stt_settings_btn->labelcolor(FL_WHITE);
+    stt_settings_btn->callback(on_settings_win_change, &app);
+    app.stt_settings_btn = stt_settings_btn;
 
     // Create and configure the save button that saves config and closes window.
-    Fl_Button* save_button = new Fl_Button(5, 5, 80, 30, "Save");
+    Fl_Button* save_button = new Fl_Button(5, app.settings_win->h() - 35, 80, 30, "Apply");
     save_button->box(FL_UP_BOX);
     save_button->color(accent_blue);
     save_button->labelcolor(FL_WHITE);
@@ -203,7 +245,7 @@ int main(void){
     save_button->callback(on_save_btn, &app);
 
     // Create and configure the cancel button that closes the window.
-    Fl_Button* cancel_button = new Fl_Button(app.settings_win->w() - 85, 5, 80, 30, "Cancel");
+    Fl_Button* cancel_button = new Fl_Button(95, app.settings_win->h() - 35, 80, 30, "Cancel");
     cancel_button->box(FL_UP_BOX);
     cancel_button->color(accent_red);
     cancel_button->labelcolor(FL_WHITE);
@@ -211,21 +253,21 @@ int main(void){
     cancel_button->callback(on_cancel_btn, &app);
 
     // Create and configure the settings API key input.
-    app.settings_key_input = new Fl_Input(90, 50, 200, 30, "DeepL Key:");
-    app.settings_key_input->box(FL_UP_BOX);
-    app.settings_key_input->color(FL_WHITE);
-    app.settings_key_input->textfont(FL_FREE_FONT);
-    app.settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    app.settings_key_input->labelcolor(FL_BLACK);
+    // app.settings_key_input = new Fl_Input(90, 50, 200, 30, "DeepL Key:");
+    // app.settings_key_input->box(FL_UP_BOX);
+    // app.settings_key_input->color(FL_WHITE);
+    // app.settings_key_input->textfont(FL_FREE_FONT);
+    // app.settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    // app.settings_key_input->labelcolor(FL_BLACK);
 
-    app.whisper_model_selector = new Fl_Choice(10, 510, 120, 30); 
-    app.whisper_model_selector->add("");
-    app.whisper_model_selector->add("tiny");
-    app.whisper_model_selector->add("base");
-    app.whisper_model_selector->add("small");
-    app.whisper_model_selector->add("medium");
-    app.whisper_model_selector->add("large");
-    app.api_selector->value(0);
+    // app.whisper_model_selector = new Fl_Choice(10, 510, 120, 30); 
+    // app.whisper_model_selector->add("");
+    // app.whisper_model_selector->add("tiny");
+    // app.whisper_model_selector->add("base");
+    // app.whisper_model_selector->add("small");
+    // app.whisper_model_selector->add("medium");
+    // app.whisper_model_selector->add("large");
+    // app.api_selector->value(0);
 
     app.settings_win->color(bg_color);
     app.settings_win->end();
@@ -237,7 +279,8 @@ int main(void){
     app.history_win = new Fl_Window(320, 500, "History");
     Fl_Scroll* scroll = new Fl_Scroll(0, 0, 320, 500);
     app.history_scroll = scroll;
-    scroll->end();
+    app.history_scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
+    app.history_scroll->end();
     app.history_win->end();
 
     // Create a keybind to call master_on_search when ENTER is pressed.

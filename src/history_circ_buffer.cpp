@@ -15,7 +15,9 @@
 
   Also, gets the time before putting into the buffer
 */
-void enqueue(CircularBuffer& buf, const std::string& val){
+void enqueue(AppState* app, const std::string& val){
+    CircularBuffer& buf = *app->history_buf;
+
     // Only runs when ring is filled
     if (buf.size == buf.capacity){
         // This ensures that our head goes 1 over our previous head (overwrites)
@@ -36,16 +38,23 @@ void enqueue(CircularBuffer& buf, const std::string& val){
     std::string result(buffer);
     buf.time[buf.tail] = result;
 
+    // Put the current used API into the buffer's vector of integers
+    // This is useful if we ever want to search using our history again
+    buf.api[buf.tail] = app->selected_api;
+
     // Move the tail by one and go to 0 if buf.tail + 1 == buf.capacity
     buf.tail = (buf.tail + 1) % buf.capacity;
     buf.size++;
 
-    std::println("INFO | Last search: {}", buf.data[buf.tail - 1]);
-    std::println("INFO | Time of search: {}", buf.time[buf.tail - 1]);
+    int inserted = (buf.tail - 1 + buf.capacity) % buf.capacity;
+    std::println("INFO | Last search: {}", buf.data[inserted]);
+    std::println("INFO | Time of search: {}", buf.time[inserted]);
     std::println("INFO | Current DATA buffer looks like: {}", buf.data);
     std::println("INFO | Current TIME buffer looks like: {}", buf.time);
+    std::println("INFO | Current API buffer looks like: {}", buf.api);
     std::println("INFO | Head is at: {}", buf.head);
     std::println("INFO | Tail is at: {}", buf.tail);
+    std::println("INFO | Size is: {}", buf.size);
 }
 
 /* 
@@ -57,7 +66,9 @@ void enqueue(CircularBuffer& buf, const std::string& val){
   Also, instead of getting the time when writing to the buffer,
   uses the time given by the caller
 */
-void enqueue(CircularBuffer& buf, const std::string& val, const std::string& time){
+void enqueue(AppState* app, const std::string& val, const std::string& time, const int api){
+    CircularBuffer& buf = *app->history_buf;
+
     // Only runs when ring is filled
     if (buf.size == buf.capacity){
         // This ensures that our head goes 1 over our previous head (overwrites)
@@ -69,6 +80,9 @@ void enqueue(CircularBuffer& buf, const std::string& val, const std::string& tim
 
     // Assign the current time to tail
     buf.time[buf.tail] = time;
+
+    // Put the current used API into the buffer's vector of integers
+    buf.api[buf.tail] = api;
 
     // Move the tail by one and go to 0 if buf.tail + 1 == buf.capacity
     buf.tail = (buf.tail + 1) % buf.capacity;
@@ -117,7 +131,7 @@ std::string dequeue(CircularBuffer& buf){
     return val;
 }
 
-void load_buffer(CircularBuffer& buf){
+void load_buffer(AppState* app){
     std::string executable_path = get_executable_path().parent_path().string();
     std::ifstream history(executable_path + "/history.json");
 
@@ -131,11 +145,20 @@ void load_buffer(CircularBuffer& buf){
         std::println("INFO | History file is empty, nothing to load");
         return;
     }
+
+    // Check if first line is "null" (happens when file is empty but not actually empty)
+    std::string first_line;
+    std::getline(history, first_line);
+    if (first_line == "null"){
+        std::println("INFO | History file is empty, nothing to load");
+        return;
+    }
     
+    history.seekg(0);   // Go back to the beginning of the file after checking for emptiness
     nlohmann::json j = nlohmann::json::parse(history);
 
-    for (int i = 0; i < j["search"].size(); i++){
-        enqueue(buf, j["search"][i], j["time"][i]);
+    for (size_t i = 0; i < j["search"].size(); i++){
+        enqueue(app, j["search"][i], j["time"][i], j["api"][i]);
     }
 }
 
@@ -144,7 +167,9 @@ void load_buffer(CircularBuffer& buf){
    The normal write function (enqueue_and_write) could go past the buffer capacity while also creating a large text file for no reason
    This ensures that the text file always remains in the boundaries of the buffer capacity
 */ 
-void write_buffer(CircularBuffer& buf){
+void write_buffer(AppState* app){
+    CircularBuffer& buf = *app->history_buf;
+
     nlohmann::json j;
     std::string executable_path = get_executable_path().parent_path().string();
     std::ofstream history(executable_path + "/history.json");
@@ -157,12 +182,18 @@ void write_buffer(CircularBuffer& buf){
     for (int i = 0; i < buf.size; i++){
         j["search"].push_back(buf.data[(buf.head + i) % buf.capacity]);
         j["time"].push_back(buf.time[(buf.head + i) % buf.capacity]);
+        j["api"].push_back(buf.api[(buf.head + i) % buf.capacity]);
     }
 
     history << j.dump(4);
 }
 
-void print_buffers(CircularBuffer& buf){
+void print_buffers(AppState* app){
+    CircularBuffer& buf = *app->history_buf;
     std::println("INFO | Current DATA buffer looks like: {}", buf.data);
     std::println("INFO | Current TIME buffer looks like: {}", buf.time);
+    std::println("INFO | Current API buffer looks like: {}", buf.api);
+    std::println("INFO | Head is at: {}", buf.head);
+    std::println("INFO | Tail is at: {}", buf.tail);
+    std::println("INFO | Size is: {}", buf.size);
 }

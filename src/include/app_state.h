@@ -16,6 +16,14 @@
 struct AppState{
     Fl_Window* settings_win;
     Fl_Input* settings_key_input;
+    int selected_settings_win = 0;
+    Fl_Group* settings_content;
+
+    Fl_Button* general_settings_btn;
+    Fl_Button* history_settings_btn;
+    Fl_Button* api_settings_btn;
+    Fl_Button* stt_settings_btn;
+
     Fl_Choice* whisper_model_selector;
     Fl_Button* install_whisper_model;
 
