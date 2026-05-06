@@ -11,3 +11,4 @@ void on_stt_btn(Fl_Widget* w, void* data);
 void on_history_btn(Fl_Widget* w, void* data);
 void on_main_win_close(Fl_Widget* w, void* data);
 void on_settings_win_change(Fl_Widget* w, void* data);
+void on_clear_history_btn(Fl_Widget* w, void* data);

@@ -2,6 +2,7 @@
 #include <portaudio.h>
 #include <thread>
 #include <print>
+#include <fstream>
 
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
@@ -13,6 +14,8 @@
 #include "include/speech_to_text.h"
 #include "include/colors.h"
 #include "include/truncate_label.h"
+#include "include/get_exec_path.h"
+#include "include/history_circ_buffer.h"
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -267,6 +270,13 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
 
         // Display history settings
+        Fl_Button* clear_history_btn = new Fl_Button(340, 260, 160, 30, "Clear History");
+        clear_history_btn->align(FL_ALIGN_CENTER);
+        clear_history_btn->box(FL_UP_BOX);
+        clear_history_btn->color(accent_blue);
+        clear_history_btn->labelcolor(FL_WHITE);
+        clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        clear_history_btn->callback(on_clear_history_btn, app);
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -292,4 +302,27 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->end();
         app->settings_win->redraw();
     }
+}
+
+void on_clear_history_btn(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+    CircularBuffer* buf = app->history_buf;
+
+    std::string executable_path = get_executable_path().parent_path().string();
+    std::ofstream history(executable_path + "/history.json");
+    if (!history.is_open()){
+        std::println("ERR | Error while WRITING to search history file!");
+        return;
+    }
+    std::println("INFO | Cleared history.json file.");
+
+    buf->data.clear();
+    buf->time.clear();
+    buf->api.clear();
+    buf->head = 0;
+    buf->tail = 0;
+    buf->size = 0;
+
+    print_buffers(app);
 }
