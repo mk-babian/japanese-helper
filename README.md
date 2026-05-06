@@ -30,11 +30,11 @@ The **DeepL Translate API** can only be used with an **API key**. The free versi
 
 Japanese Helper has a built-in speech recognition, allowing the user to transcribe Japanese speech into text that automatically goes into the search bar (input).
 
-STT uses **Whisper.cpp** with the `base` model. Additional models can be downloaded and configured manually.
-For more information on downloading models, please see `README.md` for **Whisper.cpp** or click [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Then%2C%20download%20one%20of%20the%20Whisper%20models).
+STT uses **whisper.cpp** with the `base` model. Additional models can be downloaded and configured manually.
+For more information on downloading models, please see `README.md` for **whisper.cpp** or click [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Then%2C%20download%20one%20of%20the%20Whisper%20models).
 
-You can also modify the settings and paramaters for **Whisper.cpp** and its structs in `speech_to_text.cpp`.
-Notably, you can change the language that **Whisper.cpp** takes in as input.
+You can also modify the settings and paramaters for **whisper.cpp** and its structs in `speech_to_text.cpp`.
+Notably, you can change the language that **whisper.cpp** takes in as input.
 
 ## 🖇️ Dependencies:
 
@@ -50,9 +50,11 @@ If you're planning to build this yourself, you'll need these:
 
 - **PortAudio (real-time audio I/O)**
 
+**NOTE:** The `CMakeLists.txt` file sort of handles the acqusition of necessary dependencies.
+
 ## 🔨 Building:
 
-There is a `CMakeLists.txt` in the `src` directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it.
+There is a `CMakeLists.txt` in the root directory of the project. It can be used to build the program as is, however if you plan on making any changes, be sure to update it if necessary.
 
 ### Step-By-Step Instructions:
 
@@ -79,33 +81,33 @@ There is a `CMakeLists.txt` in the `src` directory of the project. It can be use
   cmake --build build/ --target download_whisper_model
   ```
 
+  I am planning on adding a feature to download models straight from the settings window.
+
 ## ⚙️ Configuration & Misc:
+Add your DeepL API key under `Settings → API`.
 
-For now, there is only one option for configuring the application. You can import your DeepL API key from the settings window.
-
-The program also has a search history window where you can view your recent searches. The history is stored in history.json along with the date and time.
+Your search history is saved to `history.json`. 
+Hover to see more info, click to re-search, or wipe it clean from `Settings → History`.
 
 Example of the JSON file:
 ```json
 {
+    "api": [
+        0
+    ],
     "search": [
-        "今日",
-        "完璧",
-        "質問",
-        "虎が人を噛もうとするときのうなり声"
+        "ばか"
     ],
     "time": [
-        "Tuesday, April 28 11:57 AM",
-        "Tuesday, April 28 11:58 AM",
-        "Saturday, May 02 12:02 PM",
-        "Monday, May 04 10:29 AM",
+        "Wednesday, May 06 03:33 PM"
     ]
 }
 ```
+**NOTE:** The history file and buffer only hold a 100 entries. This can be changed by resizing the vectors in `main.cpp`.
 
 ## 🙏 Acknowledgments:
 
-- Big thanks for Georgi Gerganov [(ggerganov)](https://github.com/ggerganov) and contributors of whisper.cpp for creating an accessible and high-performance automatic speech recognition (ASR) model 
+- Big thanks for Georgi Gerganov [(ggerganov)](https://github.com/ggerganov) and contributors of **whisper.cpp** for creating an accessible and high-performance automatic speech recognition (ASR) model 
 
 ## 📜 License:
 
