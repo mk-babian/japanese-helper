@@ -78,6 +78,7 @@ int main(void){
     // ============================ MAIN WINDOW
 
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
+    app.main_win = main_win;
 
     
 
@@ -276,8 +277,8 @@ int main(void){
     // ============================ HISTORY WINDOW
 
 
-    app.history_win = new Fl_Window(320, 500, "History");
-    Fl_Scroll* scroll = new Fl_Scroll(0, 0, 320, 500);
+    app.history_win = new Fl_Window(310, 500, "History");
+    Fl_Scroll* scroll = new Fl_Scroll(0, 0, 310, 500);
     app.history_scroll = scroll;
     app.history_scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
     app.history_scroll->end();

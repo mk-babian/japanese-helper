@@ -7,14 +7,14 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
 
-#include "include/callbacks.h"
 #include "include/api.h"
-#include "include/app_state.h"
-#include "include/settings.h"
-#include "include/speech_to_text.h"
 #include "include/colors.h"
-#include "include/truncate_label.h"
+#include "include/callbacks.h"
+#include "include/settings.h"
+#include "include/app_state.h"
 #include "include/get_exec_path.h"
+#include "include/truncate_label.h"
+#include "include/speech_to_text.h"
 #include "include/history_circ_buffer.h"
 
 void master_on_search(Fl_Widget* w, void* data){
@@ -189,6 +189,8 @@ void on_stt_btn(Fl_Widget* w, void* data){
     }).detach();
 }
 
+// The callback when the history button is clicked
+// Opens the history window and populates it with the search history from the circular buffer
 void on_history_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
@@ -217,13 +219,24 @@ void on_history_btn(Fl_Widget* w, void* data){
         for (int i = app->history_buf->size - 1; i >= 0; i--){
             int idx = (app->history_buf->head + i) % app->history_buf->capacity;
 
-            std::string label   = app->history_buf->data[idx];
-            std::string date    = app->history_buf->time[idx];
-
             Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
-            std::string result  = truncate_label(label + "  —  " + date, btn->w() - 10);
+
+            std::string query   = app->history_buf->data[idx];
+            std::string date    = app->history_buf->time[idx];
+            int api = app->history_buf->api[idx];
+            auto* entry = new HistoryEntryData{app, query, api};
+            btn->callback(on_history_entry_click, entry);
+
+            std::string result  = truncate_label(query + "  —  " + date, btn->w() - 10);
             btn->copy_label(result.c_str());
-            std::string tooltip = label + "  —  " + date;
+            std::string tooltip = query + "  —  " + date;
+
+            if (api == 0){
+                tooltip += "  (Jisho)";
+            } else if (api == 1){
+                tooltip += "  (DeepL)";
+            }
+
             btn->copy_tooltip(tooltip.c_str());
             y += 35;
         }
@@ -235,12 +248,16 @@ void on_history_btn(Fl_Widget* w, void* data){
     app->history_win->take_focus();
 }
 
+// The callback when the main window is closed
+// Saves the history buffer into history.json before exiting
 void on_main_win_close(Fl_Widget* w, void* data) {
     AppState* app = static_cast<AppState*>(data);
     write_buffer(app);
     w->hide();
 }
 
+// Callback for handling settings window tab changes
+// This is triggered when any of the settings category buttons are clicked
 void on_settings_win_change(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
 
@@ -304,6 +321,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     }
 }
 
+// Clears the search history both in the buffer and in the history.json file
 void on_clear_history_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
@@ -325,4 +343,21 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
     buf->size = 0;
 
     print_buffers(app);
+}
+
+// This callback is triggered when a history entry button is clicked
+void on_history_entry_click(Fl_Widget* w, void* entry_data){
+    auto* entry = static_cast<HistoryEntryData*>(entry_data);
+
+    entry->app->input->value(entry->query.c_str());
+    entry->app->selected_api = entry->api;
+
+    if (entry->app->api_selector) {
+        entry->app->api_selector->value(entry->api);
+    }
+
+    master_on_search(w, entry->app);
+    entry->app->main_win->take_focus();
+
+    delete entry;
 }
