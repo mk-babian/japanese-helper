@@ -4,6 +4,8 @@
 #include "json.hpp"
 
 #include "include/app_state.h"
+#include "include/get_data_dir.h"
+// i don't use this anymore ↓
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
 
@@ -132,7 +134,7 @@ std::string dequeue(CircularBuffer& buf){
 }
 
 void load_buffer(AppState* app){
-    std::string executable_path = get_executable_path().parent_path().string();
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::ifstream history(executable_path + "/history.json");
 
     if (!history.is_open()){
@@ -171,7 +173,7 @@ void write_buffer(AppState* app){
     CircularBuffer& buf = *app->history_buf;
 
     nlohmann::json j;
-    std::string executable_path = get_executable_path().parent_path().string();
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::ofstream history(executable_path + "/history.json");
     if (!history.is_open()){
         std::println("ERR | Error while WRITING to search history file!");

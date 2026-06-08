@@ -4,11 +4,13 @@
 #include <filesystem>
 
 #include "include/app_state.h"
+#include "include/get_data_dir.h"
+// i don't use this anymore ↓
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
 
 void load_config(AppState* app){
-    std::string executable_path = get_executable_path().parent_path().string();
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::println("INFO | Executable directory: {}", executable_path);
     // Create class for the config file.
     std::ifstream config(executable_path + "/config.ini");
@@ -48,7 +50,7 @@ void load_config(AppState* app){
 
 // Handles writing the file.
 void save_config(const AppState* app){
-    std::string executable_path = get_executable_path().parent_path().string();
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::ofstream config(executable_path + "/config.ini");
     if (!config.is_open()){
         std::println("ERR | Error while SAVING config file!");
@@ -70,7 +72,7 @@ void clear_history(AppState* app){
     buf.tail = 0;
     buf.size = 0;
 
-    std::string executable_path = get_executable_path().parent_path().string();
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::ofstream history(executable_path + "/history.json");
     if (!history.is_open()){
         std::println("ERR | Error while WRITING to search history file!");

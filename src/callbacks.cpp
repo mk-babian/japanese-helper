@@ -315,6 +315,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
 
         // Display STT settings
+        Fl_Choice* model_selector = new Fl_Choice(0, 0, 80, 30, "Whisper Model:");
 
         app->settings_content->end();
         app->settings_win->redraw();
