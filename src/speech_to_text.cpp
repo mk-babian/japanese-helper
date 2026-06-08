@@ -1,9 +1,11 @@
 #include <portaudio.h>
 #include <stdexcept>
 #include <string>
+#include <print>
 
 #include "whisper.cpp/include/whisper.h"
 #include "include/app_state.h"
+#include "include/get_exec_path.h"
 
 /*
  * PortAudio calls this function automatically, we just create it.
@@ -104,15 +106,35 @@ std::string whisper_transcribe(void* user_data){
     StreamData* sd = (StreamData*)user_data;
     std::string res;
 
+    std::string model_name = "";
+        switch(sd->selected_model){
+            case 0: model_name = "ggml-tiny.bin";   break;
+            case 1: model_name = "ggml-base.bin";   break;
+            case 2: model_name = "ggml-small.bin";  break;
+            case 3: model_name = "ggml-medium.bin"; break;
+            case 4: model_name = "ggml-large.bin";  break;
+    }
+    
+    std::string path = get_executable_path().parent_path().string();
+    std::string model_path = path + "/whisper.cpp/models/" + model_name;
+    std::println("INFO | Loading model from: {}", model_path);
+
     whisper_context_params w_context_params = whisper_context_default_params();
+
+    whisper_full_params w_params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+    w_params.language          = "ja";
+    w_params.no_context        = true;   // don't carry context between segments — helps with short clips
+    w_params.single_segment    = false;  // let it segment naturally
+    w_params.print_special     = false;  // suppress [BLANK_AUDIO] etc. tokens in output
+    w_params.suppress_blank    = true;   // suppress blank outputs between segments
+    w_params.token_timestamps  = false;  // small perf gain if you don't need them
+    w_params.temperature       = 0.0f;   // greedy is already 0, but be explicit
+
     struct whisper_context* ctx = whisper_init_from_file_with_params(
-                "whisper.cpp/models/ggml-base.bin", w_context_params);
+                model_path.c_str(), w_context_params);
     if (ctx == nullptr) throw std::runtime_error("Failed to load model file for Whisper.cpp\n");
 
-    whisper_full_params w_params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY); 
-    w_params.language = "ja";
-
-    if (whisper_full(ctx, w_params, sd->audio_samples.data(), (int)sd->audio_samples.size()) != 0){
+    if (whisper_full(ctx, w_params, sd->audio_samples.data(), (int)sd->index) != 0){
         throw std::runtime_error("Whisper.cpp error\n");
         whisper_free(ctx);
         return res;

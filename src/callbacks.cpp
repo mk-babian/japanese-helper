@@ -16,6 +16,7 @@
 #include "include/truncate_label.h"
 #include "include/speech_to_text.h"
 #include "include/history_circ_buffer.h"
+#include "include/download_whisper_model.h"
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -94,6 +95,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
     }).detach();
 }
 
+// The choice callback for the API Fl_Choice widget
 void choice_callback(Fl_Widget* w, void* data){
     Fl_Choice* choice = static_cast<Fl_Choice*>(w);
     AppState* app = static_cast<AppState*>(data);
@@ -105,6 +107,7 @@ void choice_callback(Fl_Widget* w, void* data){
     app->selected_api = choice->value();
 }
 
+// The callback for opening the setting window
 void open_settings(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
@@ -112,15 +115,21 @@ void open_settings(Fl_Widget* w, void* data){
     app->settings_win->show();
 }
 
-void on_save_btn(Fl_Widget* w, void* data){
+// The apply button found in the settings window, its callback
+void on_apply_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data); 
 
-    std::string key = app->settings_key_input->value(); 
+    if (!app->settings_key_input) return;
+
+    std::string key = app->settings_key_input->value();
     if (key.empty()) return;
     app->deepl_key = key;
 
     save_config(app);
+    // This crashes the app for some reason
+    // Probably some dangling pointers or some-such 
+    // app->settings_win->hide();
 
     // app->settings_win->hide();
 }
@@ -253,6 +262,7 @@ void on_history_btn(Fl_Widget* w, void* data){
 void on_main_win_close(Fl_Widget* w, void* data) {
     AppState* app = static_cast<AppState*>(data);
     write_buffer(app);
+    save_config(app);
     w->hide();
 }
 
@@ -260,6 +270,12 @@ void on_main_win_close(Fl_Widget* w, void* data) {
 // This is triggered when any of the settings category buttons are clicked
 void on_settings_win_change(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
+
+    app->settings_key_input = nullptr;
+    app->whisper_model_selector = nullptr;
+    app->install_whisper_model = nullptr;
+
+    app->settings_content->clear();
 
     // Determine which button was pressed by comparing widget pointers
     if (w == app->general_settings_btn) {
@@ -275,18 +291,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     std::println("INFO | Selected settings tab: {}", app->selected_settings_win);
 
     if (app->selected_settings_win == 0){
-        app->settings_content->clear();
         app->settings_content->begin();
         
         // Display general settings
-
-        app->settings_content->end();
-        app->settings_win->redraw();
-    } else if (app->selected_settings_win == 1){
-        app->settings_content->clear();
-        app->settings_content->begin();
-
-        // Display history settings
         Fl_Button* clear_history_btn = new Fl_Button(340, 260, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
@@ -297,25 +304,61 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         app->settings_content->end();
         app->settings_win->redraw();
+    } else if (app->selected_settings_win == 1){
+        app->settings_content->begin();
+
+        // Display history settings
+
+        app->settings_content->end();
+        app->settings_win->redraw();
     } else if (app->selected_settings_win == 2){
-        app->settings_content->clear();
         app->settings_content->begin();
 
         // Display API settings
-        Fl_Box* api_box = new Fl_Box(310, 10, 300, 30, "DeepL API Key:");
-        app->settings_key_input = new Fl_Input(310, 10, 380, 30);
-        api_box->align(FL_ALIGN_LEFT);
-        api_box->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->settings_key_input = new Fl_Input(310, 10, 380, 30, "DeepL API Key:");
+        app->settings_key_input->value(app->deepl_key.c_str());
+        app->settings_key_input->box(FL_UP_BOX);
+        app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         
-        
-        app->settings_win->end();
+        app->settings_content->end();
         app->settings_win->redraw();
     } else if (app->selected_settings_win == 3){
-        app->settings_content->clear();
         app->settings_content->begin();
 
         // Display STT settings
-        Fl_Choice* model_selector = new Fl_Choice(0, 0, 80, 30, "Whisper Model:");
+        app->whisper_model_selector = new Fl_Choice(310, 10, 80, 30, "Whisper Model:");
+        app->whisper_model_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->whisper_model_selector->add("tiny");
+        app->whisper_model_selector->add("base");
+        app->whisper_model_selector->add("small");
+        app->whisper_model_selector->add("medium");
+        app->whisper_model_selector->add("large");
+        app->whisper_model_selector->callback(model_choice_callback, app);
+        app->whisper_model_selector->value(app->selected_model);
+
+        app->install_whisper_model = new Fl_Button(410, 10, 280, 30, "Download");
+        app->install_whisper_model->box(FL_UP_BOX);
+        app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->install_whisper_model->labelcolor(FL_WHITE);
+        app->install_whisper_model->color(accent_blue);
+        app->install_whisper_model->callback(download_button, app);
+        
+        // Check if the current selected model is already downloaded
+        const std::filesystem::path path = get_executable_path().parent_path();
+        std::string model_name = "";
+        switch(app->selected_model){
+            case 0: model_name = "ggml-tiny.bin";   break;
+            case 1: model_name = "ggml-base.bin";   break;
+            case 2: model_name = "ggml-small.bin";  break;
+            case 3: model_name = "ggml-medium.bin"; break;
+            case 4: model_name = "ggml-large.bin";  break;
+        }
+        if (std::filesystem::exists(path / "whisper.cpp" / "models" / model_name)){
+            app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
+            app->install_whisper_model->labelcolor(FL_BLACK);
+            app->install_whisper_model->label("Already Downloaded!");
+            app->install_whisper_model->deactivate();
+        }
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -361,4 +404,76 @@ void on_history_entry_click(Fl_Widget* w, void* entry_data){
     entry->app->main_win->take_focus();
 
     delete entry;
+}
+
+void model_choice_callback(Fl_Widget* w, void* data){
+    Fl_Choice* choice = static_cast<Fl_Choice*>(w);
+    AppState* app = static_cast<AppState*>(data);
+
+    app->selected_model = choice->value();
+    app->stream_data.selected_model = app->selected_model;
+
+    // Check if the current selected model is already downloaded
+    const std::filesystem::path path = get_executable_path().parent_path();
+    std::string model_name = "";
+    switch(app->selected_model){
+        case 0: model_name = "ggml-tiny.bin";   break;
+        case 1: model_name = "ggml-base.bin";   break;
+        case 2: model_name = "ggml-small.bin";  break;
+        case 3: model_name = "ggml-medium.bin"; break;
+        case 4: model_name = "ggml-large.bin";  break;
+    }
+    if (std::filesystem::exists(path / "whisper.cpp" / "models" / model_name)){
+        app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
+        app->install_whisper_model->labelcolor(FL_BLACK);
+        app->install_whisper_model->label("Already Downloaded!");
+        app->install_whisper_model->deactivate();
+    }else{
+        app->install_whisper_model->color(accent_blue);
+        app->install_whisper_model->labelcolor(FL_WHITE);
+        app->install_whisper_model->label("Download");
+        app->install_whisper_model->activate();
+    }
+
+    std::println("INFO | Selected MODEL index: {}", app->selected_model);
+}
+
+void download_button(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+
+    // Guard: make sure a model is actually selected
+    if (app->selected_model < 0){
+        app->install_whisper_model->label("Select model!");
+        app->install_whisper_model->redraw();
+        return;
+    }
+
+    // Disable the button while downloading so it can't be double-clicked
+    app->install_whisper_model->deactivate();
+    app->install_whisper_model->label("Downloading...");
+    app->install_whisper_model->redraw();
+
+    int model_index = app->selected_model;
+
+    std::thread([app, model_index](){
+        try {
+            download_whisper_model(model_index);
+
+            Fl::lock();
+            app->install_whisper_model->activate();
+            app->install_whisper_model->label("Done!");
+            app->install_whisper_model->redraw();
+            Fl::unlock();
+            Fl::awake();
+        } catch (const std::exception& e){
+            Fl::lock();
+            app->install_whisper_model->activate();
+            app->install_whisper_model->label("Failed!");
+            app->install_whisper_model->copy_tooltip(e.what());
+            app->install_whisper_model->redraw();
+            Fl::unlock();
+            Fl::awake();
+        }
+    }).detach();
 }

@@ -104,6 +104,7 @@ add_executable(translator
     ${CMAKE_CURRENT_SOURCE_DIR}/history_circ_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/truncate_label.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/get_data_dir.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/download_whisper_model.cpp
     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/resources.rc>
 )
 
@@ -140,28 +141,6 @@ if(WIN32)
         COMMAND_EXPAND_LISTS
         COMMENT "Copying required runtime DLLs to the build directory..."
     )
-    
-    add_custom_target(download_whisper_model
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models
-    COMMAND ${CMAKE_COMMAND} -E rename
-        ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/ggml-base.bin
-        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
-    COMMENT "Downloading Whisper base model..."
-    )
-else()
-    add_custom_target(download_whisper_model
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/models/download-ggml-model.cmd base
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models
-    COMMAND ${CMAKE_COMMAND} -E rename
-        ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/ggml-base.bin          # <-- no /models/
-        ${CMAKE_CURRENT_BINARY_DIR}/whisper.cpp/models/ggml-base.bin
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp
-    COMMENT "Downloading Whisper base model..."
-    )
 endif()
 
 add_custom_command(TARGET translator POST_BUILD
@@ -169,4 +148,11 @@ add_custom_command(TARGET translator POST_BUILD
         ${CMAKE_SOURCE_DIR}/images
         ${CMAKE_BINARY_DIR}/images
     COMMENT "Copying images directory to build..."
+)
+
+add_custom_command(TARGET translator POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/whisper.cpp/models
+        ${CMAKE_BINARY_DIR}/whisper.cpp/models
+    COMMENT "Copying whisper.cpp models directory to build..."
 )

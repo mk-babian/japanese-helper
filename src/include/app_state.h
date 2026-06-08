@@ -26,9 +26,10 @@ struct AppState{
     Fl_Button* api_settings_btn;
     Fl_Button* stt_settings_btn;
 
-    // TODO
+    // Whisper.cpp stuff
     Fl_Choice* whisper_model_selector;
     Fl_Button* install_whisper_model;
+    int selected_model = -1;
 
     // Everything related to the history window
     Fl_Window* history_win;

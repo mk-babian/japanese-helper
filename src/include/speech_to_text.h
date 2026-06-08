@@ -14,6 +14,7 @@ struct StreamData {
     std::vector<float> audio_samples;
     bool is_recording = false;
     std::size_t index = 0;
+    int selected_model = 0;
 };
 
 int pa_callback(const void* in_buffer, void* out_buffer, unsigned long frames_per_buffer,

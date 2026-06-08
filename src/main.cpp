@@ -243,7 +243,7 @@ int main(void){
     save_button->color(accent_blue);
     save_button->labelcolor(FL_WHITE);
     save_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    save_button->callback(on_save_btn, &app);
+    save_button->callback(on_apply_btn, &app);
 
     // Create and configure the cancel button that closes the window.
     Fl_Button* cancel_button = new Fl_Button(95, app.settings_win->h() - 35, 80, 30, "Cancel");
