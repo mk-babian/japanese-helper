@@ -30,8 +30,7 @@ The **DeepL Translate API** can only be used with an **API key**. The free versi
 
 Japanese Helper has a built-in speech recognition, allowing the user to transcribe Japanese speech into text that automatically goes into the search bar (input).
 
-STT uses **whisper.cpp** with the `base` model. Additional models can be downloaded and configured manually.
-For more information on downloading models, please see `README.md` for **whisper.cpp** or click [here](https://github.com/ggml-org/whisper.cpp/blob/master/README.md#:~:text=Then%2C%20download%20one%20of%20the%20Whisper%20models).
+STT uses **whisper.cpp** with the `base` model by default. You can download different model sizes (**tiny**, **base**, **small**, **medium**, **large**) directly from the application via `Settings → Model Download`.
 
 You can also modify the settings and paramaters for **whisper.cpp** and its structs in `speech_to_text.cpp`.
 Notably, you can change the language that **whisper.cpp** takes in as input.
@@ -75,21 +74,29 @@ There is a `CMakeLists.txt` in the root directory of the project. It can be used
 
 - By default, Japanese Helper uses the `base` model of Whisper.cpp.
 
-- You can use the command below to download the `base` model:
+- You can download additional Whisper models from the application:
+  - Navigate to `Settings → Model Download`
+  - Select your desired model size and download
+  
+  Alternatively, you can use the command below to download the model:
   
   ```bash
   cmake --build build/ --target download_whisper_model
   ```
 
-  I am planning on adding a feature to download models straight from the settings window.
-
 ## ⚙️ Configuration & Misc:
 Add your DeepL API key under `Settings → API`.
 
-Your search history is saved to `history.json`. 
-Hover to see more info, click to re-search, or wipe it clean from `Settings → History`.
+Your search history and settings are saved in the user's local data directory:
+- **Windows**: `%APPDATA%/Japanese Helper/`
+- **Linux**: `$HOME/.config/japanese-helper/` or `$XDG_CONFIG_HOME/japanese-helper/`
 
-Example of the JSON file:
+History entries can be interacted with:
+- **Hover** to see more info
+- **Click** to re-search a previous query
+- **Clear History** button to wipe it clean from `Settings → History`
+
+Example of the `history.json` file:
 ```json
 {
     "api": [
@@ -103,7 +110,7 @@ Example of the JSON file:
     ]
 }
 ```
-**NOTE:** The history file and buffer only hold a 100 entries. This can be changed by resizing the vectors in `main.cpp`.
+**NOTE:** The history file and buffer only hold 100 entries. This can be changed by resizing the vectors in `main.cpp`.
 
 ## 🙏 Acknowledgments:
 
