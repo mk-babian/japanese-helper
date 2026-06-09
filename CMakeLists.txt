@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.21...4.3.1)
 project(translator C CXX)
 
+option(TRANSLATOR_STATIC  "Link the runtime and standard libraries statically" OFF)
+option(TRANSLATOR_NO_CONSOLE "Hide the console window (Windows WIN32 subsystem)" OFF)
+
 set(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 # Require C++23
@@ -8,6 +11,14 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Enable Wall and Wextra (for debugging)
 add_compile_options(-Wall -Wextra)
+
+if(TRANSLATOR_STATIC)
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    else()
+        add_link_options(-static -static-libgcc -static-libstdc++)
+    endif()
+endif()
 
 # Used to download dependencies
 include(FetchContent)
@@ -112,6 +123,14 @@ if(WIN32)
     target_compile_definitions(translator PRIVATE WIN32 _WIN32)
 endif()
 
+if(TRANSLATOR_NO_CONSOLE)
+    if(WIN32)
+        set_target_properties(translator PROPERTIES WIN32_EXECUTABLE TRUE)
+    elseif(APPLE)
+        set_target_properties(translator PROPERTIES MACOSX_BUNDLE TRUE)
+    endif()
+endif()
+
 # Combine includes
 target_include_directories(translator PRIVATE
     ${FLTK_INCLUDE_DIR}
@@ -156,3 +175,23 @@ add_custom_command(TARGET translator POST_BUILD
         ${CMAKE_BINARY_DIR}/whisper.cpp/models
     COMMENT "Copying whisper.cpp models directory to build..."
 )
+
+# --- Install / CPack ---
+install(TARGETS translator RUNTIME DESTINATION .)
+
+if(WIN32)
+    install(FILES $<TARGET_RUNTIME_DLLS:translator> DESTINATION .)
+endif()
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/images/
+    DESTINATION images
+)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/whisper.cpp/models/
+    DESTINATION whisper.cpp/models
+)
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_NAME "translator")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+include(CPack)
