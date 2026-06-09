@@ -51,5 +51,6 @@ struct AppState{
 
     // The currently selected API (0 for jisho, 1 for deepl, and so on...)
     int selected_api = 0;
+    bool key_shown = false;
     std::string deepl_key;
 };

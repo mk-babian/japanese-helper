@@ -4,6 +4,7 @@
 #include <print>
 #include <fstream>
 
+#include <FL/Fl_PNG_Image.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
 
@@ -13,10 +14,13 @@
 #include "include/settings.h"
 #include "include/app_state.h"
 #include "include/get_exec_path.h"
+#include "include/get_data_dir.h"
 #include "include/truncate_label.h"
 #include "include/speech_to_text.h"
 #include "include/history_circ_buffer.h"
 #include "include/download_whisper_model.h"
+
+const std::filesystem::path executable_path = get_executable_path().parent_path();
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -127,10 +131,10 @@ void on_apply_btn(Fl_Widget* w, void* data){
     app->deepl_key = key;
 
     save_config(app);
-    // This crashes the app for some reason
-    // Probably some dangling pointers or some-such 
-    // app->settings_win->hide();
 
+    // This crashes the app for some reason
+    // Probably some dangling pointers or some-such
+    // I guess we'll just NOT hide the window
     // app->settings_win->hide();
 }
 
@@ -314,11 +318,33 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     } else if (app->selected_settings_win == 2){
         app->settings_content->begin();
 
+        app->key_shown = false;
+
         // Display API settings
-        app->settings_key_input = new Fl_Input(310, 10, 380, 30, "DeepL API Key:");
+        app->settings_key_input = new Fl_Input(310, 10, 350, 30, "DeepL API Key:");
         app->settings_key_input->value(app->deepl_key.c_str());
+
+        if (app->deepl_key.empty()) {
+            app->settings_key_input->type(FL_NORMAL_INPUT);
+            app->key_shown = true;
+        } else {
+            app->settings_key_input->type(FL_SECRET_INPUT);
+            app->key_shown = false;
+        }
+
         app->settings_key_input->box(FL_UP_BOX);
         app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+
+        Fl_Button* show_btn = new Fl_Button(665, 10, 30, 30);
+        show_btn->color(accent_blue);
+        show_btn->box(FL_UP_BOX);
+        Fl_PNG_Image* show_icon = new Fl_PNG_Image((executable_path.string() + "/images/show.png").c_str());
+        if (show_icon->fail()){
+            std::println("W | Couldn't load show-icon image!");
+        }else{
+            show_btn->image(show_icon);
+        }
+        show_btn->callback(show_deepl_key_btn, app);
         
         app->settings_content->end();
         app->settings_win->redraw();
@@ -344,7 +370,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->install_whisper_model->callback(download_button, app);
         
         // Check if the current selected model is already downloaded
-        const std::filesystem::path path = get_executable_path().parent_path();
+        
         std::string model_name = "";
         switch(app->selected_model){
             case 0: model_name = "ggml-tiny.bin";   break;
@@ -353,7 +379,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             case 3: model_name = "ggml-medium.bin"; break;
             case 4: model_name = "ggml-large.bin";  break;
         }
-        if (std::filesystem::exists(path / "whisper.cpp" / "models" / model_name)){
+        if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
             app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
             app->install_whisper_model->labelcolor(FL_BLACK);
             app->install_whisper_model->label("Already Downloaded!");
@@ -371,8 +397,8 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
     CircularBuffer* buf = app->history_buf;
 
-    std::string executable_path = get_executable_path().parent_path().string();
-    std::ofstream history(executable_path + "/history.json");
+    std::string path = get_data_dir("JapaneseHelper").string();
+    std::ofstream history(path + "/history.json");
     if (!history.is_open()){
         std::println("ERR | Error while WRITING to search history file!");
         return;
@@ -414,7 +440,6 @@ void model_choice_callback(Fl_Widget* w, void* data){
     app->stream_data.selected_model = app->selected_model;
 
     // Check if the current selected model is already downloaded
-    const std::filesystem::path path = get_executable_path().parent_path();
     std::string model_name = "";
     switch(app->selected_model){
         case 0: model_name = "ggml-tiny.bin";   break;
@@ -423,7 +448,7 @@ void model_choice_callback(Fl_Widget* w, void* data){
         case 3: model_name = "ggml-medium.bin"; break;
         case 4: model_name = "ggml-large.bin";  break;
     }
-    if (std::filesystem::exists(path / "whisper.cpp" / "models" / model_name)){
+    if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
         app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
         app->install_whisper_model->labelcolor(FL_BLACK);
         app->install_whisper_model->label("Already Downloaded!");
@@ -476,4 +501,23 @@ void download_button(Fl_Widget* w, void* data){
             Fl::awake();
         }
     }).detach();
+}
+
+void show_deepl_key_btn(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+
+    if (!app->settings_key_input) return;
+
+    if (app->key_shown == false){
+        // Reveal the key
+        app->settings_key_input->type(FL_NORMAL_INPUT);
+        app->settings_key_input->redraw();
+        app->key_shown = true;
+    } else {
+        // Hide the key again
+        app->settings_key_input->type(FL_SECRET_INPUT);
+        app->settings_key_input->redraw();
+        app->key_shown = false;
+    }
 }

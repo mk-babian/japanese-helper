@@ -66,6 +66,8 @@ void save_config(const AppState* app){
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
 }
 
+// A standalone function to clear the history buffer and file
+// Not a real point to this since we have a button now
 void clear_history(AppState* app){
     // Clear the circular buffer in memory
     CircularBuffer& buf = *app->history_buf;
