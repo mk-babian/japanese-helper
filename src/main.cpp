@@ -1,4 +1,5 @@
 #include <print>
+#include <curl/curl.h>
 
 // FLTK
 #include <FL/Fl.H>
@@ -294,11 +295,13 @@ int main(void){
 
     // Show the main window.
     main_win->show();
- 
-    Pa_Initialize();                // Start PortAudio.
+
+    curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
+    Pa_Initialize();                    // Start PortAudio.
     Fl::focus(main_win);            // Give focus to the main window.
     Fl::lock();                     // Essential for multithreading.
     int result = Fl::run();         // Start the app.
     Pa_Terminate();                 // Stop PortAudio.
+    curl_global_cleanup();
     return result;
 }

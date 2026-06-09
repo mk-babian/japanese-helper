@@ -51,12 +51,12 @@ void enqueue(AppState* app, const std::string& val){
     int inserted = (buf.tail - 1 + buf.capacity) % buf.capacity;
     std::println("INFO | Last search: {}", buf.data[inserted]);
     std::println("INFO | Time of search: {}", buf.time[inserted]);
-    std::println("INFO | Current DATA buffer looks like: {}", buf.data);
-    std::println("INFO | Current TIME buffer looks like: {}", buf.time);
-    std::println("INFO | Current API buffer looks like: {}", buf.api);
-    std::println("INFO | Head is at: {}", buf.head);
-    std::println("INFO | Tail is at: {}", buf.tail);
-    std::println("INFO | Size is: {}", buf.size);
+    // std::println("INFO | Current DATA buffer looks like: {}", buf.data);
+    // std::println("INFO | Current TIME buffer looks like: {}", buf.time);
+    // std::println("INFO | Current API buffer looks like: {}", buf.api);
+    // std::println("INFO | Head is at: {}", buf.head);
+    // std::println("INFO | Tail is at: {}", buf.tail);
+    // std::println("INFO | Size is: {}", buf.size);
 }
 
 /* 
