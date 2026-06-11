@@ -11,6 +11,7 @@ typedef struct HistoryEntryData {
 
 void on_search_jisho(Fl_Widget* w, void* data);
 void on_search_deepl(Fl_Widget* w, void* data);
+void on_search_mymemory(Fl_Widget* w, void* data);
 void choice_callback(Fl_Widget* w, void* data);
 void master_on_search(Fl_Widget* w, void* data);
 void open_settings(Fl_Widget* w, void* data);

@@ -46,6 +46,10 @@ void load_config(AppState* app){
             app->deepl_key = value;
         }
 
+        if (key == "mymemory_email"){
+            app->mymemory_email = value;
+        }
+
         if (key == "whisper_model"){
             app->selected_model = std::stoi(value);
             app->stream_data.selected_model = app->selected_model;
@@ -63,6 +67,7 @@ void save_config(const AppState* app){
     }
     
     config << "deepl_key=" + app->deepl_key + '\n';
+    config << "mymemory_email=" + app->mymemory_email + '\n';
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
 }
 

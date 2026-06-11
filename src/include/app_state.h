@@ -16,7 +16,8 @@
 struct AppState{
     // Everything related to the settings window
     Fl_Window* settings_win;
-    Fl_Input* settings_key_input;
+    Fl_Input* settings_key_input = nullptr;
+    Fl_Input* settings_email_input = nullptr;
     int selected_settings_win = 0;
     Fl_Group* settings_content;
 
@@ -53,4 +54,6 @@ struct AppState{
     int selected_api = 0;
     bool key_shown = false;
     std::string deepl_key;
+    // Optional email sent to MyMemory to raise the daily usage limit
+    std::string mymemory_email;
 };

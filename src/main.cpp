@@ -124,6 +124,7 @@ int main(void){
     app.api_selector = choice;
     app.api_selector->add("Jisho");
     app.api_selector->add("DeepL");
+    app.api_selector->add("MyMemory");
     app.api_selector->value(0);
     app.api_selector->callback(choice_callback, &app);
 

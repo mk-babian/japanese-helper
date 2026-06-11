@@ -38,6 +38,8 @@ void master_on_search(Fl_Widget* w, void* data){
         on_search_jisho(w, data);
     } else if (app->selected_api == 1){
         on_search_deepl(w, data);
+    } else if (app->selected_api == 2){
+        on_search_mymemory(w, data);
     }
 }
 
@@ -99,6 +101,33 @@ void on_search_deepl(Fl_Widget* w, void* data){
     }).detach();
 }
 
+void on_search_mymemory(Fl_Widget* w, void* data){
+    (void)w;
+    auto* app = (AppState*)data;	// cast data to AppState
+
+    std::string word = app->input->value();
+
+    std::thread([app, word](){
+        try {
+            std::string result = mymemory_translate(word, app->mymemory_email);
+            enqueue(app, word);
+            Fl::lock();
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
+            app->output->value(result.c_str());
+            Fl::unlock();
+            Fl::awake();
+        } catch (const std::exception& e) {
+            Fl::lock();
+            app->search_btn->activate();
+            app->search_btn->color(accent_blue);
+            app->output->value(e.what());
+            Fl::unlock();
+            Fl::awake();
+        }
+    }).detach();
+}
+
 // The choice callback for the API Fl_Choice widget
 void choice_callback(Fl_Widget* w, void* data){
     Fl_Choice* choice = static_cast<Fl_Choice*>(w);
@@ -124,11 +153,15 @@ void on_apply_btn(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data); 
 
-    if (!app->settings_key_input) return;
+    if (app->settings_key_input){
+        std::string key = app->settings_key_input->value();
+        if (!key.empty()) app->deepl_key = key;
+    }
 
-    std::string key = app->settings_key_input->value();
-    if (key.empty()) return;
-    app->deepl_key = key;
+    // Empty is fine here; it just clears the saved email.
+    if (app->settings_email_input){
+        app->mymemory_email = app->settings_email_input->value();
+    }
 
     save_config(app);
 
@@ -248,6 +281,8 @@ void on_history_btn(Fl_Widget* w, void* data){
                 tooltip += "  (Jisho)";
             } else if (api == 1){
                 tooltip += "  (DeepL)";
+            } else if (api == 2){
+                tooltip += "  (MyMemory)";
             }
 
             btn->copy_tooltip(tooltip.c_str());
@@ -276,6 +311,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
 
     app->settings_key_input = nullptr;
+    app->settings_email_input = nullptr;
     app->whisper_model_selector = nullptr;
     app->install_whisper_model = nullptr;
 
@@ -345,7 +381,14 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             show_btn->image(show_icon);
         }
         show_btn->callback(show_deepl_key_btn, app);
-        
+
+        // Optional email for MyMemory; raises the daily limit from 5,000 to 50,000 chars
+        app->settings_email_input = new Fl_Input(310, 50, 350, 30, "MyMemory Email:");
+        app->settings_email_input->value(app->mymemory_email.c_str());
+        app->settings_email_input->box(FL_UP_BOX);
+        app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->settings_email_input->tooltip("Optional. Giving MyMemory a valid email raises the free daily limit from 5,000 to 50,000 characters.");
+
         app->settings_content->end();
         app->settings_win->redraw();
     } else if (app->selected_settings_win == 3){

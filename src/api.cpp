@@ -191,6 +191,80 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
 
     return translation;
 }
+
+// IN: std::string text and an optional email (a valid email raises MyMemory's daily limit from 5,000 to 50,000 chars)
+// OUT: parsed std::string translation
+std::string mymemory_translate(const std::string& text, const std::string& email) {
+    CURL* curl = curl_easy_init();
+    std::string response;
+
+    // Encode the chracters since URLs only allow a limited set of characters.
+    // Everything else must be percent encoded (like Japanese characters, だってばよ).
+    char* encoded = curl_easy_escape(curl, text.c_str(), text.length());
+
+    // Build the URL; MyMemory is a simple GET API.
+    // langpair is source|target, "ja|en" for Japanese to English.
+    std::string url = "https://api.mymemory.translated.net/get?q=" + std::string(encoded) + "&langpair=ja|en";
+    curl_free(encoded);
+
+    // Attach the email if the user gave one ("de" stands for "dear email" in their docs).
+    if (!email.empty()){
+        char* encoded_email = curl_easy_escape(curl, email.c_str(), email.length());
+        url += "&de=" + std::string(encoded_email);
+        curl_free(encoded_email);
+    }
+
+    // Create object and give it curl (no custom headers needed here).
+    Cleanup cl(curl, nullptr);
+
+    // Use c_str since libcurl is a C library, therefore it needs C-like strings.
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());                   // Where to make the request.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);      // Which function handles received.
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);               // Collect into response.
+
+    // Error check.
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK){
+        throw std::runtime_error(curl_easy_strerror(res));
+    }
+
+    static std::map<long, std::string> http_code_map = {
+        {403, "Invalid request or daily quota exceeded."},
+        {404, "Resource does not exist or could not be found."},
+        {429, "Too many requests in a short period of time."},
+        {500, "Internal server error, please try again later."}
+    };
+
+    long http_code = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+    if (http_code != 200){
+        if (http_code_map.find(http_code) != http_code_map.end()){
+            return std::to_string(http_code) + http_code_map.at(http_code);
+        }else{
+            return "Error " + std::to_string(http_code) + ":\nVisit https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#client_error_responses for more information";
+        }
+    }
+
+    auto parsed = json::parse(response);
+
+    // MyMemory tucks errors inside a 200 response, so check its own status field too.
+    // On errors, responseData.translatedText holds the error details instead of a translation.
+    if (!parsed.contains("responseData") || parsed["responseData"]["translatedText"].is_null()){
+        return "MyMemory returned an unexpected response.";
+    }
+
+    std::string translation = parsed["responseData"]["translatedText"];
+
+    if (parsed.contains("responseStatus") && parsed["responseStatus"].is_number() && parsed["responseStatus"].get<int>() != 200){
+        return "MyMemory error " + std::to_string(parsed["responseStatus"].get<int>()) + ":\n" + translation;
+    }
+
+    return translation;
+}
+
+// I have officially scrapped this idea, since there is no OFFICIAL Google Translate API
+// MyMemory has been implemented
 /* todo:
 std::string google_translate(const std::string& text){
     CURL* curl = curl_easy_init();

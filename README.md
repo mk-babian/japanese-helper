@@ -12,7 +12,9 @@ It has multiple API integrations, a classic-style user interface using FLTK, and
 
 ## Usage:
 
-For now, there are only two API integrations:
+There are 3 APIs integrated into the application:
+
+# 🔍 Lookup
 
 ### Jisho
 
@@ -20,11 +22,24 @@ The **Jisho API** can be used to look up any Japanese words in all the writing s
 
 The **API** provides all Japanese words associated with the input text, their reading (in Hiragana), and their different meanings in English.
 
-### 🔑 DeepL (Needs API Key)
+# 🌐 Translation
 
-This **API** simply translates anything in the input field from Japanese to English.
 
-The **DeepL Translate API** can only be used with an **API key**. The free version supports up to **500,000 characters a month**.
+### DeepL (Needs API Key)
+
+The **DeepL Translate API can only be used with an API key**. The free version supports up to **500,000 characters a month**.
+
+The key can be input through the settings window `Settings → API → DeepL API Key`.
+
+For more information on the DeepL API key, please visit [here.](https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API)
+
+### MyMemory
+
+MyMemory is a free, API-keyless alternative to the DeepL API.
+
+The free version allows for **5,000 chars/day**, while inputting your email through `Settings → API → MyMemory Email` raises the limit to **50,000 chars/day**.
+
+For more information on the MyMemory API, please visit [here.](https://mymemory.translated.net/doc/)
 
 ## 🗣️ Speech Recognition:
 
@@ -114,7 +129,9 @@ Example of the `history.json` file:
 
 ## 🙏 Acknowledgments:
 
-- Big thanks for Georgi Gerganov [(ggerganov)](https://github.com/ggerganov) and contributors of **whisper.cpp** for creating an accessible and high-performance automatic speech recognition (ASR) model 
+- Big thanks for Georgi Gerganov [(ggerganov)](https://github.com/ggerganov) and contributors of **whisper.cpp** for creating an accessible and high-performance automatic speech recognition (ASR) model.
+
+- Thanks to the [MyMemory](https://mymemory.translated.net/doc/) API, we can be allowed quick and easy access to a translation service without the need to get an API key.
 
 ## 📜 License:
 
