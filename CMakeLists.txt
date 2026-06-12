@@ -194,7 +194,11 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/whisper.cpp/models/
     DESTINATION whisper.cpp/models
 )
 
-set(CPACK_GENERATOR "ZIP")
+if(WIN32)
+    set(CPACK_GENERATOR "ZIP")
+else()
+    set(CPACK_GENERATOR "TGZ")
+endif()
 set(CPACK_PACKAGE_NAME "translator")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
