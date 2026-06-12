@@ -192,9 +192,9 @@ void write_buffer(AppState* app){
 
 void print_buffers(AppState* app){
     CircularBuffer& buf = *app->history_buf;
-    std::println("INFO | Current DATA buffer looks like: {}", buf.data);
-    std::println("INFO | Current TIME buffer looks like: {}", buf.time);
-    std::println("INFO | Current API buffer looks like: {}", buf.api);
+    // std::println("INFO | Current DATA buffer looks like: {}", buf.data);
+    // std::println("INFO | Current TIME buffer looks like: {}", buf.time);
+    // std::println("INFO | Current API buffer looks like: {}", buf.api);
     std::println("INFO | Head is at: {}", buf.head);
     std::println("INFO | Tail is at: {}", buf.tail);
     std::println("INFO | Size is: {}", buf.size);
