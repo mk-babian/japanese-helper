@@ -11,3 +11,5 @@ api_key.cpp
 
 .vscode
 cmake-problems.txt
+
+build_output.log

@@ -160,16 +160,6 @@ target_link_libraries(translator PRIVATE
     m
 )
 
-if(WIN32)
-    add_custom_command(TARGET translator POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:translator>
-            $<TARGET_FILE_DIR:translator>
-        COMMAND_EXPAND_LISTS
-        COMMENT "Copying required runtime DLLs to the build directory..."
-    )
-endif()
-
 add_custom_command(TARGET translator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/images

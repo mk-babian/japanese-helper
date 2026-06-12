@@ -4,11 +4,9 @@ A **minimalistic** desktop application for Japanese vocabulary lookup and transl
 
 It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text. Compatible both with Windows and Linux.
 
-## Screenshots:
+## Preview:
 
-![](images/screenshots/translator_bEI5b21csT.png)
-
-![](images/screenshots/translator_bNfkxPuuSa.png)
+![](images/screenshots/general.gif)
 
 ## Usage:
 
@@ -44,6 +42,8 @@ For more information on the MyMemory API, please visit [here.](https://mymemory.
 ## 🗣️ Speech Recognition:
 
 Japanese Helper has a built-in speech recognition, allowing the user to transcribe Japanese speech into text that automatically goes into the search bar (input).
+
+![](images/screenshots/speech_to_text.gif)
 
 STT uses **whisper.cpp** with the `base` model by default. You can download different model sizes (**tiny**, **base**, **small**, **medium**, **large**) directly from the application via `Settings → Model Download`.
 
