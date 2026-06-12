@@ -15,16 +15,20 @@ add_compile_options(-Wall -Wextra)
 if(TRANSLATOR_STATIC)
     if(MSVC)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    else()
+    elseif(WIN32)
         add_link_options(-static -static-libgcc -static-libstdc++)
+    else()
+        add_link_options(-static-libgcc -static-libstdc++)
     endif()
 endif()
 
 # Used to download dependencies
 include(FetchContent)
 
-set(CURL_INCLUDE_DIR "C:/libs/curl/include")
-set(CURL_LIBRARIES "C:/libs/curl/lib/libcurl.lib")
+if(WIN32)
+    set(CURL_INCLUDE_DIR "C:/libs/curl/include")
+    set(CURL_LIBRARIES "C:/libs/curl/lib/libcurl.lib")
+endif()
 
 # --- CURL ---
 find_package(CURL QUIET)
