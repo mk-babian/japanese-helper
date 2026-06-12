@@ -45,7 +45,21 @@ Japanese Helper has a built-in speech recognition, allowing the user to transcri
 
 ![](images/screenshots/speech_to_text.gif)
 
-STT uses **whisper.cpp** with the `base` model by default. You can download different model sizes (**tiny**, **base**, **small**, **medium**, **large**) directly from the application via `Settings → Model Download`.
+STT uses **whisper.cpp**. No models are included by default. You must download a model before using speech-to-text. You can download different model sizes (**tiny**, **base**, **small**, **medium**, **large**) directly from the application via `Settings → Model Download`.
+
+**Model Selection Guide:**
+
+Choose based on your hardware and accuracy needs. **Tiny** and **base** are fast and lightweight but less accurate; **small** and **medium** balance accuracy and resource usage; **large** offers the highest accuracy at the cost of significant storage and RAM. Start with **base** if unsure.
+
+### Memory usage
+
+| Model  | Disk    | Mem     |
+| ------ | ------- | ------- |
+| tiny   | 75 MiB  | ~273 MB |
+| base   | 142 MiB | ~388 MB |
+| small  | 466 MiB | ~852 MB |
+| medium | 1.5 GiB | ~2.1 GB |
+| large  | 2.9 GiB | ~3.9 GB |
 
 You can also modify the settings and paramaters for **whisper.cpp** and its structs in `speech_to_text.cpp`.
 Notably, you can change the language that **whisper.cpp** takes in as input.
@@ -87,9 +101,9 @@ There is a `CMakeLists.txt` in the root directory of the project. It can be used
   
   ##### Note on Whisper.cpp:
 
-- By default, Japanese Helper uses the `base` model of Whisper.cpp.
+- Japanese Helper does not include any Whisper models by default. You must download a model before using speech-to-text.
 
-- You can download additional Whisper models from the application:
+- You can download Whisper models from the application:
   - Navigate to `Settings → Model Download`
   - Select your desired model size and download
   
