@@ -80,13 +80,17 @@ if(NOT PORTAUDIO_FOUND)
 
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
+    # Build PortAudio statically
+    set(PA_BUILD_SHARED OFF CACHE INTERNAL "")
+    set(PA_BUILD_STATIC ON  CACHE INTERNAL "")
+
     FetchContent_Declare(
         portaudio
         GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
         GIT_TAG v19.7.0
     )
     FetchContent_MakeAvailable(portaudio)
-    set(PORTAUDIO_LIBRARIES portaudio)
+    set(PORTAUDIO_LIBRARIES portaudio_static)
     set(PORTAUDIO_INCLUDE_DIRS ${portaudio_SOURCE_DIR}/include)
 endif()
 
