@@ -21,6 +21,16 @@ struct AppState{
     int selected_settings_win = 0;
     Fl_Group* settings_content;
 
+    Fl_Window* info_win;
+    Fl_Group* info_content;
+    int selected_info_win = 0;
+    Fl_Multiline_Output* info_text = nullptr;
+
+    // The buttons on the left of the info window
+    Fl_Button* general_info_btn;
+    Fl_Button* api_info_btn;
+    Fl_Button* whisper_info_btn;
+
     // The buttons on the left of the settings window
     Fl_Button* general_settings_btn;
     Fl_Button* history_settings_btn;
@@ -31,6 +41,14 @@ struct AppState{
     Fl_Choice* whisper_model_selector;
     Fl_Button* install_whisper_model;
     int selected_model = -1;
+
+    // Input device selection for speech-to-text
+    Fl_Choice* whisper_device_selector = nullptr;
+    // PortAudio device index of the selected input device. paNoDevice means "use the default".
+    // Resolved from selected_input_device_name at runtime; indices are not stable across runs.
+    PaDeviceIndex selected_input_device = paNoDevice;
+    // The persisted identity of the chosen device. Empty means "use the default".
+    std::string selected_input_device_name;
 
     // Everything related to the history window
     Fl_Window* history_win;

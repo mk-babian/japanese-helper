@@ -3,6 +3,7 @@
 #include <thread>
 #include <print>
 #include <fstream>
+#include <cstdint>
 
 #include <FL/Fl_PNG_Image.H>
 #include <FL/Fl_Choice.H>
@@ -21,6 +22,21 @@
 #include "include/download_whisper_model.h"
 
 const std::filesystem::path executable_path = get_executable_path().parent_path();
+
+// Resolve a saved input-device name to its current PortAudio index.
+// Returns paNoDevice when the name is empty or no longer matches a device,
+// in which case callers should fall back to the system default.
+static PaDeviceIndex resolve_input_device(const std::string& name){
+    if (name.empty()) return paNoDevice;
+
+    int n_devices = Pa_GetDeviceCount();
+    for (int i = 0; i < n_devices; i++){
+        const PaDeviceInfo* device_info = Pa_GetDeviceInfo(i);
+        if (device_info == nullptr || device_info->maxInputChannels <= 0) continue;
+        if (name == device_info->name) return i;
+    }
+    return paNoDevice;
+}
 
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
@@ -145,7 +161,85 @@ void open_settings(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
 
+    // Open on the General tab.
+    on_settings_win_change(app->general_settings_btn, app);
+
     app->settings_win->show();
+}
+
+void open_info(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+
+    // Open on the API tab.
+    on_info_win_change(app->general_info_btn, app);
+
+    app->info_win->show();
+}
+
+// Callback for handling info window tab changes
+// This is triggered when any of the info category buttons are clicked
+void on_info_win_change(Fl_Widget* w, void* data){
+    AppState* app = static_cast<AppState*>(data);
+
+    app->info_text = nullptr;
+
+    app->info_content->clear();
+
+    // Determine which button was pressed by comparing widget pointers
+    if (w == app->api_info_btn) {
+        app->selected_info_win = 0;
+    }else if (w == app->general_info_btn) {
+        app->selected_info_win = 1;
+    }
+
+    std::println("INFO | Selected info tab: {}", app->selected_info_win);
+
+    if (app->selected_info_win == 0){
+        app->info_content->begin();
+
+        // Display API information
+        app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
+        app->info_text->box(FL_NO_BOX);
+        app->info_text->color(FL_WHITE);
+        app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->info_text->textcolor(FL_BLACK);
+        app->info_text->wrap(1);
+        app->info_text->value(
+            "\t  === Jisho ===\n\n"
+            "A Japanese-English dictionary. Looks up words, "
+            "readings, and definitions. No API key required.\n\n"
+            "Works with Kanji, Hiragana, Katakana, and Romaji input.\n"
+            "\n"
+            "\t  === DeepL ===\n\n"
+            "A machine translation service. Requires a free API "
+            "key, set it in Settings > API.\n\n"
+            "Way more accurate than MyMemory, especially for sentences.\n"
+            "\n"
+            "\t === MyMemory ===\n\n"
+            "A translation memory service. No API key required. "
+            "Providing an email in Settings > API raises the free "
+            "daily limit from 5,000 to 50,000 characters."
+        );
+
+        app->info_content->end();
+        app->info_win->redraw();
+    } else if (app->selected_info_win == 1){
+        app->info_content->begin();
+
+        // Display general information
+        app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
+        app->info_text->box(FL_NO_BOX);
+        app->info_text->color(FL_WHITE);
+        app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->info_text->textcolor(FL_BLACK);
+        app->info_text->wrap(1);
+        app->info_text->value(
+            "A simple lookup and translation desktop app for Japanese. Built with C++ and FLTK.\n\n"
+        );
+        app->info_content->end();
+        app->info_win->redraw();
+    }
 }
 
 // The apply button found in the settings window, its callback
@@ -196,9 +290,16 @@ void on_stt_btn(Fl_Widget* w, void* data){
     app->stt_btn->selection_color(accent_red);   // Keep it red if clicked while recording.
     app->stt_btn->redraw();                         // Force FLTK to paint the town red.
 
-    // Set up PortAudio parameters
+    // Set up PortAudio parameters.
+    // Resolve the saved device by name (indices aren't stable across runs),
+    // falling back to the system default when it's gone or none was chosen.
+    PaDeviceIndex device = resolve_input_device(app->selected_input_device_name);
+    if (device == paNoDevice) device = Pa_GetDefaultInputDevice();
+    app->selected_input_device = device;
+    app->stream_data.selected_input_device = device;
+
     PaStreamParameters params;
-    params.device = Pa_GetDefaultInputDevice();
+    params.device = device;
     params.channelCount = 1;
     params.sampleFormat = paFloat32;
     params.suggestedLatency = Pa_GetDeviceInfo(params.device)->defaultLowInputLatency;
@@ -314,6 +415,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     app->settings_email_input = nullptr;
     app->whisper_model_selector = nullptr;
     app->install_whisper_model = nullptr;
+    app->whisper_device_selector = nullptr;
 
     app->settings_content->clear();
 
@@ -334,11 +436,11 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
         
         // Display general settings
-        Fl_Button* clear_history_btn = new Fl_Button(340, 260, 160, 30, "Clear History");
+        Fl_Button* clear_history_btn = new Fl_Button(190, 10, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
-        clear_history_btn->color(accent_blue);
-        clear_history_btn->labelcolor(FL_WHITE);
+        clear_history_btn->color(accent_grey);
+        clear_history_btn->labelcolor(FL_BLACK);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
@@ -405,7 +507,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_model_selector->callback(model_choice_callback, app);
         app->whisper_model_selector->value(app->selected_model);
 
-        app->install_whisper_model = new Fl_Button(410, 10, 280, 30, "Download");
+        app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
         app->install_whisper_model->box(FL_UP_BOX);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->install_whisper_model->labelcolor(FL_WHITE);
@@ -423,10 +525,67 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             case 4: model_name = "ggml-large.bin";  break;
         }
         if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
-            app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
+            app->install_whisper_model->color(accent_green);
             app->install_whisper_model->labelcolor(FL_BLACK);
             app->install_whisper_model->label("Already Downloaded!");
             app->install_whisper_model->deactivate();
+        }
+
+        // Input device selector: list every PortAudio device that has input channels.
+        app->whisper_device_selector = new Fl_Choice(310, 50, 380, 30, "Input Device:");
+        app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->whisper_device_selector->callback(device_choice_callback, app);
+
+        int n_devices = Pa_GetDeviceCount();
+        PaDeviceIndex default_device = Pa_GetDefaultInputDevice();
+        int selected_menu_index = -1;   // entry matching the saved device name
+        int default_menu_index = -1;    // entry for the system default device
+        for (int i = 0; i < n_devices; i++){
+            const PaDeviceInfo* device_info = Pa_GetDeviceInfo(i);
+            if (device_info == nullptr || device_info->maxInputChannels <= 0) continue;
+
+            std::string device_name = device_info->name;
+
+            // FLTK's add() treats '/' as a submenu separator and '&' as a shortcut
+            // marker. Device names routinely contain both, so escape them with '\'.
+            std::string label;
+            for (char c : device_name){
+                if (c == '/' || c == '&' || c == '\\') label += '\\';
+                label += c;
+            }
+            // Flag the system default device right in the label.
+            if (i == default_device) label += "  ( Default )";
+
+            // Stash the PortAudio device index inside the menu item's user data so the
+            // callback can recover it regardless of which devices were skipped above.
+            app->whisper_device_selector->add(label.c_str(), 0,
+                                              nullptr, (void*)(intptr_t)i);
+            int menu_index = app->whisper_device_selector->size() - 2; // -1 for trailing NULL terminator
+
+            // Render the default device's entry in bold.
+            if (i == default_device){
+                default_menu_index = menu_index;
+                const_cast<Fl_Menu_Item*>(&app->whisper_device_selector->menu()[menu_index])
+                    ->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+            }
+
+            // Match the saved device by name; indices aren't stable across runs.
+            if (!app->selected_input_device_name.empty() &&
+                device_name == app->selected_input_device_name){
+                selected_menu_index = menu_index;
+                app->selected_input_device = i;
+                app->stream_data.selected_input_device = i;
+            }
+        }
+
+        // Pre-select the saved device if it's still present, otherwise the default.
+        if (selected_menu_index >= 0){
+            app->whisper_device_selector->value(selected_menu_index);
+        } else if (default_menu_index >= 0){
+            app->whisper_device_selector->value(default_menu_index);
+            // The saved device is gone (or none saved); fall back to the default.
+            app->selected_input_device = paNoDevice;
+            app->stream_data.selected_input_device = paNoDevice;
         }
 
         app->settings_content->end();
@@ -504,6 +663,26 @@ void model_choice_callback(Fl_Widget* w, void* data){
     }
 
     std::println("INFO | Selected MODEL index: {}", app->selected_model);
+}
+
+void device_choice_callback(Fl_Widget* w, void* data){
+    Fl_Choice* choice = static_cast<Fl_Choice*>(w);
+    AppState* app = static_cast<AppState*>(data);
+
+    // Recover the PortAudio device index we stashed in the menu item's user data.
+    const Fl_Menu_Item* item = choice->mvalue();
+    if (item == nullptr) return;
+
+    PaDeviceIndex device = (PaDeviceIndex)(intptr_t)item->user_data();
+    app->selected_input_device = device;
+    app->stream_data.selected_input_device = device;
+
+    // Persist by name, not index, since indices aren't stable across runs.
+    const PaDeviceInfo* device_info = Pa_GetDeviceInfo(device);
+    app->selected_input_device_name = (device_info != nullptr) ? device_info->name : "";
+
+    std::println("INFO | Selected input device: {} (index {})",
+                 app->selected_input_device_name, device);
 }
 
 void download_button(Fl_Widget* w, void* data){

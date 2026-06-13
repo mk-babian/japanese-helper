@@ -120,13 +120,24 @@ int main(void){
     app.output->textsize(large_font);
 
     // Create and configure a chocie for the selected API
-    Fl_Choice* choice = new Fl_Choice(10, 10, 120, 30);
+    Fl_Choice* choice = new Fl_Choice(45, 10, 120, 30);
     app.api_selector = choice;
     app.api_selector->add("Jisho");
     app.api_selector->add("DeepL");
     app.api_selector->add("MyMemory");
     app.api_selector->value(0);
     app.api_selector->callback(choice_callback, &app);
+
+    Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
+    info_button->box(FL_UP_BOX);
+    info_button->color(accent_blue);
+    Fl_PNG_Image* info_icon = new Fl_PNG_Image((executable_path + "/images/info.png").c_str());
+    if (info_icon->fail()){
+        std::println("W | Couldn't load info-icon image!");
+    }else{
+        info_button->image(info_icon);
+    }
+    info_button->callback(open_info, &app);
 
     // Create and configure the microphone button for STT
     Fl_Button* voice_to_text_btn = new Fl_Button(215, 10, 30, 30);
@@ -296,6 +307,41 @@ int main(void){
 
     // Show the main window.
     main_win->show();
+
+    
+    // ============================ INFO WINDOW
+
+    
+    app.info_win = new Fl_Window(500, 600, "Info");
+
+    app.info_content = new Fl_Group(200, 0, 300, 600);
+    app.info_content->box(FL_FLAT_BOX);
+    app.info_content->color(bg_color);
+    app.info_content->end();
+
+    Fl_Box* info_left_box = new Fl_Box(0, 0, 200, 600);
+    info_left_box->box(FL_FLAT_BOX);
+    info_left_box->color(fl_rgb_color(180, 180, 185));
+
+    Fl_Button* general_info_btn = new Fl_Button(10, 10, 180, 30, "General");
+    general_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    general_info_btn->box(FL_UP_BOX);
+    general_info_btn->color(accent_blue);
+    general_info_btn->labelcolor(FL_WHITE);
+    general_info_btn->callback(on_info_win_change, &app);
+    app.general_info_btn = general_info_btn;
+
+    Fl_Button* api_info_btn = new Fl_Button(10, 50, 180, 30, "API");
+    api_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    api_info_btn->box(FL_UP_BOX);
+    api_info_btn->color(accent_blue);
+    api_info_btn->labelcolor(FL_WHITE);
+    api_info_btn->callback(on_info_win_change, &app);
+    app.api_info_btn = api_info_btn;
+
+    app.info_win->color(bg_color);
+    app.info_win->end();
+
 
     curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
     Pa_Initialize();                    // Start PortAudio.

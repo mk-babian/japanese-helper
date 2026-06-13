@@ -54,6 +54,13 @@ void load_config(AppState* app){
             app->selected_model = std::stoi(value);
             app->stream_data.selected_model = app->selected_model;
         }
+
+        if (key == "input_device"){
+            // Persisted by device name; the PortAudio index is resolved later
+            // (in the settings tab / when recording starts) since indices are
+            // not stable across runs and PortAudio isn't initialized yet here.
+            app->selected_input_device_name = value;
+        }
     }
 }
 
@@ -69,6 +76,7 @@ void save_config(const AppState* app){
     config << "deepl_key=" + app->deepl_key + '\n';
     config << "mymemory_email=" + app->mymemory_email + '\n';
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
+    config << "input_device=" + app->selected_input_device_name + '\n';
 }
 
 // A standalone function to clear the history buffer and file

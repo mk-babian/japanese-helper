@@ -15,6 +15,8 @@ struct StreamData {
     bool is_recording = false;
     std::size_t index = 0;
     int selected_model = 0;
+    // PortAudio device index to record from. paNoDevice means "use the default".
+    PaDeviceIndex selected_input_device = paNoDevice;
 };
 
 int pa_callback(const void* in_buffer, void* out_buffer, unsigned long frames_per_buffer,
