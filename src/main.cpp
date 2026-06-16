@@ -266,23 +266,6 @@ int main(void){
     cancel_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     cancel_button->callback(on_cancel_btn, &app);
 
-    // Create and configure the settings API key input.
-    // app.settings_key_input = new Fl_Input(90, 50, 200, 30, "DeepL Key:");
-    // app.settings_key_input->box(FL_UP_BOX);
-    // app.settings_key_input->color(FL_WHITE);
-    // app.settings_key_input->textfont(FL_FREE_FONT);
-    // app.settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    // app.settings_key_input->labelcolor(FL_BLACK);
-
-    // app.whisper_model_selector = new Fl_Choice(10, 510, 120, 30); 
-    // app.whisper_model_selector->add("");
-    // app.whisper_model_selector->add("tiny");
-    // app.whisper_model_selector->add("base");
-    // app.whisper_model_selector->add("small");
-    // app.whisper_model_selector->add("medium");
-    // app.whisper_model_selector->add("large");
-    // app.api_selector->value(0);
-
     app.settings_win->color(bg_color);
     app.settings_win->end();
 
@@ -339,16 +322,24 @@ int main(void){
     api_info_btn->callback(on_info_win_change, &app);
     app.api_info_btn = api_info_btn;
 
+    Fl_Button* whisper_info_btn = new Fl_Button(10, 90, 180, 30, "Whisper");
+    whisper_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    whisper_info_btn->box(FL_UP_BOX);
+    whisper_info_btn->color(accent_blue);
+    whisper_info_btn->labelcolor(FL_WHITE);
+    whisper_info_btn->callback(on_info_win_change, &app);
+    app.whisper_info_btn = whisper_info_btn;
+
     app.info_win->color(bg_color);
     app.info_win->end();
 
 
     curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
     Pa_Initialize();                    // Start PortAudio.
-    Fl::focus(main_win);            // Give focus to the main window.
-    Fl::lock();                     // Essential for multithreading.
-    int result = Fl::run();         // Start the app.
-    Pa_Terminate();                 // Stop PortAudio.
+    Fl::focus(main_win);                // Give focus to the main window.
+    Fl::lock();                         // Essential for multithreading.
+    int result = Fl::run();             // Start the app.
+    Pa_Terminate();                     // Stop PortAudio.
     curl_global_cleanup();
     return result;
 }

@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include <FL/Fl_PNG_Image.H>
+#include <FL/Fl_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
 
@@ -191,6 +192,8 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->selected_info_win = 0;
     }else if (w == app->general_info_btn) {
         app->selected_info_win = 1;
+    }else if (w == app->whisper_info_btn) {
+        app->selected_info_win = 2;
     }
 
     std::println("INFO | Selected info tab: {}", app->selected_info_win);
@@ -236,6 +239,33 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->info_text->wrap(1);
         app->info_text->value(
             "A simple lookup and translation desktop app for Japanese. Built with C++ and FLTK.\n\n"
+        );
+        app->info_content->end();
+        app->info_win->redraw();
+    } else if (app->selected_info_win == 2){
+        app->info_content->begin();
+
+        // Display Whisper information
+        app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
+        app->info_text->box(FL_NO_BOX);
+        app->info_text->color(FL_WHITE);
+        app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->info_text->textcolor(FL_BLACK);
+        app->info_text->wrap(1);
+        app->info_text->value(
+            "Whisper is a high-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model.\n\n"
+            "To get started, please download a model from Settings → Speech-to-text → Whisper Model.\n\n"
+            "Do note that the accuracy, speed, and hardware usage varies from model to model.\n\n"
+            "Here is a chart of all the available models. I recomend starting with the \"small\" model.\n\n"
+            "| Model  | Disk    | Mem     |\n"
+            "| ------ | ------- | ------- |\n"
+            "| tiny   | 75 MiB  | ~273 MB |\n"
+            "| base   | 142 MiB | ~388 MB |\n"
+            "| small  | 466 MiB | ~852 MB |\n"
+            "| medium | 1.5 GiB | ~2.1 GB |\n"
+            "| large  | 2.9 GiB | ~3.9 GB |\n\n"
+            "After doing so, click on the microphone button next to the search bar, record your input, "
+            "and press it again to stop recording."
         );
         app->info_content->end();
         app->info_win->redraw();
@@ -436,13 +466,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
         
         // Display general settings
-        Fl_Button* clear_history_btn = new Fl_Button(190, 10, 160, 30, "Clear History");
-        clear_history_btn->align(FL_ALIGN_CENTER);
-        clear_history_btn->box(FL_UP_BOX);
-        clear_history_btn->color(accent_grey);
-        clear_history_btn->labelcolor(FL_BLACK);
-        clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        clear_history_btn->callback(on_clear_history_btn, app);
+        
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -450,6 +474,23 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
 
         // Display history settings
+        Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
+        clear_history_btn->align(FL_ALIGN_CENTER);
+        clear_history_btn->box(FL_UP_BOX);
+        clear_history_btn->color(accent_red);
+        clear_history_btn->labelcolor(FL_WHITE);
+        clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        clear_history_btn->callback(on_clear_history_btn, app);
+
+        Fl_Slider* history_capacity_slider = new Fl_Slider(190, 10, 300, 30);
+        history_capacity_slider->type(FL_HOR_SLIDER);
+        history_capacity_slider->box(FL_UP_BOX);
+        history_capacity_slider->bounds(0.0, 1000.0);
+        history_capacity_slider->value(50.0);
+        history_capacity_slider->step(1.0);
+        history_capacity_slider->color(accent_grey);
+        history_capacity_slider->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        history_capacity_slider->callback(history_capacity_slider_callback, app);
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -595,7 +636,6 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
 // Clears the search history both in the buffer and in the history.json file
 void on_clear_history_btn(Fl_Widget* w, void* data){
-    (void)w;
     AppState* app = static_cast<AppState*>(data);
     CircularBuffer* buf = app->history_buf;
 
@@ -615,6 +655,13 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
     buf->size = 0;
 
     print_buffers(app);
+
+    // Give the user some visual confirmation that the history was cleared.
+    Fl_Button* btn = static_cast<Fl_Button*>(w);
+    btn->color(accent_green);
+    btn->labelcolor(FL_BLACK);
+    btn->label("History Cleared!");
+    btn->redraw();
 }
 
 // This callback is triggered when a history entry button is clicked
@@ -742,4 +789,20 @@ void show_deepl_key_btn(Fl_Widget* w, void* data){
         app->settings_key_input->redraw();
         app->key_shown = false;
     }
+}
+
+void history_capacity_slider_callback(Fl_Widget* w, void* data) {
+    Fl_Slider* slider = (Fl_Slider*)w;
+    AppState* app = static_cast<AppState*>(data);
+    
+    int value = (int)slider->value();
+
+    // Static buffer persists between calls — safe for a single slider
+    static char label_buf[16];
+    snprintf(label_buf, sizeof(label_buf), "%d", value);
+
+    // TODO: Actually set the value to change the history buffer capacity
+
+    slider->copy_label(label_buf); // FLTK copies the string internally
+    app->settings_content->redraw(); // Redraw the content to update the label
 }
