@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include <FL/Fl_PNG_Image.H>
+#include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
@@ -431,6 +432,7 @@ void on_history_btn(Fl_Widget* w, void* data){
 // Saves the history buffer into history.json before exiting
 void on_main_win_close(Fl_Widget* w, void* data) {
     AppState* app = static_cast<AppState*>(data);
+    app->history_capacity = app->history_buf->capacity;
     write_buffer(app);
     save_config(app);
     w->hide();
@@ -482,15 +484,10 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
-        Fl_Slider* history_capacity_slider = new Fl_Slider(190, 10, 300, 30);
-        history_capacity_slider->type(FL_HOR_SLIDER);
-        history_capacity_slider->box(FL_UP_BOX);
-        history_capacity_slider->bounds(0.0, 1000.0);
-        history_capacity_slider->value(50.0);
-        history_capacity_slider->step(1.0);
-        history_capacity_slider->color(accent_grey);
-        history_capacity_slider->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        history_capacity_slider->callback(history_capacity_slider_callback, app);
+        Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
+        history_capacity_input->box(FL_UP_BOX);
+        history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        history_capacity_input->value(app->history_buf->capacity);
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -789,20 +786,4 @@ void show_deepl_key_btn(Fl_Widget* w, void* data){
         app->settings_key_input->redraw();
         app->key_shown = false;
     }
-}
-
-void history_capacity_slider_callback(Fl_Widget* w, void* data) {
-    Fl_Slider* slider = (Fl_Slider*)w;
-    AppState* app = static_cast<AppState*>(data);
-    
-    int value = (int)slider->value();
-
-    // Static buffer persists between calls — safe for a single slider
-    static char label_buf[16];
-    snprintf(label_buf, sizeof(label_buf), "%d", value);
-
-    // TODO: Actually set the value to change the history buffer capacity
-
-    slider->copy_label(label_buf); // FLTK copies the string internally
-    app->settings_content->redraw(); // Redraw the content to update the label
 }

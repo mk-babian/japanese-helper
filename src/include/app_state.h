@@ -5,6 +5,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Scroll.H>
+#include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Multiline_Output.H>
 
 #include <vector>
@@ -25,6 +26,10 @@ struct AppState{
     Fl_Group* info_content;
     int selected_info_win = 0;
     Fl_Multiline_Output* info_text = nullptr;
+
+    // History capacity
+    Fl_Int_Input* history_capacity_input;
+    int history_capacity;
 
     // The buttons on the left of the info window
     Fl_Button* general_info_btn;

@@ -61,6 +61,10 @@ void load_config(AppState* app){
             // not stable across runs and PortAudio isn't initialized yet here.
             app->selected_input_device_name = value;
         }
+
+        if (key == "history_capacity"){
+            app->history_buf->capacity = std::stoi(value);
+        }
     }
 }
 
@@ -77,6 +81,7 @@ void save_config(const AppState* app){
     config << "mymemory_email=" + app->mymemory_email + '\n';
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
     config << "input_device=" + app->selected_input_device_name + '\n';
+    config << "history_capacity=" + std::to_string(app->history_buf->capacity) + '\n';
 }
 
 // A standalone function to clear the history buffer and file

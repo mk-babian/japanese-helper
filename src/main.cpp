@@ -53,7 +53,8 @@ int main(void){
     // Create the circular buffer to hold the search history
     CircularBuffer history_circle;
     app.history_buf = &history_circle;
-    app.history_buf->capacity = 100;
+    // Load the config (the one that the settings window writes).
+    load_config(&app);
     // Allocate memory for strings
     app.history_buf->data.resize(app.history_buf->capacity);
     app.history_buf->time.resize(app.history_buf->capacity);
@@ -80,8 +81,6 @@ int main(void){
 
     MainWindow* main_win = new MainWindow(900, 600, "Japanese Helper");
     app.main_win = main_win;
-
-    
 
     // Set the platform specific stuff
     #if defined(_WIN32)
@@ -283,10 +282,6 @@ int main(void){
     // Create a keybind to call master_on_search when ENTER is pressed.
     app.input->when(FL_WHEN_ENTER_KEY);
     app.input->callback(master_on_search, &app);
-
-    // Load the config (the one that the settings window writes).
-    // For now, the config is written to the same directory as the executable.
-    load_config(&app);
 
     // Show the main window.
     main_win->show();
