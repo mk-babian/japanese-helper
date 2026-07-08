@@ -288,6 +288,11 @@ void on_apply_btn(Fl_Widget* w, void* data){
         app->mymemory_email = app->settings_email_input->value();
     }
 
+    if (app->history_capacity_input){
+        app->history_buf->capacity = std::stoi(app->history_capacity_input->value());
+        std::println("Capacity {}", app->history_buf->capacity);
+    }
+
     save_config(app);
 
     // This crashes the app for some reason
@@ -488,6 +493,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         history_capacity_input->box(FL_UP_BOX);
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         history_capacity_input->value(app->history_buf->capacity);
+        app->history_capacity_input = history_capacity_input;
 
         app->settings_content->end();
         app->settings_win->redraw();
