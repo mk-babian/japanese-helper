@@ -124,6 +124,7 @@ add_executable(translator
     ${CMAKE_CURRENT_SOURCE_DIR}/truncate_label.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/get_data_dir.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/download_whisper_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ocr.cpp
     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/resources.rc>
 )
 
@@ -159,6 +160,10 @@ target_link_libraries(translator PRIVATE
     stdc++exp
     m
 )
+
+if(WIN32)
+    target_link_libraries(translator PRIVATE gdiplus gdi32 user32)
+endif()
 
 add_custom_command(TARGET translator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

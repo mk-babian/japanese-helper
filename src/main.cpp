@@ -21,11 +21,9 @@
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
 
-namespace fs = std::filesystem;
-
 // This function handles file path getting for both Linux and
 // Windows operating systems
-fs::path get_executable_path();
+std::filesystem::path get_executable_path();
 
 int main(void){
 #if defined(_WIN32)

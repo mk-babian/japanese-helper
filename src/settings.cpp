@@ -8,6 +8,7 @@
 // i don't use this anymore ↓
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
+#include "include/ocr.h"
 
 void load_config(AppState* app){
     std::string executable_path = get_data_dir("JapaneseHelper").string();
@@ -82,6 +83,8 @@ void save_config(const AppState* app){
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
     config << "input_device=" + app->selected_input_device_name + '\n';
     config << "history_capacity=" + std::to_string(app->history_buf->capacity) + '\n';
+
+    capture_windows();
 }
 
 // A standalone function to clear the history buffer and file
