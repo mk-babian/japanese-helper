@@ -19,6 +19,7 @@
 #include "include/app_state.h"
 #include "include/overrides.h"
 #include "include/get_exec_path.h"
+#include "include/global_hotkey.h"
 #include "include/history_circ_buffer.h"
 
 // This function handles file path getting for both Linux and
@@ -284,6 +285,10 @@ int main(void){
     // Show the main window.
     main_win->show();
 
+    #if defined(_WIN32)
+        register_global_hotkeys(&app);
+    #endif
+
     
     // ============================ INFO WINDOW
 
@@ -334,5 +339,8 @@ int main(void){
     int result = Fl::run();             // Start the app.
     Pa_Terminate();                     // Stop PortAudio.
     curl_global_cleanup();
+    #if defined(_WIN32)
+        unregister_global_hotkeys();
+    #endif
     return result;
 }

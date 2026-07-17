@@ -125,6 +125,7 @@ add_executable(translator
     ${CMAKE_CURRENT_SOURCE_DIR}/get_data_dir.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/download_whisper_model.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ocr.cpp
+    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/global_hotkey.cpp>
     $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/resources.rc>
 )
 

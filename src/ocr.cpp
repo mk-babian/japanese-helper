@@ -27,6 +27,15 @@ int get_encoder_clsid(const WCHAR* format, CLSID* pClsid){
 // Windows only
 // Vibe coded all of this... I have no clue what's happening.
 void capture_windows(void){
+    int start_w = 0, start_h = 0;
+    int cap_w   = 100, cap_h = 100;
+
+    POINT p;
+    if (GetCursorPos(&p)){
+        cap_w = p.x;
+        cap_h = p.y;
+    }
+
     Gdiplus::GdiplusStartupInput gdiplus_startup_input;
     ULONG_PTR token;
     Gdiplus::GdiplusStartup(&token, &gdiplus_startup_input, nullptr);
@@ -36,11 +45,11 @@ void capture_windows(void){
 
     HDC h_screen  = GetDC(nullptr);
     HDC h_mem     = CreateCompatibleDC(h_screen);
-    HBITMAP h_bmp = CreateCompatibleBitmap(h_screen, width, height);
+    HBITMAP h_bmp = CreateCompatibleBitmap(h_screen, cap_w, cap_h);
     HBITMAP h_old = (HBITMAP)SelectObject(h_mem, h_bmp);
 
     // Copy pixels from the screen into our bitmap
-    BitBlt(h_mem, 0, 0, width, height, h_screen, 0, 0, SRCCOPY);
+    BitBlt(h_mem, 0, 0, cap_w, cap_h, h_screen, start_w, start_h, SRCCOPY | CAPTUREBLT);
     SelectObject(h_mem, h_old);  // deselect before handing to GDI+
 
     // Wrap the HBITMAP and save it
