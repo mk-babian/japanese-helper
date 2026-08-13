@@ -117,6 +117,10 @@ int main(void){
     app.output->color(FL_WHITE);
     app.output->textsize(large_font);
 
+    app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
+    app.anki_button->box(FL_UP_BOX);
+    app.anki_button->hide();    
+
     // Create and configure a chocie for the selected API
     Fl_Choice* choice = new Fl_Choice(45, 10, 120, 30);
     app.api_selector = choice;

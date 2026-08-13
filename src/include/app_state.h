@@ -65,6 +65,7 @@ struct AppState{
     Fl_Button* stt_btn;
     Fl_Button* search_btn;
     Fl_Choice* api_selector;
+    Fl_Button* anki_button;
 
     // Main window input and output
     Fl_Input* input;

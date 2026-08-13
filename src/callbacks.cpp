@@ -59,6 +59,8 @@ void master_on_search(Fl_Widget* w, void* data){
     } else if (app->selected_api == 2){
         on_search_mymemory(w, data);
     }
+
+    app->anki_button->show();
 }
 
 void on_search_jisho(Fl_Widget* w, void* data){
