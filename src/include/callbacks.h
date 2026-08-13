@@ -29,4 +29,4 @@ void download_button(Fl_Widget* w, void* data);
 void show_deepl_key_btn(Fl_Widget* w, void* data);
 void open_info(Fl_Widget* w, void* data);
 void on_info_win_change(Fl_Widget* w, void* data);
-void history_capacity_slider_callback(Fl_Widget* w, void* data);
+void on_anki_button(Fl_Widget* w, void* data);

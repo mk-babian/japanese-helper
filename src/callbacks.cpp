@@ -80,6 +80,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(result.c_str());	// perform operation
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();				        // tell the main thread that smth changed
         } catch (const std::exception& e) {		// if jisho_lookup crashes, display error
@@ -87,6 +88,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(e.what()); 	 	// show the error
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
         }
@@ -108,6 +110,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(result.c_str());
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e) {
@@ -115,6 +118,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(e.what());
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
         }
@@ -135,6 +139,7 @@ void on_search_mymemory(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(result.c_str());
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e) {
@@ -142,6 +147,7 @@ void on_search_mymemory(Fl_Widget* w, void* data){
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
             app->output->value(e.what());
+            app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
         }
@@ -794,4 +800,11 @@ void show_deepl_key_btn(Fl_Widget* w, void* data){
         app->settings_key_input->redraw();
         app->key_shown = false;
     }
+}
+
+void on_anki_button(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+
+    anki_connect();
 }
