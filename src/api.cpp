@@ -10,6 +10,9 @@
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
+// Anki Connect
+#include <print>
+
 #include "include/api.h"
 
 
@@ -275,3 +278,28 @@ std::string google_translate(const std::string& text){
     std::string 
 }
 */
+
+// AnkiConnect implementation
+std::string anki_connect(){
+    CURL* curl = curl_easy_init();
+
+    // ↓ Where we put the information we get back into
+    std::string read_buffer;
+    // ↓ The information we send as a postfield 
+    std::string post_data = R"({"action": "deckNames", "version": 6})";
+
+    curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8765");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK){
+        std::println("W | Anki Connect CURL failed: {}", curl_easy_strerror(res));
+    }else{
+        std::println("{}", read_buffer);
+    }
+
+    curl_easy_cleanup(curl);
+    return read_buffer;
+}
