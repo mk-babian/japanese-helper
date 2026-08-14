@@ -296,6 +296,7 @@ std::string anki_connect(){
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK){
         std::println("W | Anki Connect CURL failed: {}", curl_easy_strerror(res));
+        throw std::runtime_error(curl_easy_strerror(res));
     }else{
         std::println("{}", read_buffer);
     }

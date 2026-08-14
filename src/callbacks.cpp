@@ -806,5 +806,28 @@ void on_anki_button(Fl_Widget* w, void* data){
     (void)w;
     AppState* app = static_cast<AppState*>(data);
 
-    anki_connect();
+    app->anki_button->deactivate();
+    app->anki_button->label("C");
+    app->anki_button->redraw();
+
+    std::thread([app](){
+        try {
+            std::string result = anki_connect();
+
+            Fl::lock();
+            app->anki_button->activate();
+            app->anki_button->label("A");
+            app->anki_button->redraw();
+            Fl::unlock();
+            Fl::awake();
+        } catch (const std::exception& e) {
+            Fl::lock();
+            app->anki_button->activate();
+            app->anki_button->label("F");
+            app->anki_button->copy_tooltip(e.what());
+            app->anki_button->redraw();
+            Fl::unlock();
+            Fl::awake();
+        }
+    }).detach();
 }

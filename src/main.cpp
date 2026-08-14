@@ -110,7 +110,9 @@ int main(void){
     app.input->labelcolor(FL_BLACK);
 
     // Create and configure the output box.
-    app.output = new Fl_Multiline_Output(10, 50, 880, 540);
+    // The output box is an OverlayOutput; see `overrides.h`
+    OverlayOutput* output = new OverlayOutput(10, 50, 880, 540);
+    app.output = output;
     app.output->wrap(1);
     app.output->box(FL_UP_BOX);
     app.output->textfont(FL_FREE_FONT);
@@ -120,7 +122,8 @@ int main(void){
     app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
     app.anki_button->box(FL_UP_BOX);
     app.anki_button->callback(on_anki_button, &app);
-    app.anki_button->hide();    
+    app.anki_button->hide();
+    output->keep_on_top(app.anki_button);
 
     // Create and configure a chocie for the selected API
     Fl_Choice* choice = new Fl_Choice(45, 10, 120, 30);

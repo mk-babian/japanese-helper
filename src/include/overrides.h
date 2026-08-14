@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include <FL/fl_draw.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Window.H>
 #include <FL/Enumerations.H>
@@ -69,5 +70,26 @@ public:
             return 1;
         } 
         return Fl_Input::handle(event);
+    }
+};
+
+// ↓ An override we use on the multiline
+//   We can use it to keep buttons over it visible, even if we re-draw
+class OverlayOutput : public Fl_Multiline_Output {
+    Fl_Widget* overlay = nullptr;
+public:
+    OverlayOutput(int X, int Y, int W, int H, const char* L = nullptr)
+        : Fl_Multiline_Output(X, Y, W, H, L) {}
+
+    void keep_on_top(Fl_Widget* w) { overlay = w; }
+
+    void draw() override {
+        Fl_Multiline_Output::draw();
+        if (overlay && overlay->visible()) {
+            fl_push_clip(overlay->x(), overlay->y(), overlay->w(), overlay->h());
+            overlay->clear_damage(FL_DAMAGE_ALL);
+            overlay->draw();
+            fl_pop_clip();
+        }
     }
 };
