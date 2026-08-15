@@ -813,6 +813,9 @@ void on_anki_button(Fl_Widget* w, void* data){
     std::thread([app](){
         try {
             std::string result = anki_connect();
+            std::println("{}", result);
+
+            // TODO: Add a window that pops up with options and etc. to add card
 
             Fl::lock();
             app->anki_button->activate();
@@ -824,7 +827,18 @@ void on_anki_button(Fl_Widget* w, void* data){
             Fl::lock();
             app->anki_button->activate();
             app->anki_button->label("F");
-            app->anki_button->copy_tooltip(e.what());
+
+            // TODO: Add a warning window pop-up when Anki isn't present
+
+            std::string msg = e.what();
+            if (msg.find("Couldn't connect") != std::string::npos){
+                std::println("1. W | Failed to connect to Anki server.\n"
+                    "2. W | Is Anki Connect installed and is Anki running?");
+            }else{
+                app->anki_button->label("F");
+                std::println("W | Failed to utilize Anki Connect.");
+            }
+
             app->anki_button->redraw();
             Fl::unlock();
             Fl::awake();
