@@ -10,6 +10,7 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
+#include <FL/fl_ask.H>
 
 #include "include/api.h"
 #include "include/colors.h"
@@ -824,24 +825,28 @@ void on_anki_button(Fl_Widget* w, void* data){
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e) {
-            Fl::lock();
-            app->anki_button->activate();
-            app->anki_button->label("F");
 
             // TODO: Add a warning window pop-up when Anki isn't present
 
             std::string msg = e.what();
             if (msg.find("Couldn't connect") != std::string::npos){
                 std::println("1. W | Failed to connect to Anki server.\n"
-                    "2. W | Is Anki Connect installed and is Anki running?");
+                             "2. W | Is Anki Connect installed and is Anki running?");
             }else{
-                app->anki_button->label("F");
                 std::println("W | Failed to utilize Anki Connect.");
             }
 
-            app->anki_button->redraw();
-            Fl::unlock();
-            Fl::awake();
+            Fl::awake(show_anki_warning, new AnkiWarning{app, "AnkiConnect not found. Please check if AnkiConnect is installed and running."});
         }
     }).detach();
+}
+
+void show_anki_warning(void* data){
+    std::unique_ptr<AnkiWarning> warn(static_cast<AnkiWarning*>(data));
+
+    warn->app->anki_button->activate();
+    warn->app->anki_button->label("F");
+    warn->app->anki_button->redraw();
+
+    fl_alert("%s", warn->message.c_str());   // needs <FL/fl_ask.H>
 }

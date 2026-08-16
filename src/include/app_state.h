@@ -81,3 +81,8 @@ struct AppState{
     // Optional email sent to MyMemory to raise the daily usage limit
     std::string mymemory_email;
 };
+
+struct AnkiWarning {
+    AppState* app;
+    std::string message;
+};
