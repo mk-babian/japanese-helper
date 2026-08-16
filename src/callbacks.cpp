@@ -825,9 +825,6 @@ void on_anki_button(Fl_Widget* w, void* data){
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e) {
-
-            // TODO: Add a warning window pop-up when Anki isn't present
-
             std::string msg = e.what();
             if (msg.find("Couldn't connect") != std::string::npos){
                 std::println("1. W | Failed to connect to Anki server.\n"
