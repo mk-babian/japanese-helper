@@ -813,10 +813,13 @@ void on_anki_button(Fl_Widget* w, void* data){
 
     std::thread([app](){
         try {
-            std::string result = anki_connect();
-            std::println("{}", result);
+            std::string decks = anki_connect();
+            std::println("{}", decks);
+
+            std::string front = "A", back = "B";
 
             // TODO: Add a window that pops up with options and etc. to add card
+            Fl::awake(show_anki_card_window, new AnkiCardData{app, front, back, decks});
 
             Fl::lock();
             app->anki_button->activate();
@@ -845,5 +848,16 @@ void show_anki_warning(void* data){
     warn->app->anki_button->label("F");
     warn->app->anki_button->redraw();
 
-    fl_alert("%s", warn->message.c_str());   // needs <FL/fl_ask.H>
+    fl_alert("%s", warn->message.c_str());
+}
+
+void show_anki_card_window(void* data){
+    std::unique_ptr<AnkiCardData> card(static_cast<AnkiCardData*>(data));
+
+    Fl_Window* win = new Fl_Window(400, 300, "Add Card");
+
+    // Populate widgets from card->front, card->deck_names, etc.
+
+    win->end();
+    win->show();
 }

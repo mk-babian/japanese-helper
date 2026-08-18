@@ -31,3 +31,4 @@ void open_info(Fl_Widget* w, void* data);
 void on_info_win_change(Fl_Widget* w, void* data);
 void on_anki_button(Fl_Widget* w, void* data);
 void show_anki_warning(void* data);
+void show_anki_card_window(void* data);

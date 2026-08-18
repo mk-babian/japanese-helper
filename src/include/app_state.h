@@ -86,3 +86,10 @@ struct AnkiWarning {
     AppState* app;
     std::string message;
 };
+
+struct AnkiCardData {
+    AppState* app;
+    std::string front;
+    std::string back;
+    std::string deck_names; // Whatever we pulled from AnkiConnect
+};
