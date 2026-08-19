@@ -818,7 +818,6 @@ void on_anki_button(Fl_Widget* w, void* data){
 
             std::string front = "A", back = "B";
 
-            // TODO: Add a window that pops up with options and etc. to add card
             Fl::awake(show_anki_card_window, new AnkiCardData{app, front, back, decks});
 
             Fl::lock();
@@ -857,6 +856,17 @@ void show_anki_card_window(void* data){
     Fl_Window* win = new Fl_Window(400, 300, "Add Card");
 
     // Populate widgets from card->front, card->deck_names, etc.
+
+    Fl_Choice* choice = new Fl_Choice(10, 10, 380, 30);
+
+    size_t start = 0, end;
+    while ((end = card->deck_names.find('\n', start)) != std::string::npos) {
+        choice->add(card->deck_names.substr(start, end - start).c_str());
+        start = end + 1;
+    }
+    if (start < card->deck_names.size()) {
+        choice->add(card->deck_names.substr(start).c_str()); // Last line, no trailing \n
+    }
 
     win->end();
     win->show();

@@ -282,10 +282,11 @@ std::string google_translate(const std::string& text){
 // AnkiConnect implementation
 std::string anki_connect(){
     CURL* curl = curl_easy_init();
+    if (!curl){
+        throw std::runtime_error("W | curl_easy_init failed | AnkiConnect block");
+    }
 
-    // ↓ Where we put the information we get back into
     std::string read_buffer;
-    // ↓ The information we send as a postfield 
     std::string post_data = R"({"action": "deckNames", "version": 6})";
 
     curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8765");
@@ -294,12 +295,26 @@ std::string anki_connect(){
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
 
     CURLcode res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+
     if (res != CURLE_OK){
         throw std::runtime_error(curl_easy_strerror(res));
-    }else{
-        return read_buffer;
     }
 
-    curl_easy_cleanup(curl);
-    return "";
+    nlohmann::json response = nlohmann::json::parse(read_buffer);
+
+    if (!response["error"].is_null()){
+        throw std::runtime_error("W | AnkiConnect error: " + response["error"].get<std::string>());
+    }
+
+    // Separate the deck names with \n
+    std::string decks;
+    for (const auto& name : response["result"]){
+        decks += name.get<std::string>() + "\n";
+    }
+    if (!decks.empty()){
+        decks.pop_back();
+    }
+
+    return decks;
 }
