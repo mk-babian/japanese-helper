@@ -280,7 +280,7 @@ std::string google_translate(const std::string& text){
 */
 
 // AnkiConnect implementation
-std::string anki_connect(){
+std::string anki_get_decks(){
     CURL* curl = curl_easy_init();
     if (!curl){
         throw std::runtime_error("W | curl_easy_init failed | AnkiConnect block");

@@ -822,7 +822,7 @@ void on_anki_button(Fl_Widget* w, void* data){
 
     std::thread([app](){
         try {
-            std::string decks = anki_connect();
+            std::string decks = anki_get_decks();
             std::println("{}", decks);
 
             std::string front = app->anki_front;
