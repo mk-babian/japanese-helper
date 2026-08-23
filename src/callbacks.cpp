@@ -10,6 +10,7 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Input.H>
 #include <FL/fl_ask.H>
 
 #include "include/api.h"
@@ -229,7 +230,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
             "key, set it in Settings > API.\n\n"
             "Way more accurate than MyMemory, especially for sentences.\n"
             "\n"
-            "\t === MyMemory ===\n\n"
+            "\t  === MyMemory ===\n\n"
             "A translation memory service. No API key required. "
             "Providing an email in Settings > API raises the free "
             "daily limit from 5,000 to 50,000 characters."
@@ -853,11 +854,17 @@ void show_anki_warning(void* data){
 void show_anki_card_window(void* data){
     std::unique_ptr<AnkiCardData> card(static_cast<AnkiCardData*>(data));
 
-    Fl_Window* win = new Fl_Window(400, 300, "Add Card");
+    Fl_Window* win = new Fl_Window(400, 260, "Add Card");
 
-    // Populate widgets from card->front, card->deck_names, etc.
+    // Populate widgets from card->front, card->back, card->deck_names, etc.
 
-    Fl_Choice* choice = new Fl_Choice(10, 10, 380, 30);
+    Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
+
+    Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
+    front_input->value(card->front.c_str());
+
+    Fl_Input* back_input = new Fl_Input(50, 100, 340, 30, "Back:");
+    back_input->value(card->back.c_str());
 
     size_t start = 0, end;
     while ((end = card->deck_names.find('\n', start)) != std::string::npos) {
