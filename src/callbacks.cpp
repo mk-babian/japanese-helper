@@ -875,6 +875,17 @@ void show_anki_card_window(void* data){
     Fl_Input* back_input = new Fl_Input(50, 100, 340, 30, "Back:");
     back_input->value(card->back.c_str());
 
+    // "Add" button that submits the card to the selected deck.
+    Fl_Button* add_btn = new Fl_Button(50, 150, 340, 30, "Add");
+    add_btn->box(FL_UP_BOX);
+    add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    add_btn->labelcolor(FL_WHITE);
+    add_btn->color(accent_blue);
+    add_btn->callback(on_anki_add_note, new AnkiAddNoteData{card->app, front_input, back_input});
+
+    // Keep the deck selection in AppState so the Add callback can use it.
+    choice->callback(deck_choice_callback, card->app);
+
     size_t start = 0, end;
     while ((end = card->deck_names.find('\n', start)) != std::string::npos) {
         choice->add(card->deck_names.substr(start, end - start).c_str());
@@ -884,6 +895,69 @@ void show_anki_card_window(void* data){
         choice->add(card->deck_names.substr(start).c_str()); // Last line, no trailing \n
     }
 
+    // Default to the first deck so app->selected_deck is valid even if the
+    // user never touches the choice widget.
+    choice->value(0);
+    if (choice->mvalue() != nullptr) {
+        card->app->selected_deck = choice->text();
+    }
+
     win->end();
     win->show();
+}
+
+// Callback for the deck Fl_Choice in the "Add Card" window.
+// Stores the selected deck name in AppState so the Add button can use it.
+void deck_choice_callback(Fl_Widget* w, void* data){
+    Fl_Choice* choice = static_cast<Fl_Choice*>(w);
+    AppState* app = static_cast<AppState*>(data);
+
+    const char* selected = choice->text();
+    app->selected_deck = selected ? selected : "";
+
+    std::println("INFO | Selected deck: {}", app->selected_deck);
+}
+
+// Callback for the "Add" button in the "Add Card" window.
+// Reads the front/back fields and the selected deck, then hands the AnkiConnect
+// addNote request to a background thread so the UI stays responsive.
+void on_anki_add_note(Fl_Widget* w, void* data){
+    std::unique_ptr<AnkiAddNoteData> note(static_cast<AnkiAddNoteData*>(data));
+
+    // Only the main thread may touch FLTK widgets, so copy the values out first.
+    std::string front = note->front_input->value();
+    std::string back = note->back_input->value();
+    std::string deck = note->app->selected_deck;
+
+    Fl_Button* btn = static_cast<Fl_Button*>(w);
+    btn->deactivate();
+    btn->label("Adding...");
+    btn->redraw();
+
+    AppState* app = note->app;
+
+    std::thread([app, btn, deck, front, back](){
+        try {
+            long long note_id = anki_add_note(deck, front, back);
+            (void)note_id;
+
+            Fl::lock();
+            btn->activate();
+            btn->color(accent_green);
+            btn->labelcolor(FL_BLACK);
+            btn->label("Added!");
+            btn->redraw();
+            Fl::unlock();
+            Fl::awake();
+        } catch (const std::exception& e){
+            Fl::lock();
+            btn->activate();
+            btn->label("Failed");
+            btn->redraw();
+            Fl::unlock();
+            Fl::awake();
+
+            Fl::awake(show_anki_warning, new AnkiWarning{app, e.what()});
+        }
+    }).detach();
 }

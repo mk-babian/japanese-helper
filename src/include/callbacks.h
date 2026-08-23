@@ -9,6 +9,13 @@ typedef struct HistoryEntryData {
     int api;
 } HistoryEntryData;
 
+// Helper struct to pass the Anki "Add Card" window's inputs to the Add button callback
+typedef struct AnkiAddNoteData {
+    AppState* app;
+    Fl_Input* front_input;
+    Fl_Input* back_input;
+} AnkiAddNoteData;
+
 void on_search_jisho(Fl_Widget* w, void* data);
 void on_search_deepl(Fl_Widget* w, void* data);
 void on_search_mymemory(Fl_Widget* w, void* data);
@@ -32,3 +39,5 @@ void on_info_win_change(Fl_Widget* w, void* data);
 void on_anki_button(Fl_Widget* w, void* data);
 void show_anki_warning(void* data);
 void show_anki_card_window(void* data);
+void deck_choice_callback(Fl_Widget* w, void* data);
+void on_anki_add_note(Fl_Widget* w, void* data);

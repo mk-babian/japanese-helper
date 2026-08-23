@@ -85,6 +85,10 @@ struct AppState{
     // Used to pre-fill the Anki card window for DeepL/MyMemory translations.
     std::string anki_front = "A";
     std::string anki_back = "B";
+
+    // The deck selected in the "Add Card" window. AnkiConnect refers to decks
+    // by name, so this is a string (the deckName passed to the addNote action).
+    std::string selected_deck;
 };
 
 struct AnkiWarning {

@@ -318,3 +318,51 @@ std::string anki_get_decks(){
 
     return decks;
 }
+
+// Adds a new note (card) to the given deck using AnkiConnect's addNote action.
+// AnkiConnect identifies decks by name, so "deck" is a plain string. Uses the
+// standard "Basic" note type with "Front" and "Back" fields. Returns the new
+// note's ID on success and throws std::runtime_error otherwise.
+long long anki_add_note(const std::string& deck, const std::string& front, const std::string& back){
+    CURL* curl = curl_easy_init();
+    if (!curl){
+        throw std::runtime_error("W | curl_easy_init failed | AnkiConnect block");
+    }
+
+    std::string read_buffer;
+
+    // Build the request body explicitly to avoid initializer-list ambiguity.
+    json note;
+    note["deckName"] = deck;
+    note["modelName"] = "Basic";
+    note["fields"]["Front"] = front;
+    note["fields"]["Back"] = back;
+    note["tags"] = json::array();
+
+    json payload;
+    payload["action"] = "addNote";
+    payload["version"] = 6;
+    payload["params"]["note"] = note;
+
+    std::string post_data = payload.dump();
+
+    curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8765");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
+
+    CURLcode res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+
+    if (res != CURLE_OK){
+        throw std::runtime_error(curl_easy_strerror(res));
+    }
+
+    json response = json::parse(read_buffer);
+
+    if (!response["error"].is_null()){
+        throw std::runtime_error("W | AnkiConnect error: " + response["error"].get<std::string>());
+    }
+
+    return response["result"].get<long long>();
+}
