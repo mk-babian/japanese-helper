@@ -107,6 +107,10 @@ void on_search_deepl(Fl_Widget* w, void* data){
         try {
             std::string result = deepl_translate(word, app->deepl_key);
             enqueue(app, word);
+
+            app->anki_front = word;
+            app->anki_back = result;
+
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
@@ -137,6 +141,10 @@ void on_search_mymemory(Fl_Widget* w, void* data){
         try {
             std::string result = mymemory_translate(word, app->mymemory_email);
             enqueue(app, word);
+
+            app->anki_front = word;
+            app->anki_back = result;
+
             Fl::lock();
             app->search_btn->activate();
             app->search_btn->color(accent_blue);
@@ -817,7 +825,8 @@ void on_anki_button(Fl_Widget* w, void* data){
             std::string decks = anki_connect();
             std::println("{}", decks);
 
-            std::string front = "A", back = "B";
+            std::string front = app->anki_front;
+            std::string back = app->anki_back;
 
             Fl::awake(show_anki_card_window, new AnkiCardData{app, front, back, decks});
 

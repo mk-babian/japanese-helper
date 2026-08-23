@@ -80,6 +80,11 @@ struct AppState{
     std::string deepl_key;
     // Optional email sent to MyMemory to raise the daily usage limit
     std::string mymemory_email;
+
+    // Last successfully translated result (front = input, back = output)
+    // Used to pre-fill the Anki card window for DeepL/MyMemory translations.
+    std::string anki_front = "A";
+    std::string anki_back = "B";
 };
 
 struct AnkiWarning {
