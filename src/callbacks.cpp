@@ -868,6 +868,9 @@ void show_anki_card_window(void* data){
     // Populate widgets from card->front, card->back, card->deck_names, etc.
 
     Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
+    
+    // TODO: Implement another choice IF Jisho was used.
+    
 
     Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
     front_input->value(card->front.c_str());
@@ -876,7 +879,7 @@ void show_anki_card_window(void* data){
     back_input->value(card->back.c_str());
 
     // "Add" button that submits the card to the selected deck.
-    Fl_Button* add_btn = new Fl_Button(50, 150, 340, 30, "Add");
+    Fl_Button* add_btn = new Fl_Button(150, 220, 100, 30, "Add");
     add_btn->box(FL_UP_BOX);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     add_btn->labelcolor(FL_WHITE);
@@ -887,17 +890,30 @@ void show_anki_card_window(void* data){
     choice->callback(deck_choice_callback, card->app);
 
     size_t start = 0, end;
+    int menu_index = 0;
+    int last_deck_index = -1;
     while ((end = card->deck_names.find('\n', start)) != std::string::npos) {
-        choice->add(card->deck_names.substr(start, end - start).c_str());
+        std::string deck_name = card->deck_names.substr(start, end - start);
+        choice->add(deck_name.c_str());
+        if (deck_name == card->app->last_selected_deck) {
+            last_deck_index = menu_index;
+        }
         start = end + 1;
+        menu_index++;
     }
     if (start < card->deck_names.size()) {
-        choice->add(card->deck_names.substr(start).c_str()); // Last line, no trailing \n
+        std::string deck_name = card->deck_names.substr(start); // Last line, no trailing \n
+        choice->add(deck_name.c_str());
+        if (deck_name == card->app->last_selected_deck) {
+            last_deck_index = menu_index;
+        }
+        menu_index++;
     }
 
-    // Default to the first deck so app->selected_deck is valid even if the
-    // user never touches the choice widget.
-    choice->value(0);
+    // Pre-select the last used deck when it's still available, otherwise
+    // default to the first deck so app->selected_deck stays valid even if
+    // the user never touches the choice widget.
+    choice->value(last_deck_index >= 0 ? last_deck_index : 0);
     if (choice->mvalue() != nullptr) {
         card->app->selected_deck = choice->text();
     }
@@ -914,6 +930,7 @@ void deck_choice_callback(Fl_Widget* w, void* data){
 
     const char* selected = choice->text();
     app->selected_deck = selected ? selected : "";
+    app->last_selected_deck = app->selected_deck;
 
     std::println("INFO | Selected deck: {}", app->selected_deck);
 }

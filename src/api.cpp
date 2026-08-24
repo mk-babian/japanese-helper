@@ -129,6 +129,8 @@ std::string jisho_lookup(const std::string& word){
         result += "\n\n";
     }
 
+    std::println("INFO | Jisho Result: {}", result + '\n');
+
     return result + '\n';
 }
 // IN: std::string text and the DeepL API key
@@ -178,7 +180,8 @@ std::string deepl_translate(const std::string& text, const std::string& api_key)
         if (http_code_map.find(http_code) != http_code_map.end()){
             return std::to_string(http_code) + http_code_map.at(http_code);
         }else{
-            return "Error " + std::to_string(http_code) + ":\nVisit https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#client_error_responses for more information";
+            return "Error " + std::to_string(http_code) + ":\nVisit"
+            "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#client_error_responses for more information";
         }
 
     }
@@ -245,7 +248,8 @@ std::string mymemory_translate(const std::string& text, const std::string& email
         if (http_code_map.find(http_code) != http_code_map.end()){
             return std::to_string(http_code) + http_code_map.at(http_code);
         }else{
-            return "Error " + std::to_string(http_code) + ":\nVisit https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#client_error_responses for more information";
+            return "Error " + std::to_string(http_code) + ":\nVisit"
+            "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status#client_error_responses for more information";
         }
     }
 

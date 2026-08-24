@@ -66,6 +66,10 @@ void load_config(AppState* app){
         if (key == "history_capacity"){
             app->history_buf->capacity = std::stoi(value);
         }
+
+        if (key == "last_selected_deck"){
+            app->last_selected_deck = value;
+        }
     }
 }
 
@@ -83,6 +87,7 @@ void save_config(const AppState* app){
     config << "whisper_model=" + std::to_string(app->selected_model) + '\n';
     config << "input_device=" + app->selected_input_device_name + '\n';
     config << "history_capacity=" + std::to_string(app->history_buf->capacity) + '\n';
+    config << "last_selected_deck=" + app->last_selected_deck + '\n';
 
     capture_windows();
 }

@@ -89,6 +89,10 @@ struct AppState{
     // The deck selected in the "Add Card" window. AnkiConnect refers to decks
     // by name, so this is a string (the deckName passed to the addNote action).
     std::string selected_deck;
+
+    // The last deck the user picked when adding a card. Persisted to the config
+    // file so the "Add Card" window can re-select it on the next run.
+    std::string last_selected_deck;
 };
 
 struct AnkiWarning {
