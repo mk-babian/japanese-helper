@@ -80,7 +80,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
 
             app->anki_front = word;
             // std::println("INFO | Jisho Result: {}", result);
-            std::println("INFO | Raw Jisho Result: {}", app->raw_jisho_return);
+            // std::println("INFO | Raw Jisho Result: {}", app->raw_jisho_return);
             
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
