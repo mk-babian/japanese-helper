@@ -93,6 +93,10 @@ struct AppState{
     // The last deck the user picked when adding a card. Persisted to the config
     // file so the "Add Card" window can re-select it on the next run.
     std::string last_selected_deck;
+
+    // The std::string that is used to keep the raw return value of a Jisho search.
+    // Compared to the actual result we use to print, this one isn't parsed.
+    std::string raw_jisho_return;
 };
 
 struct AnkiWarning {

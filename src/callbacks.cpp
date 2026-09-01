@@ -75,8 +75,13 @@ void on_search_jisho(Fl_Widget* w, void* data){
     std::thread([app, word](){
         // run at the same time as the main thread (that handles fltk)
         try {
-            std::string result = jisho_lookup(word);
+            std::string result = jisho_lookup(word, app);
             enqueue(app, word);
+
+            app->anki_front = word;
+            // std::println("INFO | Jisho Result: {}", result);
+            std::println("INFO | Raw Jisho Result: {}", app->raw_jisho_return);
+            
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();

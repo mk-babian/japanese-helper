@@ -14,6 +14,7 @@ using json = nlohmann::json;
 #include <print>
 
 #include "include/api.h"
+#include "include/app_state.h"
 
 
 
@@ -50,7 +51,7 @@ struct Cleanup{
 
 // Looks up a word on Jisho and returns a formatted string of definitions, Kanji, and Hiragana (reading).
 // Throws std::runtime_error on network failure or malformed response.
-std::string jisho_lookup(const std::string& word){
+std::string jisho_lookup(const std::string& word, AppState* app){
     CURL* curl = curl_easy_init();                                      // Initialize bicep curls.
                                                                         // Allocate and return a CURL* handle.
     std::string response;
@@ -88,8 +89,10 @@ std::string jisho_lookup(const std::string& word){
         // Thorws an error at runtime if the above if statement is met.
         // The exception travels up the call stack to the main caller.
         // The catcher can call .what() on this exception to get the message back.
-        throw std::runtime_error("Jisho returned non-JSON response:\n" + response.substr(0, 200));
+        throw std::runtime_error("W | Jisho returned non-JSON response:\n" + response.substr(0, 200));
     }
+    
+    app->raw_jisho_return = response;
 
     // Parse the raw bytes/characters into std::string result.
     auto parsed = json::parse(response);
@@ -133,6 +136,7 @@ std::string jisho_lookup(const std::string& word){
 
     return result + '\n';
 }
+
 // IN: std::string text and the DeepL API key
 // OUT: parsed std::string translation
 std::string deepl_translate(const std::string& text, const std::string& api_key) {
