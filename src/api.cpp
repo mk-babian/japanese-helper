@@ -132,8 +132,6 @@ std::string jisho_lookup(const std::string& word, AppState* app){
         result += "\n\n";
     }
 
-    std::println("INFO | Jisho Result: {}", result + '\n');
-
     return result + '\n';
 }
 

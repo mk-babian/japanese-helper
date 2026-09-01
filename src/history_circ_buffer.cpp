@@ -5,7 +5,6 @@
 
 #include "include/app_state.h"
 #include "include/get_data_dir.h"
-// i don't use this anymore ↓
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
 

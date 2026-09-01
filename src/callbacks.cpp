@@ -828,7 +828,7 @@ void on_anki_button(Fl_Widget* w, void* data){
     std::thread([app](){
         try {
             std::string decks = anki_get_decks();
-            std::println("{}", decks);
+            // std::println("{}", decks);
 
             std::string front = app->anki_front;
             std::string back = app->anki_back;
@@ -873,9 +873,13 @@ void show_anki_card_window(void* data){
     // Populate widgets from card->front, card->back, card->deck_names, etc.
 
     Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
-    
-    // TODO: Implement another choice IF Jisho was used.
-    
+
+    CircularBuffer& buf = *card->app->history_buf;
+    if (buf.size > 0) {
+        std::println("INFO | Last API: {}", buf.api[(buf.head + buf.size - 1) % buf.capacity]);
+    } else {
+        std::println("INFO | Last API: (none)");
+    }
 
     Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
     front_input->value(card->front.c_str());
