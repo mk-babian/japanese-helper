@@ -874,13 +874,6 @@ void show_anki_card_window(void* data){
 
     Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
 
-    CircularBuffer& buf = *card->app->history_buf;
-    if (buf.size > 0) {
-        std::println("INFO | Last API: {}", buf.api[(buf.head + buf.size - 1) % buf.capacity]);
-    } else {
-        std::println("INFO | Last API: (none)");
-    }
-
     Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
     front_input->value(card->front.c_str());
 
