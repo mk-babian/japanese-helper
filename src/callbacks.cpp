@@ -24,6 +24,7 @@
 #include "include/speech_to_text.h"
 #include "include/history_circ_buffer.h"
 #include "include/download_whisper_model.h"
+#include "lib/json.hpp"
 
 const std::filesystem::path executable_path = get_executable_path().parent_path();
 
@@ -65,6 +66,51 @@ void master_on_search(Fl_Widget* w, void* data){
     app->anki_button->show();
 }
 
+// Build the Anki card "back" text from the raw Jisho JSON response.
+// Pulls out each entry's writing(s) and reading(s), then the numbered English
+// definitions together with their parts of speech, into one formatted string.
+static std::string format_jisho_back(const std::string& raw){
+    nlohmann::json parsed = nlohmann::json::parse(raw);
+    auto data = parsed["data"];
+    if (data.empty()){
+        return "No results found.";
+    }
+
+    std::string back;
+
+    for (auto& entry : data){
+        for (auto& jp : entry["japanese"]){
+            if (jp.contains("word"))    back += jp["word"].get<std::string>() + " ";
+            if (jp.contains("reading")) back += "(" + jp["reading"].get<std::string>() + ") ";
+        }
+        back += "\n";
+
+        int n = 1;
+        for (auto& sense : entry["senses"]){
+            back += std::to_string(n++) + ". ";
+            for (auto& def : sense["english_definitions"]){
+                back += def.get<std::string>() + ";  ";
+            }
+
+            // Append the parts of speech as extra context on the same line.
+            if (sense.contains("parts_of_speech") && !sense["parts_of_speech"].empty()){
+                back += "[";
+                bool first = true;
+                for (auto& pos : sense["parts_of_speech"]){
+                    if (!first) back += ", ";
+                    back += pos.get<std::string>();
+                    first = false;
+                }
+                back += "]";
+            }
+            back += "\n";
+        }
+        back += "\n";
+    }
+
+    return back;
+}
+
 void on_search_jisho(Fl_Widget* w, void* data){
     (void)w;
     auto* app = (AppState*)data;	// cast data to AppState
@@ -79,6 +125,8 @@ void on_search_jisho(Fl_Widget* w, void* data){
             enqueue(app, word);
 
             app->anki_front = word;
+            app->anki_back = format_jisho_back(app->raw_jisho_return);
+
             // std::println("INFO | Jisho Result: {}", result);
             // std::println("INFO | Raw Jisho Result: {}", app->raw_jisho_return);
             
