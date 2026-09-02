@@ -32,6 +32,7 @@ void on_clear_history_btn(Fl_Widget* w, void* data);
 void on_history_entry_click(Fl_Widget* w, void* user_data);
 void model_choice_callback(Fl_Widget* w, void* data);
 void device_choice_callback(Fl_Widget* w, void* data);
+void rolling_device_choice_callback(Fl_Widget* w, void* data);
 void download_button(Fl_Widget* w, void* data);
 void show_deepl_key_btn(Fl_Widget* w, void* data);
 void open_info(Fl_Widget* w, void* data);

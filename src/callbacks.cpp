@@ -524,6 +524,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     app->whisper_model_selector = nullptr;
     app->install_whisper_model = nullptr;
     app->whisper_device_selector = nullptr;
+    app->whisper_rolling_device_selector = nullptr;
 
     app->settings_content->clear();
 
@@ -651,6 +652,10 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->whisper_device_selector->callback(device_choice_callback, app);
 
+        app->whisper_rolling_device_selector = new Fl_Choice(310, 90, 380, 30, "Rolling Output Device:");
+        app->whisper_rolling_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->whisper_rolling_device_selector->callback(rolling_device_choice_callback, app);
+
         int n_devices = Pa_GetDeviceCount();
         PaDeviceIndex default_device = Pa_GetDefaultInputDevice();
         int selected_menu_index = -1;   // entry matching the saved device name
@@ -701,6 +706,58 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             // The saved device is gone (or none saved); fall back to the default.
             app->selected_input_device = paNoDevice;
             app->stream_data.selected_input_device = paNoDevice;
+        }
+
+        // Rolling output device selector: list every PortAudio device that has
+        // output channels, so the rolling capture can transcribe what's playing.
+        int n_output_devices = Pa_GetDeviceCount();
+        PaDeviceIndex default_output_device = Pa_GetDefaultOutputDevice();
+        int selected_output_menu_index = -1;   // entry matching the saved device name
+        int default_output_menu_index = -1;    // entry for the system default device
+        for (int i = 0; i < n_output_devices; i++){
+            const PaDeviceInfo* device_info = Pa_GetDeviceInfo(i);
+            if (device_info == nullptr || device_info->maxOutputChannels <= 0) continue;
+
+            std::string device_name = device_info->name;
+
+            // Escape FLTK menu metacharacters ('/' submenus, '&' shortcuts) the same
+            // way the input device selector does.
+            std::string label;
+            for (char c : device_name){
+                if (c == '/' || c == '&' || c == '\\') label += '\\';
+                label += c;
+            }
+            // Flag the system default device right in the label.
+            if (i == default_output_device) label += "  ( Default )";
+
+            // Stash the PortAudio device index inside the menu item's user data so the
+            // callback can recover it regardless of which devices were skipped above.
+            app->whisper_rolling_device_selector->add(label.c_str(), 0,
+                                                      nullptr, (void*)(intptr_t)i);
+            int menu_index = app->whisper_rolling_device_selector->size() - 2; // -1 for trailing NULL terminator
+
+            // Render the default device's entry in bold.
+            if (i == default_output_device){
+                default_output_menu_index = menu_index;
+                const_cast<Fl_Menu_Item*>(&app->whisper_rolling_device_selector->menu()[menu_index])
+                    ->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+            }
+
+            // Match the saved device by name; indices aren't stable across runs.
+            if (!app->selected_rolling_output_device_name.empty() &&
+                device_name == app->selected_rolling_output_device_name){
+                selected_output_menu_index = menu_index;
+                app->selected_rolling_output_device = i;
+            }
+        }
+
+        // Pre-select the saved device if it's still present, otherwise the default.
+        if (selected_output_menu_index >= 0){
+            app->whisper_rolling_device_selector->value(selected_output_menu_index);
+        } else if (default_output_menu_index >= 0){
+            app->whisper_rolling_device_selector->value(default_output_menu_index);
+            // The saved device is gone (or none saved); fall back to the default.
+            app->selected_rolling_output_device = paNoDevice;
         }
 
         app->settings_content->end();
@@ -804,6 +861,25 @@ void device_choice_callback(Fl_Widget* w, void* data){
 
     std::println("INFO | Selected input device: {} (index {})",
                  app->selected_input_device_name, device);
+}
+
+void rolling_device_choice_callback(Fl_Widget* w, void* data){
+    Fl_Choice* choice = static_cast<Fl_Choice*>(w);
+    AppState* app = static_cast<AppState*>(data);
+
+    // Recover the PortAudio device index we stashed in the menu item's user data.
+    const Fl_Menu_Item* item = choice->mvalue();
+    if (item == nullptr) return;
+
+    PaDeviceIndex device = (PaDeviceIndex)(intptr_t)item->user_data();
+    app->selected_rolling_output_device = device;
+
+    // Persist by name, not index, since indices aren't stable across runs.
+    const PaDeviceInfo* device_info = Pa_GetDeviceInfo(device);
+    app->selected_rolling_output_device_name = (device_info != nullptr) ? device_info->name : "";
+
+    std::println("INFO | Selected rolling output device: {} (index {})",
+                 app->selected_rolling_output_device_name, device);
 }
 
 void download_button(Fl_Widget* w, void* data){

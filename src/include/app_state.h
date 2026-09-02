@@ -49,11 +49,15 @@ struct AppState{
 
     // Input device selection for speech-to-text
     Fl_Choice* whisper_device_selector = nullptr;
+    Fl_Choice* whisper_rolling_device_selector = nullptr;
     // PortAudio device index of the selected input device. paNoDevice means "use the default".
     // Resolved from selected_input_device_name at runtime; indices are not stable across runs.
     PaDeviceIndex selected_input_device = paNoDevice;
+    // PortAudio device index of the selected rolling output device. paNoDevice means "use the default".
+    PaDeviceIndex selected_rolling_output_device = paNoDevice;
     // The persisted identity of the chosen device. Empty means "use the default".
     std::string selected_input_device_name;
+    std::string selected_rolling_output_device_name;
 
     // Everything related to the history window
     Fl_Window* history_win;
