@@ -1,4 +1,7 @@
 #include <portaudio.h>
+#if defined(_WIN32)
+#include <pa_win_wasapi.h>
+#endif
 #include <stdexcept>
 #include <string>
 #include <print>
@@ -187,4 +190,119 @@ int rolling_callback(const void* in_buffer, void* out_buffer, unsigned long fram
 
     // Rolling capture is persistent: never signal completion, always continue.
     return paContinue;
+}
+
+// Opens a persistent WASAPI loopback capture stream on the given render device.
+//
+// Loopback is implicit in PortAudio: we open an *input* stream whose device is a
+// render (output) device, and PortAudio detects that it should use
+// AUDCLNT_STREAMFLAGS_LOOPBACK internally. The stream stays open until
+// rolling_stop() is called, continuously feeding rolling_callback().
+void rolling_start(RollingStreamData* data, PaDeviceIndex device_index){
+#if defined(_WIN32)
+    // Resolve "use the default" (paNoDevice) into a concrete device index.
+    PaDeviceIndex dev = device_index;
+    if (dev == paNoDevice){
+        dev = Pa_GetDefaultOutputDevice();
+    }
+
+    // No render device at all -> nothing to loop back from.
+    if (dev == paNoDevice){
+        std::println("W | Rolling capture unavailable: no default output device.");
+        data->running = false;
+        return;
+    }
+
+    const PaDeviceInfo* dev_info = Pa_GetDeviceInfo(dev);
+    if (dev_info == nullptr){
+        std::println("W | Rolling capture unavailable: device {} has no info.", (int)dev);
+        data->running = false;
+        return;
+    }
+
+    // Loopback is a WASAPI-only feature. Other host APIs (MME, DirectSound, ...)
+    // cannot open an input stream on an output device, so bail out gracefully.
+    const PaHostApiInfo* host_info = Pa_GetHostApiInfo(dev_info->hostApi);
+    if (host_info == nullptr || host_info->type != paWASAPI){
+        std::println("W | Rolling capture unavailable: '{}' is not a WASAPI device.",
+                     dev_info->name);
+        data->running = false;
+        return;
+    }
+
+    // Size the ring buffer up front. SAMPLE_RATE * ROLLING_BUFFER_SECONDS floats
+    // holds 15 seconds of 16 kHz mono audio, overwriting the oldest once full.
+    data->ring.assign((std::size_t)SAMPLE_RATE * ROLLING_BUFFER_SECONDS, 0.0f);
+    data->write_pos = 0;
+    data->selected_device = dev;
+
+    // WASAPI stream config. paWinWasapiAutoConvert lets the engine insert a
+    // system-level sample-rate/channel converter so we can request 16 kHz mono
+    // even though the device's native mix format is typically 48 kHz stereo.
+    PaWasapiStreamInfo wasapi_info = {};
+    wasapi_info.size        = sizeof(PaWasapiStreamInfo);
+    wasapi_info.hostApiType = paWASAPI;
+    wasapi_info.version     = 1;
+    wasapi_info.flags       = paWinWasapiAutoConvert;
+
+    // Input parameters describing the (output) device we want to capture from.
+    PaStreamParameters input_params = {};
+    input_params.device                    = dev;
+    input_params.channelCount              = 1;
+    input_params.sampleFormat              = paFloat32;
+    input_params.suggestedLatency          = dev_info->defaultLowOutputLatency;
+    input_params.hostApiSpecificStreamInfo = &wasapi_info;
+
+    // Open the stream. Input on an output device -> WASAPI loopback.
+    PaError err = Pa_OpenStream(&data->stream, &input_params, nullptr, SAMPLE_RATE,
+                                FRAMES_PER_BUFFER, paNoFlag, rolling_callback, data);
+    if (err != paNoError){
+        std::println("W | Rolling capture failed to open: {}", Pa_GetErrorText(err));
+        data->stream = nullptr;
+        data->running = false;
+        return;
+    }
+
+    // Start capturing. The stream stays open until rolling_stop() is called.
+    err = Pa_StartStream(data->stream);
+    if (err != paNoError){
+        std::println("W | Rolling capture failed to start: {}", Pa_GetErrorText(err));
+        Pa_CloseStream(data->stream);
+        data->stream = nullptr;
+        data->running = false;
+        return;
+    }
+
+    data->running = true;
+    std::println("INFO | Rolling capture started on '{}'.", dev_info->name);
+#else
+    // WASAPI loopback is Windows-only; nothing to do on other platforms.
+    (void)data;
+    (void)device_index;
+#endif
+}
+
+// Stops and closes the rolling capture stream. Call before Pa_Terminate() so the
+// stream doesn't outlive PortAudio itself.
+void rolling_stop(RollingStreamData* data){
+    if (data->stream != nullptr){
+        Pa_StopStream(data->stream);
+        Pa_CloseStream(data->stream);
+        data->stream = nullptr;
+    }
+    data->running = false;
+}
+
+// Returns a linear copy of the ring buffer in chronological order (oldest -> newest).
+// Takes the mutex so it can't read a half-updated buffer while the callback writes.
+std::vector<float> rolling_snapshot(RollingStreamData* data){
+    std::lock_guard<std::mutex> lock(data->mtx);
+
+    // The sample at write_pos is the oldest; the one just before it is the newest.
+    // Reading forward from write_pos (wrapping) yields oldest -> newest order.
+    std::vector<float> snapshot(data->ring.size());
+    for (std::size_t i = 0; i < data->ring.size(); i++){
+        snapshot[i] = data->ring[(data->write_pos + i) % data->ring.size()];
+    }
+    return snapshot;
 }
