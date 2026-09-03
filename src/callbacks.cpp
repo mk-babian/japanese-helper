@@ -652,7 +652,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->whisper_device_selector->callback(device_choice_callback, app);
 
-        app->whisper_rolling_device_selector = new Fl_Choice(310, 90, 380, 30, "Rolling Output Device:");
+        app->whisper_rolling_device_selector = new Fl_Choice(310, 90, 380, 30, "Rolling Output\nDevice:   ");
         app->whisper_rolling_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->whisper_rolling_device_selector->callback(rolling_device_choice_callback, app);
 
