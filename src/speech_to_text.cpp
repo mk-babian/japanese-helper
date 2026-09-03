@@ -156,3 +156,35 @@ void check_err(PaError err){
         throw std::runtime_error("PortAudio error:\n" + error_text); 
     }
 }
+
+int rolling_callback(const void* in_buffer, void* out_buffer, unsigned long frames_per_buffer, 
+                            const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags,
+                            void* user_data){
+    // Create pointer to RollingStreamData of user_data that is cast to RollingStreamData*.
+    RollingStreamData* rsd = (RollingStreamData*)user_data;
+
+    // Cast all the unnecessary stuff to void.
+    (void)out_buffer;
+    (void)time_info;
+    (void)status_flags;
+    // Cast the input buffer to float*.
+    float* in = (float*)in_buffer;
+
+    // Guard against a ring buffer that hasn't been sized yet (rolling_start resizes it).
+    if (rsd->ring.empty()) return paContinue;
+
+    // Lock while writing so a concurrent rolling_snapshot() doesn't read a
+    // half-updated ring buffer.
+    std::lock_guard<std::mutex> lock(rsd->mtx);
+
+    // Write each frame into the ring at the current write position, wrapping
+    // around once we hit the end. Oldest audio gets overwritten automatically,
+    // which is exactly the semantics we want for a rolling capture buffer.
+    for (std::size_t i = 0; i < frames_per_buffer; i++){
+        rsd->ring[rsd->write_pos] = in[i];
+        rsd->write_pos = (rsd->write_pos + 1) % rsd->ring.size();
+    }
+
+    // Rolling capture is persistent: never signal completion, always continue.
+    return paContinue;
+}

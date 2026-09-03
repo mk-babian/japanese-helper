@@ -47,3 +47,9 @@ int pa_callback(const void* in_buffer, void* out_buffer, unsigned long frames_pe
 void create_stream(const PaStreamParameters* in_buffer, PaStreamParameters* out_buffer, StreamData* sd);
 std::string whisper_transcribe(void* user_data);
 void check_err(PaError err);
+int rolling_callback(const void* in_buffer, void* out_buffer, unsigned long frames_per_buffer, 
+                            const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags,
+                            void* user_data);
+void rolling_start(RollingStreamData* data, PaDeviceIndex device_index);
+void rolling_stop(RollingStreamData* data);
+std::vector<float> rolling_snapshot(RollingStreamData* data);
