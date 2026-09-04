@@ -46,6 +46,7 @@ int pa_callback(const void* in_buffer, void* out_buffer, unsigned long frames_pe
                            void* user_data);
 void create_stream(const PaStreamParameters* in_buffer, PaStreamParameters* out_buffer, StreamData* sd);
 std::string whisper_transcribe(void* user_data);
+std::string whisper_transcribe_samples(const float* samples, size_t n_samples, int model);
 void check_err(PaError err);
 int rolling_callback(const void* in_buffer, void* out_buffer, unsigned long frames_per_buffer, 
                             const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags,

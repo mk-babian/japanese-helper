@@ -105,19 +105,21 @@ void create_stream(const PaStreamParameters* in_buffer, PaStreamParameters* out_
     check_err(err);
 }
 
-std::string whisper_transcribe(void* user_data){
-    StreamData* sd = (StreamData*)user_data;
+// Transcribe `n_samples` mono 16 kHz float samples using the Whisper model
+// selected by `model`. This is the shared core used by both the push-to-talk
+// path (via whisper_transcribe) and the rolling capture path.
+std::string whisper_transcribe_samples(const float* samples, size_t n_samples, int model){
     std::string res;
 
     std::string model_name = "";
-        switch(sd->selected_model){
-            case 0: model_name = "ggml-tiny.bin";   break;
-            case 1: model_name = "ggml-base.bin";   break;
-            case 2: model_name = "ggml-small.bin";  break;
-            case 3: model_name = "ggml-medium.bin"; break;
-            case 4: model_name = "ggml-large.bin";  break;
+    switch(model){
+        case 0: model_name = "ggml-tiny.bin";   break;
+        case 1: model_name = "ggml-base.bin";   break;
+        case 2: model_name = "ggml-small.bin";  break;
+        case 3: model_name = "ggml-medium.bin"; break;
+        case 4: model_name = "ggml-large.bin";  break;
     }
-    
+
     std::string path = get_executable_path().parent_path().string();
     std::string model_path = path + "/whisper.cpp/models/" + model_name;
     std::println("INFO | Loading model from: {}", model_path);
@@ -137,10 +139,9 @@ std::string whisper_transcribe(void* user_data){
                 model_path.c_str(), w_context_params);
     if (ctx == nullptr) throw std::runtime_error("Failed to load model file for Whisper.cpp\n");
 
-    if (whisper_full(ctx, w_params, sd->audio_samples.data(), (int)sd->index) != 0){
-        throw std::runtime_error("Whisper.cpp error\n");
+    if (whisper_full(ctx, w_params, samples, (int)n_samples) != 0){
         whisper_free(ctx);
-        return res;
+        throw std::runtime_error("Whisper.cpp error\n");
     }
 
     const int n_segments = whisper_full_n_segments(ctx);
@@ -150,6 +151,13 @@ std::string whisper_transcribe(void* user_data){
 
     whisper_free(ctx);
     return res;
+}
+
+// Thin wrapper around whisper_transcribe_samples for the push-to-talk path.
+// Forwards the linear recording buffer held in StreamData.
+std::string whisper_transcribe(void* user_data){
+    StreamData* sd = (StreamData*)user_data;
+    return whisper_transcribe_samples(sd->audio_samples.data(), sd->index, sd->selected_model);
 }
 
 // Function that checks for errors.
