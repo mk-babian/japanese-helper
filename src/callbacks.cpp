@@ -703,6 +703,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         PaDeviceIndex default_device = Pa_GetDefaultInputDevice();
         int selected_menu_index = -1;   // entry matching the saved device name
         int default_menu_index = -1;    // entry for the system default device
+        int added_count = 0;
         for (int i = 0; i < n_devices; i++){
             const PaDeviceInfo* device_info = Pa_GetDeviceInfo(i);
             if (device_info == nullptr || device_info->maxInputChannels <= 0) continue;
@@ -755,7 +756,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // loopback capture is a WASAPI-only feature. Devices on any other host
         // API (MME, DirectSound, ASIO, ...) cannot be used for loopback.
         int n_output_devices = Pa_GetDeviceCount();
-        PaDeviceIndex default_output_device = Pa_GetDefaultOutputDevice();
+        PaDeviceIndex default_output_device = wasapi_default_output_device();
         // The system default output device is only a valid loopback source if it
         // is itself a WASAPI device; otherwise there is no usable default.
         bool default_is_wasapi = is_wasapi_device(default_output_device);
@@ -784,6 +785,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             // callback can recover it regardless of which devices were skipped above.
             app->whisper_rolling_device_selector->add(label.c_str(), 0,
                                                       nullptr, (void*)(intptr_t)i);
+            added_count++;
             int menu_index = app->whisper_rolling_device_selector->size() - 2; // -1 for trailing NULL terminator
 
             // Render the default device's entry in bold.
@@ -808,10 +810,13 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             app->whisper_rolling_device_selector->value(default_output_menu_index);
             // The saved device is gone (or none saved); fall back to the default.
             app->selected_rolling_output_device = paNoDevice;
+        } else if (default_output_menu_index >= 0){
+            app->whisper_rolling_device_selector->value(default_output_menu_index);
+            app->selected_rolling_output_device = paNoDevice;
+        } else if (added_count > 0){
+            app->whisper_rolling_device_selector->value(0);
+            app->selected_rolling_output_device = paNoDevice;
         } else {
-            // No WASAPI output device exists, so loopback capture is unavailable.
-            // Show a single disabled entry so the user understands why the list is
-            // empty rather than seeing a blank selector.
             app->whisper_rolling_device_selector->add("No WASAPI device (unavailable)");
             app->whisper_rolling_device_selector->value(0);
             app->whisper_rolling_device_selector->deactivate();

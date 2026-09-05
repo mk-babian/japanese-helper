@@ -54,3 +54,4 @@ int rolling_callback(const void* in_buffer, void* out_buffer, unsigned long fram
 void rolling_start(RollingStreamData* data, PaDeviceIndex device_index);
 void rolling_stop(RollingStreamData* data);
 std::vector<float> rolling_snapshot(RollingStreamData* data);
+PaDeviceIndex wasapi_default_output_device();

@@ -211,7 +211,7 @@ void rolling_start(RollingStreamData* data, PaDeviceIndex device_index){
     // Resolve "use the default" (paNoDevice) into a concrete device index.
     PaDeviceIndex dev = device_index;
     if (dev == paNoDevice){
-        dev = Pa_GetDefaultOutputDevice();
+        dev = wasapi_default_output_device();
     }
 
     // No render device at all -> nothing to loop back from.
@@ -313,4 +313,14 @@ std::vector<float> rolling_snapshot(RollingStreamData* data){
         snapshot[i] = data->ring[(data->write_pos + i) % data->ring.size()];
     }
     return snapshot;
+}
+
+// Returns the WASAPI host API's own default output device — guaranteed to be
+// a WASAPI device, unlike Pa_GetDefaultOutputDevice() which can resolve to
+// whatever host API PortAudio treats as global default (MME, DirectSound, ...).
+PaDeviceIndex wasapi_default_output_device(){
+    PaHostApiIndex wasapi_host = Pa_HostApiTypeIdToHostApiIndex(paWASAPI);
+    if (wasapi_host < 0) return paNoDevice;          // WASAPI unavailable on this system
+    const PaHostApiInfo* info = Pa_GetHostApiInfo(wasapi_host);
+    return (info != nullptr) ? info->defaultOutputDevice : paNoDevice;
 }
