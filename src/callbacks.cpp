@@ -443,6 +443,38 @@ void on_stt_btn(Fl_Widget* w, void* data){
     }).detach();
 }
 
+// Trigger for the rolling (loopback) capture feature.
+// Grabs a snapshot of the last ROLLING_BUFFER_SECONDS of system audio, then
+// transcribes it on a background thread so the UI never blocks.
+void on_rolling_btn(Fl_Widget* w, void* data){
+    (void)w;
+    AppState* app = static_cast<AppState*>(data);
+
+    // Take a chronological copy of the ring buffer on the main thread. This is a
+    // fast (~1 MB) copy under the buffer's mutex, so the audio callback keeps
+    // running unimpeded. An empty snapshot means capture isn't running (no WASAPI
+    // device on non-Windows, or no default output device), so there's nothing to do.
+    std::vector<float> snapshot = rolling_snapshot(&app->rolling_stream_data);
+    if (snapshot.empty()) return;
+
+    int model = app->selected_model;
+
+    // Whisper can take a while; run it off the UI thread, then marshal the result
+    // back with the same Fl::lock()/Fl::unlock()/Fl::awake() dance as on_stt_btn.
+    std::thread([app, snapshot = std::move(snapshot), model](){
+        try {
+            std::string result = whisper_transcribe_samples(snapshot.data(),
+                                                            snapshot.size(), model);
+            Fl::lock();
+            app->input->value(result.c_str());
+            Fl::unlock();
+            Fl::awake();
+        } catch (const std::exception& e){
+            std::println("W | Rolling transcription failed: {}", e.what());
+        }
+    }).detach();
+}
+
 // The callback when the history button is clicked
 // Opens the history window and populates it with the search history from the circular buffer
 void on_history_btn(Fl_Widget* w, void* data){

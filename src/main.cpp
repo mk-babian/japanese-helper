@@ -162,6 +162,20 @@ int main(void){
         app.stt_btn->image(mic_icon);
     }
 
+    // Create and configure the rolling-capture button. It transcribes the last
+    // 15 seconds of system audio (WASAPI loopback), which is a Windows-only feature.
+    #if defined(_WIN32)
+    Fl_Button* rolling_btn = new Fl_Button(175, 10, 30, 30, "R");
+    rolling_btn->box(FL_UP_BOX);
+    rolling_btn->color(accent_blue);
+    rolling_btn->selection_color(accent_blue);         // Prevents button turning grey when clicked.
+    rolling_btn->clear_visible_focus();                // Prevents the GTK+ scheme from grey-boxing it.
+    rolling_btn->labelcolor(FL_WHITE);
+    rolling_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+    rolling_btn->tooltip("Transcribe the last 15 seconds of audio (rolling capture)");
+    rolling_btn->callback(on_rolling_btn, &app);
+    #endif
+
     // Create and configure the main search button.
     app.search_btn = new Fl_Button(655, 10, 80, 30, "Search");
     app.search_btn->box(FL_UP_BOX);

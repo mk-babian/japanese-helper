@@ -78,6 +78,10 @@ struct AppState{
     // The PortAudio stream data for the speech-to-text functionality
     StreamData stream_data;
 
+    // Rolling (loopback) capture data for the "transcribe the last N seconds"
+    // feature. Unlike stream_data, this stream stays open for the app's lifetime.
+    RollingStreamData rolling_stream_data;
+
     // The currently selected API (0 for jisho, 1 for deepl, and so on...)
     int selected_api = 0;
     bool key_shown = false;
