@@ -356,9 +356,24 @@ int main(void){
 
     curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
     Pa_Initialize();                    // Start PortAudio.
+
+    // Start the persistent rolling (WASAPI loopback) capture stream so the
+    // "transcribe the last 15 seconds" button always has audio buffered.
+    // Loopback is Windows-only, so gate it exactly like the rolling button.
+    #if defined(_WIN32)
+        rolling_start(&app.rolling_stream_data, app.selected_rolling_output_device);
+    #endif
+
     Fl::focus(main_win);                // Give focus to the main window.
     Fl::lock();                         // Essential for multithreading.
     int result = Fl::run();             // Start the app.
+
+    // Stop and close the rolling stream before PortAudio terminates so it
+    // doesn't outlive PortAudio itself.
+    #if defined(_WIN32)
+        rolling_stop(&app.rolling_stream_data);
+    #endif
+
     Pa_Terminate();                     // Stop PortAudio.
     curl_global_cleanup();
     #if defined(_WIN32)

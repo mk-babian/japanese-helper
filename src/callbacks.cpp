@@ -43,6 +43,17 @@ static PaDeviceIndex resolve_input_device(const std::string& name){
     return paNoDevice;
 }
 
+// Loopback capture is a WASAPI-only feature, so the rolling output device
+// selector must be restricted to WASAPI devices. Returns true when the given
+// device belongs to the WASAPI host API.
+static bool is_wasapi_device(PaDeviceIndex device){
+    if (device == paNoDevice) return false;
+    const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
+    if (info == nullptr) return false;
+    const PaHostApiInfo* host = Pa_GetHostApiInfo(info->hostApi);
+    return host != nullptr && host->type == paWASAPI;
+}
+
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
     app->search_btn->deactivate();
@@ -740,15 +751,21 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             app->stream_data.selected_input_device = paNoDevice;
         }
 
-        // Rolling output device selector: list every PortAudio device that has
-        // output channels, so the rolling capture can transcribe what's playing.
+        // Rolling output device selector: list only WASAPI output devices, since
+        // loopback capture is a WASAPI-only feature. Devices on any other host
+        // API (MME, DirectSound, ASIO, ...) cannot be used for loopback.
         int n_output_devices = Pa_GetDeviceCount();
         PaDeviceIndex default_output_device = Pa_GetDefaultOutputDevice();
+        // The system default output device is only a valid loopback source if it
+        // is itself a WASAPI device; otherwise there is no usable default.
+        bool default_is_wasapi = is_wasapi_device(default_output_device);
         int selected_output_menu_index = -1;   // entry matching the saved device name
         int default_output_menu_index = -1;    // entry for the system default device
         for (int i = 0; i < n_output_devices; i++){
             const PaDeviceInfo* device_info = Pa_GetDeviceInfo(i);
             if (device_info == nullptr || device_info->maxOutputChannels <= 0) continue;
+            // Restrict the list to WASAPI devices (loopback is WASAPI-only).
+            if (!is_wasapi_device(i)) continue;
 
             std::string device_name = device_info->name;
 
@@ -759,8 +776,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
                 if (c == '/' || c == '&' || c == '\\') label += '\\';
                 label += c;
             }
-            // Flag the system default device right in the label.
-            if (i == default_output_device) label += "  ( Default )";
+            // Flag the system default device right in the label (only when it is
+            // itself a WASAPI device and therefore usable for loopback).
+            if (i == default_output_device && default_is_wasapi) label += "  ( Default )";
 
             // Stash the PortAudio device index inside the menu item's user data so the
             // callback can recover it regardless of which devices were skipped above.
@@ -769,7 +787,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             int menu_index = app->whisper_rolling_device_selector->size() - 2; // -1 for trailing NULL terminator
 
             // Render the default device's entry in bold.
-            if (i == default_output_device){
+            if (i == default_output_device && default_is_wasapi){
                 default_output_menu_index = menu_index;
                 const_cast<Fl_Menu_Item*>(&app->whisper_rolling_device_selector->menu()[menu_index])
                     ->labelfont((Fl_Font)(FL_FREE_FONT + 1));
@@ -789,6 +807,14 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         } else if (default_output_menu_index >= 0){
             app->whisper_rolling_device_selector->value(default_output_menu_index);
             // The saved device is gone (or none saved); fall back to the default.
+            app->selected_rolling_output_device = paNoDevice;
+        } else {
+            // No WASAPI output device exists, so loopback capture is unavailable.
+            // Show a single disabled entry so the user understands why the list is
+            // empty rather than seeing a blank selector.
+            app->whisper_rolling_device_selector->add("No WASAPI device (unavailable)");
+            app->whisper_rolling_device_selector->value(0);
+            app->whisper_rolling_device_selector->deactivate();
             app->selected_rolling_output_device = paNoDevice;
         }
 
