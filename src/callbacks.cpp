@@ -360,16 +360,17 @@ void on_apply_btn(Fl_Widget* w, void* data){
     }
 
     if (app->history_capacity_input){
-        app->history_buf->capacity = std::stoi(app->history_capacity_input->value());
-        std::println("Capacity {}", app->history_buf->capacity);
+        try {
+            int new_capacity = std::stoi(app->history_capacity_input->value());
+            resize_history_buffer(app, new_capacity);
+            std::println("Capacity {}", app->history_buf->capacity);
+        } catch (const std::exception& e){
+            std::println("ERR | Invalid capacity input: {}", e.what());
+            fl_alert("Enter a valid positive number for history capacity.");
+        }
     }
 
     save_config(app);
-
-    // This crashes the app for some reason
-    // Probably some dangling pointers or some-such
-    // I guess we'll just NOT hide the window
-    // app->settings_win->hide();
 }
 
 void on_cancel_btn(Fl_Widget* w, void* data){

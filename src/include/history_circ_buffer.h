@@ -25,3 +25,4 @@ std::string dequeue(CircularBuffer& buf);
 void load_buffer(AppState* app);
 void write_buffer(AppState* app);
 void print_buffers(AppState* app);
+void resize_history_buffer(AppState* app, int new_capacity);

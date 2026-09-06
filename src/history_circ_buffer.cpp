@@ -198,3 +198,50 @@ void print_buffers(AppState* app){
     std::println("INFO | Tail is at: {}", buf.tail);
     std::println("INFO | Size is: {}", buf.size);
 }
+
+// Safely change the circular buffer's capacity.
+// Extracts existing entries in logical (oldest -> newest) order,
+// keeps the most recent `new_capacity` of them if shrinking,
+// and rebuilds head/tail/size to be consistent with the new storage.
+void resize_history_buffer(AppState* app, int new_capacity){
+    CircularBuffer& buf = *app->history_buf;
+
+    if (new_capacity <= 0){
+        std::println("ERR | Invalid history capacity: {}", new_capacity);
+        return;
+    }
+    if (new_capacity > 1000){
+        std::println("ERR | Can't have history capacity over 1000!");
+        return;
+    }
+    if (new_capacity == buf.capacity) return;
+
+    // Pull existing entries out in logical order using the OLD capacity.
+    std::vector<std::string> old_data(buf.size), old_time(buf.size);
+    std::vector<int> old_api(buf.size);
+    for (int i = 0; i < buf.size; i++){
+        int idx = (buf.head + i) % buf.capacity;
+        old_data[i] = buf.data[idx];
+        old_time[i] = buf.time[idx];
+        old_api[i]  = buf.api[idx];
+    }
+
+    // If shrinking past the current count, drop the OLDEST entries.
+    int keep = std::min(buf.size, new_capacity);
+    int drop = buf.size - keep;
+
+    buf.data.assign(new_capacity, std::string());
+    buf.time.assign(new_capacity, std::string());
+    buf.api.assign(new_capacity, 0);
+
+    for (int i = 0; i < keep; i++){
+        buf.data[i] = old_data[drop + i];
+        buf.time[i] = old_time[drop + i];
+        buf.api[i]  = old_api[drop + i];
+    }
+
+    buf.capacity = new_capacity;
+    buf.size     = keep;
+    buf.head     = 0;
+    buf.tail     = (keep == new_capacity) ? 0 : keep;
+}
