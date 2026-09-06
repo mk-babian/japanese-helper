@@ -48,7 +48,9 @@ public:
         if (!default_text_deleted){
             Fl_Input::textfont(FL_COURIER_ITALIC);
             Fl_Input::textcolor(fl_rgb_color(110, 110, 110));
-            if (event == FL_ENTER){
+            // Clear the placeholder either when the mouse enters the box,
+            // or as soon as the user actually types a printable character.
+            if (event == FL_ENTER || (event == FL_KEYBOARD && Fl::event_length() > 0)){
                 default_text_deleted = true;
                 Fl::set_font(FL_FREE_FONT, "Noto Sans JP");
                 Fl_Input::textfont(FL_FREE_FONT); 

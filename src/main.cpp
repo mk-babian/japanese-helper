@@ -343,6 +343,7 @@ int main(void){
     curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
     Pa_Initialize();                    // Start PortAudio.
     Fl::focus(main_win);                // Give focus to the main window.
+    app.input->take_focus();            // Move keyboard focus to the search input box.
     Fl::lock();                         // Essential for multithreading.
     int result = Fl::run();             // Start the app.
     Pa_Terminate();                     // Stop PortAudio.
