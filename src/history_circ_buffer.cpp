@@ -210,10 +210,6 @@ void resize_history_buffer(AppState* app, int new_capacity){
         std::println("ERR | Invalid history capacity: {}", new_capacity);
         return;
     }
-    if (new_capacity > 1000){
-        std::println("ERR | Can't have history capacity over 1000!");
-        return;
-    }
     if (new_capacity == buf.capacity) return;
 
     // Pull existing entries out in logical order using the OLD capacity.

@@ -43,6 +43,20 @@ static PaDeviceIndex resolve_input_device(const std::string& name){
     return paNoDevice;
 }
 
+// Timeout callback that hides the transient history-capacity alert box and
+// re-enables the capacity input once the 2-second pause has elapsed.
+static void hide_history_capacity_alert(void* data){
+    auto* app = static_cast<AppState*>(data);
+    if (app->history_capacity_alert){
+        app->history_capacity_alert->hide();
+        app->history_capacity_alert->redraw();
+    }
+    if (app->history_capacity_input){
+        app->history_capacity_input->activate();
+        app->history_capacity_input->redraw();
+    }
+}
+
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
     app->search_btn->deactivate();
@@ -362,8 +376,25 @@ void on_apply_btn(Fl_Widget* w, void* data){
     if (app->history_capacity_input){
         try {
             int new_capacity = std::stoi(app->history_capacity_input->value());
-            resize_history_buffer(app, new_capacity);
-            std::println("Capacity {}", app->history_buf->capacity);
+            if (new_capacity > 1000){
+                app->history_capacity_input->value("");
+                app->history_capacity_input->deactivate();
+                app->history_capacity_input->redraw();
+                app->history_capacity_alert->label("The capacity cannot be higher than 1000!");
+                app->history_capacity_alert->show();
+                Fl::add_timeout(2.0, hide_history_capacity_alert, app);
+            }else if(new_capacity < 0){
+                app->history_capacity_input->value("");
+                app->history_capacity_input->deactivate();
+                app->history_capacity_input->redraw();
+                app->history_capacity_alert->label("The capacity cannot be lower than 0!");
+                app->history_capacity_alert->show();
+                Fl::add_timeout(2.0, hide_history_capacity_alert, app);
+            }else{
+                app->history_capacity_input->value("");
+                resize_history_buffer(app, new_capacity);
+                std::println("Capacity {}", app->history_buf->capacity);
+            }
         } catch (const std::exception& e){
             std::println("ERR | Invalid capacity input: {}", e.what());
             fl_alert("Enter a valid positive number for history capacity.");
@@ -566,6 +597,11 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         history_capacity_input->value(app->history_buf->capacity);
         app->history_capacity_input = history_capacity_input;
+
+        Fl_Box* history_capacity_alert = new Fl_Box(345, 10, 300, 30);
+        app->history_capacity_alert = history_capacity_alert;
+        app->history_capacity_alert->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        app->history_capacity_alert->hide();
 
         app->settings_content->end();
         app->settings_win->redraw();

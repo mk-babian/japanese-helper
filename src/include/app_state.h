@@ -1,5 +1,6 @@
 #pragma once
 #include <FL/Fl.H>
+#include <FL/Fl_Box.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Button.H>
@@ -30,6 +31,7 @@ struct AppState{
     // History capacity
     Fl_Int_Input* history_capacity_input;
     int history_capacity;
+    Fl_Box* history_capacity_alert;
 
     // The buttons on the left of the info window
     Fl_Button* general_info_btn;
