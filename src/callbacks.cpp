@@ -579,7 +579,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
         
         // Display general settings
-        Fl_Button* show_data_btn = new Fl_Button(330, 10, 160, 30, "Show Data Folder");
+        Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
         show_data_btn->box(FL_UP_BOX);
         show_data_btn->color(accent_blue);
         show_data_btn->labelcolor(FL_WHITE);
