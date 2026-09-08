@@ -243,6 +243,7 @@ void choice_callback(Fl_Widget* w, void* data){
     // 1 for deepl
     // and so on...
     app->selected_api = choice->value();
+    std::println("INFO | Current API: {}", app->selected_api);
 }
 
 // The callback for opening the setting window

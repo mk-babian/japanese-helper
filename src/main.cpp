@@ -131,7 +131,7 @@ int main(void){
     app.api_selector->add("Jisho");
     app.api_selector->add("DeepL");
     app.api_selector->add("MyMemory");
-    app.api_selector->value(0);
+    app.api_selector->value(app.selected_api);
     app.api_selector->callback(choice_callback, &app);
 
     Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
