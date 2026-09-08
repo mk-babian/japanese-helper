@@ -5,10 +5,11 @@
 
 #include "include/app_state.h"
 #include "include/get_data_dir.h"
-// i don't use this anymore ↓
 #include "include/get_exec_path.h"
 #include "include/history_circ_buffer.h"
+#ifdef _WIN32
 #include "include/ocr.h"
+#endif
 
 void load_config(AppState* app){
     std::string executable_path = get_data_dir("JapaneseHelper").string();
@@ -94,7 +95,9 @@ void save_config(const AppState* app){
     config << "last_selected_deck=" + app->last_selected_deck + '\n';
     config << "last_selected_api=" + std::to_string(app->selected_api) + '\n';
 
-    capture_windows();
+    #ifdef _WIN32
+        capture_windows();
+    #endif
 }
 
 // A standalone function to clear the history buffer and file
