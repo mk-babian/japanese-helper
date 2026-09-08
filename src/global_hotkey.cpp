@@ -18,6 +18,7 @@ namespace {
     // Windows doesn't know it as "Ctrl+L" internally — it just knows "hotkey #1".
     // If you register more hotkeys later, each one needs its own unique ID.
     constexpr int HOTKEY_CTRL_L_ID = 1;
+    constexpr int HOTKEY_CTRL_S_ID = 2;
 
     // A pointer to your app's shared state (the AppState struct from app_state.h).
     // We stash it here because win_message_handler below has no way to receive
@@ -45,6 +46,17 @@ namespace {
             return 1; // "I handled this — FLTK, don't process it any further."
         }
 
+        if (msg->message == WM_HOTKEY && msg->wParam == HOTKEY_CTRL_S_ID){
+            std::println("INFO | Ctrl+S pressed (global)");
+
+            int n = g_app->api_selector->size() - 1; // = 3
+            int idx = (g_app->api_selector->value() + 1) % n;
+            g_app->api_selector->value(idx);
+            g_app->api_selector->do_callback();
+
+            return 1;
+        }
+
         return 0; // "Not my message — FLTK, carry on as normal."
     }
 }
@@ -67,6 +79,11 @@ void register_global_hotkeys(AppState* app){
         std::println("W | Failed to register global hotkey Ctrl+L");
     }
 
+    if (!RegisterHotKey(hwnd, HOTKEY_CTRL_S_ID, MOD_CONTROL, 'S')){
+        std::println("W | Failed to register global hotkey Ctrl+S");
+    }
+
+
     // Plug our handler into FLTK's message pipeline so we actually see the
     // WM_HOTKEY message when it arrives.
     Fl::add_system_handler(win_message_handler, nullptr);
@@ -78,6 +95,9 @@ void register_global_hotkeys(AppState* app){
 void unregister_global_hotkeys(){
     if (g_app && g_app->main_win){
         UnregisterHotKey(fl_xid(g_app->main_win), HOTKEY_CTRL_L_ID);
+    }
+    if (g_app && g_app->main_win){
+        UnregisterHotKey(fl_xid(g_app->main_win), HOTKEY_CTRL_S_ID);
     }
 }
 
