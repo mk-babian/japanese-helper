@@ -20,11 +20,13 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential \
+          sudo apt-get install -y cmake build-essential gcc-14 g++-14 \
             libcurl4-openssl-dev libfltk1.3-dev portaudio19-dev
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTRANSLATOR_STATIC=ON
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTRANSLATOR_STATIC=ON \
+            -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14
 
       - name: Build
         run: cmake --build build --parallel

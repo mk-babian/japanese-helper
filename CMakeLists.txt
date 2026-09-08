@@ -163,7 +163,7 @@ target_link_libraries(translator PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(translator PRIVATE gdiplus gdi32 user32)
+    target_link_libraries(translator PRIVATE gdiplus gdi32 user32 winmm setupapi)
 endif()
 
 add_custom_command(TARGET translator POST_BUILD
