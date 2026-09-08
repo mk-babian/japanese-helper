@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:   # lets you trigger a test run manually, no tag needed
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential \
+            libcurl4-openssl-dev libfltk1.3-dev portaudio19-dev
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTRANSLATOR_STATIC=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Package
+        run: |
+          mkdir -p dist/japanese-helper-linux
+          cp build/translator dist/japanese-helper-linux/
+          cp -r build/images dist/japanese-helper-linux/images
+          mkdir -p dist/japanese-helper-linux/whisper.cpp
+          cp -r build/whisper.cpp/models dist/japanese-helper-linux/whisper.cpp/models
+          cd dist && zip -r japanese-helper-linux.zip japanese-helper-linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: dist/japanese-helper-linux.zip
+
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-curl
+            mingw-w64-x86_64-fltk
+            mingw-w64-x86_64-portaudio
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DTRANSLATOR_STATIC=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/japanese-helper-windows
+          Copy-Item build/translator.exe dist/japanese-helper-windows/
+          Copy-Item -Recurse build/images dist/japanese-helper-windows/images
+          New-Item -ItemType Directory -Force -Path dist/japanese-helper-windows/whisper.cpp
+          Copy-Item -Recurse build/whisper.cpp/models dist/japanese-helper-windows/whisper.cpp/models
+          Compress-Archive -Path dist/japanese-helper-windows -DestinationPath dist/japanese-helper-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/japanese-helper-windows.zip
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            dist/linux-build/japanese-helper-linux.zip
+            dist/windows-build/japanese-helper-windows.zip
