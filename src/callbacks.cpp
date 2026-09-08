@@ -10,8 +10,10 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Box.H>
+#include <FL/filename.H>
 #include <FL/Fl_Input.H>
 #include <FL/fl_ask.H>
+
 
 #include "include/api.h"
 #include "include/colors.h"
@@ -576,7 +578,12 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
         
         // Display general settings
-        
+        Fl_Button* show_data_btn = new Fl_Button(330, 10, 160, 30, "Show Data Folder");
+        show_data_btn->box(FL_UP_BOX);
+        show_data_btn->color(accent_blue);
+        show_data_btn->labelcolor(FL_WHITE);
+        show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        show_data_btn->callback(on_show_data_btn, app);
 
         app->settings_content->end();
         app->settings_win->redraw();
@@ -773,6 +780,15 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
     btn->labelcolor(FL_BLACK);
     btn->label("History Cleared!");
     btn->redraw();
+}
+
+void on_show_data_btn(Fl_Widget* w, void* data){
+    (void)w;
+    (void)data;
+
+    std::string path = get_data_dir("JapaneseHelper").string();
+    std::string uri = "file://" + path;
+    fl_open_uri(uri.c_str());
 }
 
 // This callback is triggered when a history entry button is clicked
