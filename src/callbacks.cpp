@@ -603,7 +603,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
         history_capacity_input->box(FL_UP_BOX);
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        history_capacity_input->value(std::to_string(app->history_buf->capacity).c_str());
+        history_capacity_input->value(app->history_buf->capacity);
         app->history_capacity_input = history_capacity_input;
 
         Fl_Box* history_capacity_alert = new Fl_Box(345, 10, 300, 30);

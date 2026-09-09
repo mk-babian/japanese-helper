@@ -54,6 +54,8 @@ int main(void){
     app.history_buf = &history_circle;
     // Load the config (the one that the settings window writes).
     load_config(&app);
+    std::println("INFO | History capacity: {}", app.history_capacity);
+    std::println("INFO | History buf capacity: {}", app.history_buf->capacity);
     // Allocate memory for strings
     app.history_buf->data.resize(app.history_buf->capacity);
     app.history_buf->time.resize(app.history_buf->capacity);
