@@ -1,3 +1,4 @@
+#pragma once
 #include <FL/Fl_Widget.H>
 
 #include "app_state.h"
