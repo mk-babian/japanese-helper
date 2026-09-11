@@ -30,6 +30,13 @@ if(WIN32)
     set(CURL_LIBRARIES "C:/libs/curl/lib/libcurl.lib")
 endif()
 
+# --- Cairo (system FLTK here is built with cairo support, so its
+# public header needs cairo.h even though we don't use cairo directly) ---
+find_package(CURL QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(CAIRO QUIET cairo)
+endif()
+
 # --- CURL ---
 find_package(CURL QUIET)
 if(NOT CURL_FOUND)
@@ -144,6 +151,7 @@ endif()
 # Combine includes
 target_include_directories(translator PRIVATE
     ${FLTK_INCLUDE_DIR}
+    ${CAIRO_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/ggml/include
     ${PORTAUDIO_INCLUDE_DIRS}
