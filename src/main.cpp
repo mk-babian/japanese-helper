@@ -295,9 +295,7 @@ int main(void){
     // Show the main window.
     main_win->show();
 
-    #if defined(_WIN32)
-        register_global_hotkeys(&app);
-    #endif
+    register_global_hotkeys(&app);
 
     
     // ============================ INFO WINDOW
@@ -350,8 +348,6 @@ int main(void){
     int result = Fl::run();             // Start the app.
     Pa_Terminate();                     // Stop PortAudio.
     curl_global_cleanup();
-    #if defined(_WIN32)
-        unregister_global_hotkeys();
-    #endif
+    unregister_global_hotkeys();
     return result;
 }
