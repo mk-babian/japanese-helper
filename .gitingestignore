@@ -1,0 +1,4 @@
+images/*
+build/*
+src/lib/*
+src/whisper.cpp/*
