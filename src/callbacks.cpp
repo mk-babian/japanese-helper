@@ -588,8 +588,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(FL_UP_BOX);
-        show_github_repo_btn->color(accent_blue);
-        show_github_repo_btn->labelcolor(FL_WHITE);
+        show_github_repo_btn->color(bg_color);
+        show_github_repo_btn->labelcolor(FL_BLACK);
         show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_github_repo_btn->callback(on_show_github_repo_btn, app);
 
