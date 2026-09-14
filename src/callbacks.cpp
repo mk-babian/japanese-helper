@@ -590,8 +590,14 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
+        Fl_Button* show_config_file_btn = new Fl_Button(190, 50, 500, 30, "Show Config File");
+        show_config_file_btn->box(FL_UP_BOX);
+        show_config_file_btn->color(accent_blue);
+        show_config_file_btn->labelcolor(FL_WHITE);
+        show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        show_config_file_btn->callback(on_show_config_file_btn, app);
 
-        Fl_Button* show_history_file_btn = new Fl_Button(190, 50, 500, 30, "Show History File");
+        Fl_Button* show_history_file_btn = new Fl_Button(190, 90, 500, 30, "Show History File");
         show_history_file_btn->box(FL_UP_BOX);
         show_history_file_btn->color(accent_blue);
         show_history_file_btn->labelcolor(FL_WHITE);
@@ -807,6 +813,15 @@ void on_show_data_btn(Fl_Widget* w, void* data){
     (void)data;
 
     std::string path = get_data_dir("JapaneseHelper").string();
+    std::string uri = "file://" + path;
+    fl_open_uri(uri.c_str());
+}
+
+void on_show_config_file_btn(Fl_Widget* w, void* data){
+    (void)w;
+    (void)data;
+
+    std::string path = get_data_dir("JapaneseHelper").string() + "/config.ini";
     std::string uri = "file://" + path;
     fl_open_uri(uri.c_str());
 }
