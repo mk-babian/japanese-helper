@@ -586,6 +586,13 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
+        Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
+        show_github_repo_btn->box(FL_UP_BOX);
+        show_github_repo_btn->color(accent_blue);
+        show_github_repo_btn->labelcolor(FL_WHITE);
+        show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        show_github_repo_btn->callback(on_show_github_repo_btn, app);
+
         app->settings_content->end();
         app->settings_win->redraw();
     } else if (app->selected_settings_win == 1){
@@ -789,6 +796,14 @@ void on_show_data_btn(Fl_Widget* w, void* data){
 
     std::string path = get_data_dir("JapaneseHelper").string();
     std::string uri = "file://" + path;
+    fl_open_uri(uri.c_str());
+}
+
+void on_show_github_repo_btn(Fl_Widget* w, void* data){
+    (void)w;
+    (void)data;
+
+    std::string uri = "https://github.com/mk-babian/japanese-helper";
     fl_open_uri(uri.c_str());
 }
 
