@@ -1,4 +1,5 @@
 #include <print>
+#include <cstdlib>
 #include <curl/curl.h>
 
 // FLTK
@@ -27,6 +28,10 @@
 std::filesystem::path get_executable_path();
 
 int main(void){
+#if !defined(_WIN32)
+    setenv("FLTK_BACKEND", "x11", 1);
+#endif
+
 #if defined(_WIN32)
     std::println("INFO | Compiler says: This is Windows");
 #else
