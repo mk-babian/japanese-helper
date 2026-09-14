@@ -31,6 +31,7 @@ void on_main_win_close(Fl_Widget* w, void* data);
 void on_settings_win_change(Fl_Widget* w, void* data);
 void on_clear_history_btn(Fl_Widget* w, void* data);
 void on_show_data_btn(Fl_Widget* w, void* data);
+void on_show_history_file_btn(Fl_Widget* w, void* data);
 void on_show_github_repo_btn(Fl_Widget* w, void* data);
 void on_history_entry_click(Fl_Widget* w, void* user_data);
 void model_choice_callback(Fl_Widget* w, void* data);
