@@ -101,6 +101,7 @@ int main(void){
         main_win->icon(&icon);
         Fl::set_font(FL_FREE_FONT, "Noto Sans CJK JP");
         Fl::set_font((Fl_Font)(FL_FREE_FONT + 1), "DejaVu Sans Mono Bold");
+        Fl::set_font((Fl_Font)(FL_FREE_FONT + 2), "DejaVu Sans Mono Oblique");
     #endif
     main_win->color(bg_color);
 
@@ -133,7 +134,7 @@ int main(void){
     app.search_hint = new Fl_Box(10, 50, 880, 540, "Search to get started.");
     app.search_hint->box(FL_FLAT_BOX);
     app.search_hint->color(bg_color);
-    app.search_hint->labelfont(FL_FREE_FONT);
+    app.search_hint->labelfont((Fl_Font)(FL_FREE_FONT + 2));
     app.search_hint->labelsize(medium_font);
     app.search_hint->labelcolor(fl_rgb_color(110, 110, 110));
     app.search_hint->align(FL_ALIGN_CENTER);
