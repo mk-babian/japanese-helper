@@ -126,6 +126,18 @@ int main(void){
     app.output->color(FL_WHITE);
     app.output->textsize(large_font);
 
+    // Hide the output until the user performs a search.
+    app.output->hide();
+
+    // Show a small hint in its place.
+    app.search_hint = new Fl_Box(10, 50, 880, 540, "Search to get started.");
+    app.search_hint->box(FL_FLAT_BOX);
+    app.search_hint->color(bg_color);
+    app.search_hint->labelfont(FL_FREE_FONT);
+    app.search_hint->labelsize(medium_font);
+    app.search_hint->labelcolor(fl_rgb_color(110, 110, 110));
+    app.search_hint->align(FL_ALIGN_CENTER);
+
     app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
     app.anki_button->box(FL_UP_BOX);
     app.anki_button->callback(on_anki_button, &app);

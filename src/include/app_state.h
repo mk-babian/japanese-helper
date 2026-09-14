@@ -73,6 +73,9 @@ struct AppState{
     Fl_Input* input;
     Fl_Multiline_Output* output;
 
+    // Placeholder text shown in place of the output until the first search.
+    Fl_Box* search_hint;
+
     // The PortAudio stream data for the speech-to-text functionality
     StreamData stream_data;
 

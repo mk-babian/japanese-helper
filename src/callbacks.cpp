@@ -79,6 +79,10 @@ void master_on_search(Fl_Widget* w, void* data){
         on_search_mymemory(w, data);
     }
 
+    // Swap the placeholder hint for the real output now that a search happened.
+    app->search_hint->hide();
+    app->output->show();
+
     app->anki_button->show();
 }
 
