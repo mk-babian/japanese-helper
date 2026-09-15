@@ -260,7 +260,8 @@ int main(int argc, char** argv){
     }
 
     if (!term.empty()){
-        app.
+        app.input->value(term.c_str());
+        app.search_btn->do_callback();
     }
     
     // ============================ SETTINGS WINDOW
