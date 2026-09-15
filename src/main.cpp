@@ -258,6 +258,10 @@ int main(int argc, char** argv){
             app.api_selector->do_callback();
         }
     }
+
+    if (!term.empty()){
+        app.
+    }
     
     // ============================ SETTINGS WINDOW
 
