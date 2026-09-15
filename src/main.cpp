@@ -56,12 +56,20 @@ int main(int argc, char** argv){
     AppState app;
 
     std::string api = "";
+    std::string term = "";
     for (int i = 1; i < argc; ++i){
         std::string_view arg = argv[i];
 
         if ((arg == "-a" || arg == "--api") && i + 1 < argc){
             api = argv[++i];
             for (char& c : api){
+                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            }
+        }
+
+        if ((arg == "-t" || arg == "--term") && i + 1 < argc){
+            term = argv[++i];
+            for (char& c : term){
                 c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
             }
         }
