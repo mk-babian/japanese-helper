@@ -1,4 +1,5 @@
 #include <print>
+#include <cctype>
 #include <cstdlib>
 #include <curl/curl.h>
 
@@ -60,10 +61,11 @@ int main(int argc, char** argv){
 
         if ((arg == "-a" || arg == "--api") && i + 1 < argc){
             api = argv[++i];
+            for (char& c : api){
+                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            }
         }
     }
-
-    std::println("argv API is: {}", api);
 
     // Create the circular buffer to hold the search history
     CircularBuffer history_circle;
