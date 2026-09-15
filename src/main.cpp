@@ -27,7 +27,7 @@
 // Windows operating systems
 std::filesystem::path get_executable_path();
 
-int main(void){
+int main(int argc, char** argv){
 #if !defined(_WIN32)
     setenv("FLTK_BACKEND", "x11", 1);
 #endif
@@ -53,6 +53,17 @@ int main(void){
     // std::print("{}", executable_path);
 
     AppState app;
+
+    std::string api = "";
+    for (int i = 1; i < argc; ++i){
+        std::string_view arg = argv[i];
+
+        if ((arg == "-a" || arg == "--api") && i + 1 < argc){
+            api = argv[++i];
+        }
+    }
+
+    std::println("argv API is: {}", api);
 
     // Create the circular buffer to hold the search history
     CircularBuffer history_circle;
