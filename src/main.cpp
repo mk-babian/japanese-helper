@@ -238,6 +238,18 @@ int main(int argc, char** argv){
     // The callback writes to the search history file before closing
     main_win->callback(on_main_win_close, &app);
 
+    if (!api.empty()){
+        if (api == "jisho"){
+            app.api_selector->value(0);
+            app.api_selector->do_callback();
+        }else if(api == "deepl"){
+            app.api_selector->value(1);
+            app.api_selector->do_callback();
+        }else if(api == "mymemory"){
+            app.api_selector->value(2);
+            app.api_selector->do_callback();
+        }
+    }
     
     // ============================ SETTINGS WINDOW
 
