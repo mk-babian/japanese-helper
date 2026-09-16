@@ -143,10 +143,14 @@ int main(int argc, char** argv){
     OverlayOutput* output = new OverlayOutput(10, 50, 880, 540);
     app.output = output;
     app.output->wrap(1);
-    if (app.transparent_output_style == false) app.output->box(FL_UP_BOX);
-    else if (app.transparent_output_style == true) app.output->box(FL_NO_BOX);
+    if (app.transparent_output_style == false){
+        app.output->box(FL_UP_BOX);
+        app.output->color(FL_WHITE);
+    }else if(app.transparent_output_style == true){
+        app.output->box(FL_FLAT_BOX);
+        app.output->color(bg_color);
+    }
     app.output->textfont(FL_FREE_FONT);
-    app.output->color(FL_WHITE);
     app.output->textsize(large_font);
 
     // Hide the output until the user performs a search.
