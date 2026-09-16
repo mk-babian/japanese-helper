@@ -72,6 +72,7 @@ struct AppState{
     // Main window input and output
     Fl_Input* input;
     Fl_Multiline_Output* output;
+    bool transparent_output_style = false;
 
     // Placeholder text shown in place of the output until the first search.
     Fl_Box* search_hint;

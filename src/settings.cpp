@@ -94,6 +94,7 @@ void save_config(const AppState* app){
     config << "history_capacity=" + std::to_string(app->history_buf->capacity) + '\n';
     config << "last_selected_deck=" + app->last_selected_deck + '\n';
     config << "last_selected_api=" + std::to_string(app->selected_api) + '\n';
+    config << "transparent_output_style=" + std::to_string(app->transparent_output_style) + '\n';
 
     #ifdef _WIN32
         capture_windows();
