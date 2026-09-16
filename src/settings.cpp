@@ -75,6 +75,11 @@ void load_config(AppState* app){
         if (key == "last_selected_api"){
             app->selected_api = std::stoi(value);
         }
+
+        if (key == "transparent_output_style"){
+            if (value == "0") app->transparent_output_style = false;
+            else if (value == "1") app->transparent_output_style = true;
+        }
     }
 }
 
