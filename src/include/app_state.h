@@ -103,6 +103,9 @@ struct AppState{
     // The std::string that is used to keep the raw return value of a Jisho search.
     // Compared to the actual result we use to print, this one isn't parsed.
     std::string raw_jisho_return;
+
+    // The colors we use in the app
+    StyleColors app_style_colors;
 };
 
 struct AnkiWarning {
