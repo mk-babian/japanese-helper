@@ -28,6 +28,8 @@
 #include "include/download_whisper_model.h"
 #include "lib/json.hpp"
 
+using json = nlohmann::json;
+
 const std::filesystem::path executable_path = get_executable_path().parent_path();
 
 // Resolve a saved input-device name to its current PortAudio index.
@@ -90,7 +92,7 @@ void master_on_search(Fl_Widget* w, void* data){
 // Pulls out each entry's writing(s) and reading(s), then the numbered English
 // definitions together with their parts of speech, into one formatted string.
 static std::string format_jisho_back(const std::string& raw){
-    nlohmann::json parsed = nlohmann::json::parse(raw);
+    json parsed = json::parse(raw);
     auto data = parsed["data"];
     if (data.empty()){
         return "No results found.";

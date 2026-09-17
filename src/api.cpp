@@ -307,7 +307,7 @@ std::string anki_get_decks(){
         throw std::runtime_error(curl_easy_strerror(res));
     }
 
-    nlohmann::json response = nlohmann::json::parse(read_buffer);
+    json response = json::parse(read_buffer);
 
     if (!response["error"].is_null()){
         throw std::runtime_error("W | AnkiConnect error: " + response["error"].get<std::string>());
