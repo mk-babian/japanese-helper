@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 
+#include "include/colors.h"
 #include "speech_to_text.h"
 #include "history_circ_buffer.h"
 
