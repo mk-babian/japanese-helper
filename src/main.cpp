@@ -153,6 +153,8 @@ int main(int argc, char** argv){
     }
     app.output->textfont(FL_FREE_FONT);
     app.output->textsize(large_font);
+    app.output->textcolor(app.style_colors.fg_color);
+    app.output->labelcolor(app.style_colors.fg_color);
 
     // Hide the output until the user performs a search.
     app.output->hide();
@@ -168,6 +170,7 @@ int main(int argc, char** argv){
 
     app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
     app.anki_button->box(FL_UP_BOX);
+    set_widget_fill(app.anki_button, app.style_colors.accent_2);
     app.anki_button->callback(on_anki_button, &app);
     app.anki_button->hide();
     output->keep_on_top(app.anki_button);
@@ -178,12 +181,15 @@ int main(int argc, char** argv){
     app.api_selector->add("Jisho");
     app.api_selector->add("DeepL");
     app.api_selector->add("MyMemory");
+    app.api_selector->box(FL_UP_BOX);
     app.api_selector->value(app.selected_api);
+    set_widget_fill(app.api_selector, app.style_colors.bg_color);
+    app.api_selector->textcolor(app.style_colors.fg_color);
     app.api_selector->callback(choice_callback, &app);
 
     Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
     info_button->box(FL_UP_BOX);
-    info_button->color(app.style_colors.accent_2);
+    set_widget_fill(info_button, app.style_colors.accent_2);
     Fl_PNG_Image* info_icon = new Fl_PNG_Image((executable_path + "/images/info.png").c_str());
     if (info_icon->fail()){
         std::println("W | Couldn't load info-icon image!");
@@ -195,7 +201,7 @@ int main(int argc, char** argv){
     // Create and configure the microphone button for STT
     Fl_Button* voice_to_text_btn = new Fl_Button(215, 10, 30, 30);
     app.stt_btn = voice_to_text_btn;
-    app.stt_btn->color(app.style_colors.accent_2);
+    set_widget_fill(app.stt_btn, app.style_colors.accent_2);
     app.stt_btn->selection_color(app.style_colors.accent_2);          // Prevents button turning grey when clicked.
     app.stt_btn->clear_visible_focus();                 // Prevents the GTK+ scheme from grey-boxing it.
     app.stt_btn->box(FL_UP_BOX);
@@ -225,6 +231,7 @@ int main(int argc, char** argv){
         history_btn->image(history_icon);
     }
     history_btn->box(FL_UP_BOX);
+    set_widget_fill(history_btn, app.style_colors.accent_2);
     history_btn->callback(on_history_btn, &app);
 
     // Create and configure the settings button.
@@ -279,12 +286,12 @@ int main(int argc, char** argv){
 
     app.settings_content = new Fl_Group(180, 0, 520, 550);
     app.settings_content->box(FL_FLAT_BOX);
-    app.settings_content->color(app.style_colors.bg_color);
+    set_widget_fill(app.settings_content, app.style_colors.bg_color);
     app.settings_content->end();
 
     Fl_Box* left_box = new Fl_Box(0, 0, 180, 550);
     left_box->box(FL_FLAT_BOX);
-    left_box->color(fl_rgb_color(180, 180, 185));
+    set_widget_fill(left_box, fl_rgb_color(180, 180, 185));
 
     Fl_Button* general_btn = new Fl_Button(10, 10, 160, 30, "General");
     general_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
@@ -339,6 +346,7 @@ int main(int argc, char** argv){
     Fl_Scroll* scroll = new Fl_Scroll(0, 0, 310, 500);
     app.history_scroll = scroll;
     app.history_scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
+    set_widget_fill(app.history_scroll, app.style_colors.bg_color);
     app.history_scroll->end();
     app.history_win->end();
 
@@ -359,12 +367,12 @@ int main(int argc, char** argv){
 
     app.info_content = new Fl_Group(200, 0, 300, 600);
     app.info_content->box(FL_FLAT_BOX);
-    app.info_content->color(app.style_colors.bg_color);
+    set_widget_fill(app.info_content, app.style_colors.bg_color);
     app.info_content->end();
 
     Fl_Box* info_left_box = new Fl_Box(0, 0, 200, 600);
     info_left_box->box(FL_FLAT_BOX);
-    info_left_box->color(fl_rgb_color(180, 180, 185));
+    set_widget_fill(info_left_box, fl_rgb_color(180, 180, 185));
 
     Fl_Button* general_info_btn = new Fl_Button(10, 10, 180, 30, "General");
     general_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));

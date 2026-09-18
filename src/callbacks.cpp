@@ -300,9 +300,10 @@ void on_info_win_change(Fl_Widget* w, void* data){
         // Display API information
         app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
         app->info_text->box(FL_NO_BOX);
-        app->info_text->color();
+        set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
+        app->info_text->labelcolor(FL_BLACK);
         app->info_text->wrap(1);
         app->info_text->value(
             "\t  === Jisho ===\n\n"
@@ -332,6 +333,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
+        app->info_text->labelcolor(FL_BLACK);
         app->info_text->wrap(1);
         app->info_text->value(
             "A simple lookup and translation desktop app for Japanese. Built with C++ and FLTK.\n\n"
@@ -347,6 +349,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
+        app->info_text->labelcolor(FL_BLACK);
         app->info_text->wrap(1);
         app->info_text->value(
             "Whisper is a high-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model.\n\n"
@@ -506,7 +509,8 @@ void on_history_btn(Fl_Widget* w, void* data){
         Fl_Box* box = new Fl_Box(10, y, 280, 30, "No history yet!");
         box->align(FL_ALIGN_CENTER);
         box->labelfont(FL_ITALIC);
-        box->labelcolor(FL_BLACK);
+        box->box(FL_FLAT_BOX);
+        set_widget_fill(box, app->style_colors.bg_color);
     }
     else{
         app->history_win->size(history_width, history_height_default);
@@ -516,6 +520,8 @@ void on_history_btn(Fl_Widget* w, void* data){
             int idx = (app->history_buf->head + i) % app->history_buf->capacity;
 
             Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
+            btn->box(FL_UP_BOX);
+            set_widget_fill(btn, app->style_colors.bg_color);
 
             std::string query   = app->history_buf->data[idx];
             std::string date    = app->history_buf->time[idx];
@@ -588,22 +594,19 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Display general settings
         Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
         show_data_btn->box(FL_UP_BOX);
-        show_data_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_data_btn, app->style_colors.bg_color);
+        set_widget_fill(show_data_btn, app->style_colors.accent_2);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
         Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
         show_config_file_btn->box(FL_UP_BOX);
-        show_config_file_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_config_file_btn, app->style_colors.bg_color);
+        set_widget_fill(show_config_file_btn, app->style_colors.accent_2);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
         Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
         show_history_file_btn->box(FL_UP_BOX);
-        show_history_file_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_history_file_btn, app->style_colors.bg_color);
+        set_widget_fill(show_history_file_btn, app->style_colors.accent_2);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
@@ -622,13 +625,14 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
-        clear_history_btn->color(app->style_colors.accent_0);
-        set_widget_fill(clear_history_btn, app->style_colors.bg_color);
+        set_widget_fill(clear_history_btn, app->style_colors.accent_0);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
         Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
         history_capacity_input->box(FL_UP_BOX);
+        set_widget_fill(history_capacity_input, app->style_colors.bg_color);
+        history_capacity_input->textcolor(app->style_colors.fg_color);
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         history_capacity_input->value(app->history_buf->capacity);
         app->history_capacity_input = history_capacity_input;
@@ -636,6 +640,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Box* history_capacity_alert = new Fl_Box(345, 10, 300, 30);
         app->history_capacity_alert = history_capacity_alert;
         app->history_capacity_alert->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(history_capacity_alert, app->style_colors.bg_color);
         app->history_capacity_alert->hide();
 
         app->settings_content->end();
@@ -658,10 +663,12 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         }
 
         app->settings_key_input->box(FL_UP_BOX);
+        set_widget_fill(app->settings_key_input, app->style_colors.bg_color);
+        app->settings_key_input->textcolor(app->style_colors.fg_color);
         app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
 
         Fl_Button* show_btn = new Fl_Button(665, 10, 30, 30);
-        show_btn->color(app->style_colors.accent_2);
+        set_widget_fill(show_btn, app->style_colors.accent_2);
         show_btn->box(FL_UP_BOX);
         Fl_PNG_Image* show_icon = new Fl_PNG_Image((executable_path.string() + "/images/show.png").c_str());
         if (show_icon->fail()){
@@ -675,6 +682,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_email_input = new Fl_Input(310, 50, 350, 30, "MyMemory Email:");
         app->settings_email_input->value(app->mymemory_email.c_str());
         app->settings_email_input->box(FL_UP_BOX);
+        set_widget_fill(app->settings_email_input, app->style_colors.bg_color);
+        app->settings_email_input->textcolor(app->style_colors.fg_color);
         app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->settings_email_input->tooltip("Optional. Giving MyMemory a valid email raises the free daily limit from 5,000 to 50,000 characters.");
 
@@ -686,6 +695,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Display STT settings
         app->whisper_model_selector = new Fl_Choice(310, 10, 80, 30, "Whisper Model:");
         app->whisper_model_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(app->whisper_model_selector, app->style_colors.bg_color);
+        app->whisper_model_selector->textcolor(app->style_colors.fg_color);
         app->whisper_model_selector->add("tiny");
         app->whisper_model_selector->add("base");
         app->whisper_model_selector->add("small");
@@ -697,8 +708,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
         app->install_whisper_model->box(FL_UP_BOX);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        set_widget_fill(app->install_whisper_model, app->style_colors.bg_color);
-        app->install_whisper_model->color(app->style_colors.accent_2);
+        set_widget_fill(app->install_whisper_model, app->style_colors.accent_2);
         app->install_whisper_model->callback(download_button, app);
         
         // Check if the current selected model is already downloaded
@@ -720,6 +730,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Input device selector: list every PortAudio device that has input channels.
         app->whisper_device_selector = new Fl_Choice(310, 50, 380, 30, "Input Device:");
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(app->whisper_device_selector, app->style_colors.bg_color);
+        app->whisper_device_selector->textcolor(app->style_colors.fg_color);
         app->whisper_device_selector->callback(device_choice_callback, app);
 
         int n_devices = Pa_GetDeviceCount();
@@ -881,8 +893,7 @@ void model_choice_callback(Fl_Widget* w, void* data){
         app->install_whisper_model->label("Already Downloaded!");
         app->install_whisper_model->deactivate();
     }else{
-        app->install_whisper_model->color(app->style_colors.accent_2);
-        set_widget_fill(app->install_whisper_model, app->style_colors.bg_color);
+        set_widget_fill(app->install_whisper_model, app->style_colors.accent_2);
         app->install_whisper_model->label("Download");
         app->install_whisper_model->activate();
     }
@@ -1021,23 +1032,29 @@ void show_anki_card_window(void* data){
     std::unique_ptr<AnkiCardData> card(static_cast<AnkiCardData*>(data));
 
     Fl_Window* win = new Fl_Window(400, 260, "Add Card");
+    win->color(card->app->style_colors.bg_color);
 
     // Populate widgets from card->front, card->back, card->deck_names, etc.
 
     Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
+    set_widget_fill(choice, card->app->style_colors.bg_color);
+    choice->textcolor(card->app->style_colors.fg_color);
 
     Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
     front_input->value(card->front.c_str());
+    set_widget_fill(front_input, card->app->style_colors.bg_color);
+    front_input->textcolor(card->app->style_colors.fg_color);
 
     Fl_Input* back_input = new Fl_Input(50, 100, 340, 30, "Back:");
     back_input->value(card->back.c_str());
+    set_widget_fill(back_input, card->app->style_colors.bg_color);
+    back_input->textcolor(card->app->style_colors.fg_color);
 
     // "Add" button that submits the card to the selected deck.
     Fl_Button* add_btn = new Fl_Button(150, 220, 100, 30, "Add");
     add_btn->box(FL_UP_BOX);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    set_widget_fill(add_btn, card->app->style_colors.bg_color);
-    add_btn->color(card->app->style_colors.accent_2);
+    set_widget_fill(add_btn, card->app->style_colors.accent_2);
     add_btn->callback(on_anki_add_note, new AnkiAddNoteData{card->app, front_input, back_input});
 
     // Keep the deck selection in AppState so the Add callback can use it.
