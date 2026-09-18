@@ -588,22 +588,19 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Display general settings
         Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
         show_data_btn->box(FL_UP_BOX);
-        show_data_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_data_btn, app->style_colors.bg_color);
+        set_widget_fill(show_data_btn, app->style_colors.accent_2);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
         Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
         show_config_file_btn->box(FL_UP_BOX);
-        show_config_file_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_config_file_btn, app->style_colors.bg_color);
+        set_widget_fill(show_config_file_btn, app->style_colors.accent_2);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
         Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
         show_history_file_btn->box(FL_UP_BOX);
-        show_history_file_btn->color(app->style_colors.accent_2);
-        set_widget_fill(show_history_file_btn, app->style_colors.bg_color);
+        set_widget_fill(show_history_file_btn, app->style_colors.accent_2);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
