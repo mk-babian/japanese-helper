@@ -273,6 +273,7 @@ int main(int argc, char** argv){
 
     // Create new settings window.
     app.settings_win = new Fl_Window(700, 550, "Settings");
+    app.settings_win->color(app.style_colors.bg_color);
     // Fl_Box* box = new Fl_Box(4, 40, 692, 4);
     // box->box(FL_UP_BOX);
     // box->color(app.style_colors.bg_color);
@@ -284,7 +285,7 @@ int main(int argc, char** argv){
 
     Fl_Box* left_box = new Fl_Box(0, 0, 180, 550);
     left_box->box(FL_FLAT_BOX);
-    left_box->color(fl_rgb_color(180, 180, 185));
+    left_box->color(app.style_colors.bg_color);
 
     Fl_Button* general_btn = new Fl_Button(10, 10, 160, 30, "General");
     general_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
@@ -322,13 +323,17 @@ int main(int argc, char** argv){
     save_button->callback(on_apply_btn, &app);
 
     // Create and configure the cancel button that closes the window.
-    Fl_Button* cancel_button = new Fl_Button(95, app.settings_win->h() - 35, 80, 30, "Cancel");
+    Fl_Button* cancel_button = new Fl_Button(90, app.settings_win->h() - 35, 80, 30, "Cancel");
     cancel_button->box(FL_UP_BOX);
     set_widget_fill(cancel_button, app.style_colors.accent_0);
     cancel_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     cancel_button->callback(on_cancel_btn, &app);
 
-    app.settings_win->color(app.style_colors.bg_color);
+    Fl_Box* separator = new Fl_Box(179, 0, 2, 550);
+    separator->color(app.style_colors.bg_accent);
+    separator->align(FL_ALIGN_CENTER);
+    separator->box(FL_FLAT_BOX);
+
     app.settings_win->end();
 
 
