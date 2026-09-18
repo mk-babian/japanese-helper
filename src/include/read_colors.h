@@ -1,5 +1,6 @@
 #pragma once
 
-#include "app_state.h";
+#include "app_state.h"
+#include "get_data_dir.h"
 
-StyleColors read_color_from_file(std::ifstream file);
+StyleColors read_color_from_file();
