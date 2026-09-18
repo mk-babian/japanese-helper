@@ -316,14 +316,14 @@ int main(int argc, char** argv){
     app.stt_settings_btn = stt_settings_btn;
 
     // Create and configure the save button that saves config and closes window.
-    Fl_Button* save_button = new Fl_Button(5, app.settings_win->h() - 35, 80, 30, "Apply");
+    Fl_Button* save_button = new Fl_Button(7.5, app.settings_win->h() - 35, 80, 30, "Apply");
     save_button->box(FL_UP_BOX);
     set_widget_fill(save_button, app.style_colors.accent_2);
     save_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     save_button->callback(on_apply_btn, &app);
 
     // Create and configure the cancel button that closes the window.
-    Fl_Button* cancel_button = new Fl_Button(90, app.settings_win->h() - 35, 80, 30, "Cancel");
+    Fl_Button* cancel_button = new Fl_Button(92.5, app.settings_win->h() - 35, 80, 30, "Cancel");
     cancel_button->box(FL_UP_BOX);
     set_widget_fill(cancel_button, app.style_colors.accent_0);
     cancel_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
