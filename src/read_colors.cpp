@@ -42,8 +42,8 @@ StyleColors read_color_from_file(){
 
     sc.accent_0 = hex_to_color(sc.colors.at(4));
     sc.accent_1 = hex_to_color(sc.colors.at(10));
-    sc.accent_2 = hex_to_color(sc.colors.at(1));
-
+    sc.accent_2 = hex_to_color(sc.colors.at(6));
+    
     return sc;
 }
 
@@ -55,4 +55,17 @@ Fl_Color hex_to_color(const std::string& hex) {
     }
     unsigned long rgb = std::stoul(h, nullptr, 16);
     return (Fl_Color)(rgb << 8);
+}
+
+Fl_Color readable_label_color(Fl_Color bg) {
+    uchar r, g, b;
+    Fl::get_color(bg, r, g, b);
+    double luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b; // 0–255 scale, fast approx
+    return luminance > 140 ? FL_BLACK : FL_WHITE;
+}
+
+void set_widget_fill(Fl_Widget* w, Fl_Color fill) {
+    w->color(fill);
+    w->labelcolor(readable_label_color(fill));
+    w->redraw();
 }
