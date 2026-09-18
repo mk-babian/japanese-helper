@@ -106,7 +106,7 @@ struct AppState{
     std::string raw_jisho_return;
 
     // The colors we use in the app
-    StyleColors app_style_colors;
+    StyleColors style_colors;
 };
 
 struct AnkiWarning {
