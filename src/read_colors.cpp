@@ -1,15 +1,22 @@
 #include <fstream>
 #include <print>
 
+#include "include/read_colors.h"
+
 // JSON
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
-#include "include/app_state.h"
 
-StyleColors read_color_from_file(std::ifstream file){
+StyleColors read_color_from_file(){
+    std::string executable_path = get_data_dir("JapaneseHelper").string();
+    std::ifstream file(executable_path + "/colors.json");
+
     StyleColors sc;
-    if (!file.is_open()) std::println("W | Couldn't read from color file."); return sc;
+
+    if (!file.is_open()){
+        throw std::runtime_error("ERR | Reading from color file failed!\n");
+    }
 
     try {
         json data = json::parse(file);
@@ -18,18 +25,18 @@ StyleColors read_color_from_file(std::ifstream file){
             sc.background = data["special"]["background"];
             sc.foreground = data["special"]["foreground"];
 
-            std::println("I | Read colors from file: bg = {}, fg = {}", sc.background, sc.foreground);
+            std::println("INFO | Read colors from file: bg = {}, fg = {}", sc.background, sc.foreground);
         }
 
         if (data.contains("colors")){
             for (json::iterator it = data["colors"].begin(); it != data["colors"].end(); ++it){
                 std::string key = it.key();
                 sc.colors.push_back(it.value());
+                std::println("INFO | Read colors from file: {}", sc.colors.back());
             }
         }
     } catch (const json::parse_error& e){
-        std::println("W | Parse error: {}", e.what());
-        return sc;
+        throw std::runtime_error(std::format("ERR | Error parsing colors JSON file: {}\n", e.what()));
     }
 
     return sc;
