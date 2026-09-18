@@ -21,28 +21,27 @@ StyleColors read_color_from_file(){
         json data = json::parse(file);
 
         if (data.contains("special")){
-            sc.background = data["special"]["background"];
-            sc.bg_color = hex_to_color(sc.background);
-            sc.foreground = data["special"]["foreground"];
-            sc.fg_color = hex_to_color(sc.foreground);
-
-            // std::println("INFO | Read colors from file: bg = {}, fg = {}", sc.background, sc.foreground);
+            sc.background_string = data["special"]["background"];
+            sc.bg_color = hex_to_color(sc.background_string);
+            sc.foreground_string = data["special"]["foreground"];
+            sc.fg_color = hex_to_color(sc.foreground_string);
         }
 
         if (data.contains("colors")){
             for (json::iterator it = data["colors"].begin(); it != data["colors"].end(); ++it){
                 std::string key = it.key();
-                sc.colors.push_back(it.value());
-                // std::println("INFO | Read colors from file: {}", sc.colors.back());
+                sc.colors_vector.push_back(it.value());
             }
         }
     } catch (const json::parse_error& e){
         throw std::runtime_error(std::format("ERR | Error parsing colors JSON file: {}\n", e.what()));
     }
 
-    sc.accent_0 = hex_to_color(sc.colors.at(4));
-    sc.accent_1 = hex_to_color(sc.colors.at(10));
-    sc.accent_2 = hex_to_color(sc.colors.at(6));
+    sc.accent_0 = hex_to_color(sc.colors_vector.at(4));
+    sc.accent_1 = hex_to_color(sc.colors_vector.at(10));
+    sc.accent_2 = hex_to_color(sc.colors_vector.at(6));
+    sc.accent_3 = hex_to_color(sc.colors_vector.at(11));
+    sc.bg_accent = hex_to_color(sc.colors_vector.at(1));
     
     return sc;
 }
