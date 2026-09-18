@@ -15,11 +15,11 @@
 #include <FL/Fl_Tooltip.H>
 
 // japanese-helper/src/include
-#include "include/colors.h"
 #include "include/settings.h"
 #include "include/callbacks.h"
 #include "include/app_state.h"
 #include "include/overrides.h"
+#include "include/read_colors.h"
 #include "include/get_exec_path.h"
 #include "include/global_hotkey.h"
 #include "include/history_circ_buffer.h"
@@ -54,6 +54,7 @@ int main(int argc, char** argv){
     // std::print("{}", executable_path);
 
     AppState app;
+    StyleColors style = read_color_from_file();
 
     std::string api = "";
     std::string term = "";
