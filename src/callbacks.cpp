@@ -64,12 +64,12 @@ static void hide_history_capacity_alert(void* data){
 void master_on_search(Fl_Widget* w, void* data){
     AppState* app = static_cast<AppState*>(data);
     app->search_btn->deactivate();
-    app->search_btn->color(bg_color);
+    app->search_btn->color(app->style_colors.bg_color);
 
     std::string text = app->input->value();
     if (text.empty()){
         app->search_btn->activate();
-        app->search_btn->color(accent_blue);
+        app->search_btn->color(app->style_colors.accent_2);
         return;
     }
 
@@ -155,7 +155,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(result.c_str());	// perform operation
             app->anki_button->redraw();
             Fl::unlock();
@@ -163,7 +163,7 @@ void on_search_jisho(Fl_Widget* w, void* data){
         } catch (const std::exception& e) {		// if jisho_lookup crashes, display error
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(e.what()); 	 	// show the error
             app->anki_button->redraw();
             Fl::unlock();
@@ -189,7 +189,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
             // std::println("Last Search: {}", dequeue(*app->history_buf));
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(result.c_str());
             app->anki_button->redraw();
             Fl::unlock();
@@ -197,7 +197,7 @@ void on_search_deepl(Fl_Widget* w, void* data){
         } catch (const std::exception& e) {
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(e.what());
             app->anki_button->redraw();
             Fl::unlock();
@@ -222,7 +222,7 @@ void on_search_mymemory(Fl_Widget* w, void* data){
 
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(result.c_str());
             app->anki_button->redraw();
             Fl::unlock();
@@ -230,7 +230,7 @@ void on_search_mymemory(Fl_Widget* w, void* data){
         } catch (const std::exception& e) {
             Fl::lock();
             app->search_btn->activate();
-            app->search_btn->color(accent_blue);
+            app->search_btn->color(app->style_colors.accent_2);
             app->output->value(e.what());
             app->anki_button->redraw();
             Fl::unlock();
@@ -434,8 +434,8 @@ void on_stt_btn(Fl_Widget* w, void* data){
     app->stream_data.is_recording = true;
     app->stream_data.index = 0;
     
-    app->stt_btn->color(accent_red);
-    app->stt_btn->selection_color(accent_red);   // Keep it red if clicked while recording.
+    app->stt_btn->color(app->style_colors.accent_0);
+    app->stt_btn->selection_color(app->style_colors.accent_0);   // Keep it red if clicked while recording.
     app->stt_btn->redraw();                         // Force FLTK to paint the town red.
 
     // Set up PortAudio parameters.
@@ -466,16 +466,16 @@ void on_stt_btn(Fl_Widget* w, void* data){
             // Once the stream stops/finishes, reset the UI.
             Fl::lock();
             app->input->value(result.c_str());
-            app->stt_btn->color(accent_blue);
-            app->stt_btn->selection_color(accent_blue);
+            app->stt_btn->color(app->style_colors.accent_2);
+            app->stt_btn->selection_color(app->style_colors.accent_2);
             app->stt_btn->redraw();                 // Force FLTK to paint the blue color now.
             app->stream_data.is_recording = false;
             Fl::unlock();
             Fl::awake();
         } catch (const std::exception& e){
             Fl::lock();
-            app->stt_btn->color(accent_blue);
-            app->stt_btn->selection_color(accent_blue);
+            app->stt_btn->color(app->style_colors.accent_2);
+            app->stt_btn->selection_color(app->style_colors.accent_2);
             app->stt_btn->redraw();
             app->stream_data.is_recording = false;
             Fl::unlock();
@@ -587,28 +587,28 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Display general settings
         Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
         show_data_btn->box(FL_UP_BOX);
-        show_data_btn->color(accent_blue);
+        show_data_btn->color(app->style_colors.accent_2);
         show_data_btn->labelcolor(FL_WHITE);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
         Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
         show_config_file_btn->box(FL_UP_BOX);
-        show_config_file_btn->color(accent_blue);
+        show_config_file_btn->color(app->style_colors.accent_2);
         show_config_file_btn->labelcolor(FL_WHITE);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
         Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
         show_history_file_btn->box(FL_UP_BOX);
-        show_history_file_btn->color(accent_blue);
+        show_history_file_btn->color(app->style_colors.accent_2);
         show_history_file_btn->labelcolor(FL_WHITE);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(FL_UP_BOX);
-        show_github_repo_btn->color(bg_color);
+        show_github_repo_btn->color(app->style_colors.bg_color);
         show_github_repo_btn->labelcolor(FL_BLACK);
         show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_github_repo_btn->callback(on_show_github_repo_btn, app);
@@ -622,7 +622,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
-        clear_history_btn->color(accent_red);
+        clear_history_btn->color(app->style_colors.accent_0);
         clear_history_btn->labelcolor(FL_WHITE);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
@@ -661,7 +661,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
 
         Fl_Button* show_btn = new Fl_Button(665, 10, 30, 30);
-        show_btn->color(accent_blue);
+        show_btn->color(app->style_colors.accent_2);
         show_btn->box(FL_UP_BOX);
         Fl_PNG_Image* show_icon = new Fl_PNG_Image((executable_path.string() + "/images/show.png").c_str());
         if (show_icon->fail()){
@@ -698,7 +698,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->install_whisper_model->box(FL_UP_BOX);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->install_whisper_model->labelcolor(FL_WHITE);
-        app->install_whisper_model->color(accent_blue);
+        app->install_whisper_model->color(app->style_colors.accent_2);
         app->install_whisper_model->callback(download_button, app);
         
         // Check if the current selected model is already downloaded
@@ -712,7 +712,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             case 4: model_name = "ggml-large.bin";  break;
         }
         if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
-            app->install_whisper_model->color(accent_green);
+            app->install_whisper_model->color(app->style_colors.accent_1);
             app->install_whisper_model->labelcolor(FL_BLACK);
             app->install_whisper_model->label("Already Downloaded!");
             app->install_whisper_model->deactivate();
@@ -804,7 +804,7 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
 
     // Give the user some visual confirmation that the history was cleared.
     Fl_Button* btn = static_cast<Fl_Button*>(w);
-    btn->color(accent_green);
+    btn->color(app->style_colors.accent_1);
     btn->labelcolor(FL_BLACK);
     btn->label("History Cleared!");
     btn->redraw();
@@ -879,12 +879,12 @@ void model_choice_callback(Fl_Widget* w, void* data){
         case 4: model_name = "ggml-large.bin";  break;
     }
     if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
-        app->install_whisper_model->color(fl_rgb_color(54, 192, 96));
+        app->install_whisper_model->color(app->style_colors.accent_1);
         app->install_whisper_model->labelcolor(FL_BLACK);
         app->install_whisper_model->label("Already Downloaded!");
         app->install_whisper_model->deactivate();
     }else{
-        app->install_whisper_model->color(accent_blue);
+        app->install_whisper_model->color(app->style_colors.accent_2);
         app->install_whisper_model->labelcolor(FL_WHITE);
         app->install_whisper_model->label("Download");
         app->install_whisper_model->activate();
@@ -1040,7 +1040,7 @@ void show_anki_card_window(void* data){
     add_btn->box(FL_UP_BOX);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     add_btn->labelcolor(FL_WHITE);
-    add_btn->color(accent_blue);
+    add_btn->color(card->app->style_colors.accent_2);
     add_btn->callback(on_anki_add_note, new AnkiAddNoteData{card->app, front_input, back_input});
 
     // Keep the deck selection in AppState so the Add callback can use it.
@@ -1117,7 +1117,7 @@ void on_anki_add_note(Fl_Widget* w, void* data){
 
             Fl::lock();
             btn->activate();
-            btn->color(accent_green);
+            btn->color(app->style_colors.accent_1);
             btn->labelcolor(FL_BLACK);
             btn->label("Added!");
             btn->redraw();
