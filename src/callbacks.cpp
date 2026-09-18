@@ -26,6 +26,7 @@
 #include "include/speech_to_text.h"
 #include "include/history_circ_buffer.h"
 #include "include/download_whisper_model.h"
+#include "include/read_colors.h"
 #include "lib/json.hpp"
 
 using json = nlohmann::json;
@@ -299,7 +300,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         // Display API information
         app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
         app->info_text->box(FL_NO_BOX);
-        app->info_text->color(FL_WHITE);
+        app->info_text->color();
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
         app->info_text->wrap(1);
@@ -328,7 +329,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         // Display general information
         app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
         app->info_text->box(FL_NO_BOX);
-        app->info_text->color(FL_WHITE);
+        set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
         app->info_text->wrap(1);
@@ -343,7 +344,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         // Display Whisper information
         app->info_text = new Fl_Multiline_Output(210, 10, 280, 580);
         app->info_text->box(FL_NO_BOX);
-        app->info_text->color(FL_WHITE);
+        set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
         app->info_text->textcolor(FL_BLACK);
         app->info_text->wrap(1);
@@ -588,28 +589,27 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
         show_data_btn->box(FL_UP_BOX);
         show_data_btn->color(app->style_colors.accent_2);
-        show_data_btn->labelcolor(FL_WHITE);
+        set_widget_fill(show_data_btn, app->style_colors.bg_color);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
         Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
         show_config_file_btn->box(FL_UP_BOX);
         show_config_file_btn->color(app->style_colors.accent_2);
-        show_config_file_btn->labelcolor(FL_WHITE);
+        set_widget_fill(show_config_file_btn, app->style_colors.bg_color);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
         Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
         show_history_file_btn->box(FL_UP_BOX);
         show_history_file_btn->color(app->style_colors.accent_2);
-        show_history_file_btn->labelcolor(FL_WHITE);
+        set_widget_fill(show_history_file_btn, app->style_colors.bg_color);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(FL_UP_BOX);
-        show_github_repo_btn->color(app->style_colors.bg_color);
-        show_github_repo_btn->labelcolor(FL_BLACK);
+        set_widget_fill(show_github_repo_btn, app->style_colors.bg_color);
         show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_github_repo_btn->callback(on_show_github_repo_btn, app);
 
@@ -623,7 +623,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
         clear_history_btn->color(app->style_colors.accent_0);
-        clear_history_btn->labelcolor(FL_WHITE);
+        set_widget_fill(clear_history_btn, app->style_colors.bg_color);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
@@ -697,7 +697,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
         app->install_whisper_model->box(FL_UP_BOX);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        app->install_whisper_model->labelcolor(FL_WHITE);
+        set_widget_fill(app->install_whisper_model, app->style_colors.bg_color);
         app->install_whisper_model->color(app->style_colors.accent_2);
         app->install_whisper_model->callback(download_button, app);
         
@@ -712,8 +712,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             case 4: model_name = "ggml-large.bin";  break;
         }
         if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
-            app->install_whisper_model->color(app->style_colors.accent_1);
-            app->install_whisper_model->labelcolor(FL_BLACK);
+            set_widget_fill(app->install_whisper_model, app->style_colors.accent_1);
             app->install_whisper_model->label("Already Downloaded!");
             app->install_whisper_model->deactivate();
         }
@@ -804,8 +803,7 @@ void on_clear_history_btn(Fl_Widget* w, void* data){
 
     // Give the user some visual confirmation that the history was cleared.
     Fl_Button* btn = static_cast<Fl_Button*>(w);
-    btn->color(app->style_colors.accent_1);
-    btn->labelcolor(FL_BLACK);
+    set_widget_fill(btn, app->style_colors.accent_1);
     btn->label("History Cleared!");
     btn->redraw();
 }
@@ -879,13 +877,12 @@ void model_choice_callback(Fl_Widget* w, void* data){
         case 4: model_name = "ggml-large.bin";  break;
     }
     if (std::filesystem::exists(executable_path / "whisper.cpp" / "models" / model_name)){
-        app->install_whisper_model->color(app->style_colors.accent_1);
-        app->install_whisper_model->labelcolor(FL_BLACK);
+        set_widget_fill(app->install_whisper_model, app->style_colors.accent_1);
         app->install_whisper_model->label("Already Downloaded!");
         app->install_whisper_model->deactivate();
     }else{
         app->install_whisper_model->color(app->style_colors.accent_2);
-        app->install_whisper_model->labelcolor(FL_WHITE);
+        set_widget_fill(app->install_whisper_model, app->style_colors.bg_color);
         app->install_whisper_model->label("Download");
         app->install_whisper_model->activate();
     }
@@ -1039,7 +1036,7 @@ void show_anki_card_window(void* data){
     Fl_Button* add_btn = new Fl_Button(150, 220, 100, 30, "Add");
     add_btn->box(FL_UP_BOX);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    add_btn->labelcolor(FL_WHITE);
+    set_widget_fill(add_btn, card->app->style_colors.bg_color);
     add_btn->color(card->app->style_colors.accent_2);
     add_btn->callback(on_anki_add_note, new AnkiAddNoteData{card->app, front_input, back_input});
 
@@ -1117,8 +1114,7 @@ void on_anki_add_note(Fl_Widget* w, void* data){
 
             Fl::lock();
             btn->activate();
-            btn->color(app->style_colors.accent_1);
-            btn->labelcolor(FL_BLACK);
+            set_widget_fill(btn, app->style_colors.accent_1);
             btn->label("Added!");
             btn->redraw();
             Fl::unlock();
