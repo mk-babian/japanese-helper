@@ -7,7 +7,6 @@
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
-
 StyleColors read_color_from_file(){
     std::string executable_path = get_data_dir("JapaneseHelper").string();
     std::ifstream file(executable_path + "/colors.json");
@@ -40,4 +39,14 @@ StyleColors read_color_from_file(){
     }
 
     return sc;
+}
+
+Fl_Color hex_to_color(const std::string& hex) {
+    std::string h = hex;
+    // Remove the #
+    if (h[0] == '#') {
+        h = h.substr(1);
+    }
+    unsigned long rgb = std::stoul(h, nullptr, 16);
+    return (Fl_Color)(rgb << 8);
 }
