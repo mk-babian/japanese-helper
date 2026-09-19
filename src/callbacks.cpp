@@ -620,20 +620,21 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(FL_UP_BOX);
-        clear_history_btn->color(app->style_colors.accent_0);
         set_widget_fill(clear_history_btn, app->style_colors.bg_color);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
         Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
         history_capacity_input->box(FL_UP_BOX);
-        history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         history_capacity_input->value(app->history_buf->capacity);
+        set_widget_fill(history_capacity_input, app->style_colors.bg_color);
+        history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->history_capacity_input = history_capacity_input;
 
         Fl_Box* history_capacity_alert = new Fl_Box(345, 10, 300, 30);
         app->history_capacity_alert = history_capacity_alert;
         app->history_capacity_alert->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(history_capacity_alert, app->style_colors.bg_color);
         app->history_capacity_alert->hide();
 
         app->settings_content->end();
@@ -645,6 +646,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         // Display API settings
         app->settings_key_input = new Fl_Input(310, 10, 350, 30, "DeepL API Key:");
+        set_widget_fill(app->settings_key_input, app->style_colors.bg_color);
         app->settings_key_input->value(app->deepl_key.c_str());
 
         if (app->deepl_key.empty()) {
@@ -674,6 +676,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_email_input->value(app->mymemory_email.c_str());
         app->settings_email_input->box(FL_UP_BOX);
         app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(app->settings_email_input, app->style_colors.bg_color);
         app->settings_email_input->tooltip("Optional. Giving MyMemory a valid email raises the free daily limit from 5,000 to 50,000 characters.");
 
         app->settings_content->end();
@@ -689,14 +692,14 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_model_selector->add("small");
         app->whisper_model_selector->add("medium");
         app->whisper_model_selector->add("large");
+        set_widget_fill(app->whisper_model_selector, app->style_colors.bg_color);
         app->whisper_model_selector->callback(model_choice_callback, app);
         app->whisper_model_selector->value(app->selected_model);
 
         app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
         app->install_whisper_model->box(FL_UP_BOX);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        set_widget_fill(app->install_whisper_model, app->style_colors.bg_color);
-        app->install_whisper_model->color(app->style_colors.accent_2);
+        set_widget_fill(app->install_whisper_model, app->style_colors.accent_2);
         app->install_whisper_model->callback(download_button, app);
         
         // Check if the current selected model is already downloaded
@@ -718,6 +721,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Input device selector: list every PortAudio device that has input channels.
         app->whisper_device_selector = new Fl_Choice(310, 50, 380, 30, "Input Device:");
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        set_widget_fill(app->whisper_device_selector, app->style_colors.bg_color);
         app->whisper_device_selector->callback(device_choice_callback, app);
 
         int n_devices = Pa_GetDeviceCount();

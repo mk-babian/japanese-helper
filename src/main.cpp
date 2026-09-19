@@ -332,7 +332,7 @@ int main(int argc, char** argv){
     cancel_button->callback(on_cancel_btn, &app);
 
     Fl_Box* separator = new Fl_Box(179, 0, 2, 550);
-    separator->color(app.style_colors.bg_accent);
+    separator->color(app.style_colors.fg_color);
     separator->align(FL_ALIGN_CENTER);
     separator->box(FL_FLAT_BOX);
 
