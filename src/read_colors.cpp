@@ -41,7 +41,7 @@ StyleColors read_color_from_file(){
     sc.accent_1 = hex_to_color(sc.colors_vector.at(10));
     sc.accent_2 = hex_to_color(sc.colors_vector.at(6));
     sc.accent_3 = hex_to_color(sc.colors_vector.at(11));
-    sc.bg_accent = hex_to_color(sc.colors_vector.at(1));
+    sc.bg_accent = hex_to_color(sc.colors_vector.at(8));
     
     return sc;
 }

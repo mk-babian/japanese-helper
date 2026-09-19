@@ -516,6 +516,7 @@ void on_history_btn(Fl_Widget* w, void* data){
             int idx = (app->history_buf->head + i) % app->history_buf->capacity;
 
             Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
+            set_widget_fill(btn, app->style_colors.bg_color);
 
             std::string query   = app->history_buf->data[idx];
             std::string date    = app->history_buf->time[idx];

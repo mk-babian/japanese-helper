@@ -180,6 +180,7 @@ int main(int argc, char** argv){
     app.api_selector->add("MyMemory");
     app.api_selector->value(app.selected_api);
     app.api_selector->callback(choice_callback, &app);
+    set_widget_fill(app.api_selector, app.style_colors.bg_color);
 
     Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
     info_button->box(FL_UP_BOX);
@@ -226,6 +227,7 @@ int main(int argc, char** argv){
     }
     history_btn->box(FL_UP_BOX);
     history_btn->callback(on_history_btn, &app);
+    set_widget_fill(history_btn, app.style_colors.bg_color);
 
     // Create and configure the settings button.
     Fl_Button* settings_btn = new Fl_Button(main_win->w() - 40, 10, 30, 30);
@@ -344,7 +346,11 @@ int main(int argc, char** argv){
     Fl_Scroll* scroll = new Fl_Scroll(0, 0, 310, 500);
     app.history_scroll = scroll;
     app.history_scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
+    app.history_scroll->color(app.style_colors.bg_color);
+    app.history_scroll->scrollbar.color(app.style_colors.bg_color);
+    app.history_scroll->scrollbar.selection_color(app.style_colors.accent_2);
     app.history_scroll->end();
+    app.history_win->color(app.style_colors.bg_color);
     app.history_win->end();
 
     // Create a keybind to call master_on_search when ENTER is pressed.
