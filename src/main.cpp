@@ -40,7 +40,6 @@ int main(int argc, char** argv){
 #endif
 
     Fl::scheme("gtk+"); 
-    Fl_Tooltip::color(FL_WHITE); 
     Fl_Tooltip::delay(0.25f);
 
     // Font sizes
@@ -55,6 +54,11 @@ int main(int argc, char** argv){
 
     AppState app;
     app.style_colors = read_color_from_file();
+    if (app.style_colors.light_theme == true) app.style_colors.theme_box = FL_GTK_UP_BOX;
+    else app.style_colors.theme_box = FL_BORDER_BOX;
+
+    Fl_Tooltip::color(app.style_colors.bg_color);
+    Fl_Tooltip::textcolor(readable_label_color(app.style_colors.bg_color));
     
     std::string api = "";
     std::string term = "";
@@ -129,7 +133,7 @@ int main(int argc, char** argv){
 
     // Create and configure the main "search" input box.
     app.input = new MainInput(250, 10, 400, 30, "");
-    app.input->box(FL_UP_BOX);
+    app.input->box(app.style_colors.theme_box);
     app.input->value("Input text here...");
     app.input->textfont(FL_FREE_FONT);
     app.input->textsize(small_font);
@@ -162,7 +166,7 @@ int main(int argc, char** argv){
     app.search_hint->align(FL_ALIGN_CENTER);
 
     app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
-    app.anki_button->box(FL_UP_BOX);
+    app.anki_button->box(app.style_colors.theme_box);
     app.anki_button->callback(on_anki_button, &app);
     app.anki_button->hide();
     output->keep_on_top(app.anki_button);
@@ -170,6 +174,7 @@ int main(int argc, char** argv){
     // Create and configure a chocie for the selected API
     Fl_Choice* choice = new Fl_Choice(45, 10, 120, 30);
     app.api_selector = choice;
+    app.api_selector->box(app.style_colors.theme_box);
     app.api_selector->add("Jisho");
     app.api_selector->add("DeepL");
     app.api_selector->add("MyMemory");
@@ -179,7 +184,7 @@ int main(int argc, char** argv){
     app.api_selector->textcolor(readable_label_color(app.style_colors.bg_color));
 
     Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
-    info_button->box(FL_UP_BOX);
+    info_button->box(app.style_colors.theme_box);
     info_button->color(app.style_colors.accent_2);
     Fl_PNG_Image* info_icon = new Fl_PNG_Image((executable_path + "/images/info.png").c_str());
     if (info_icon->fail()){
@@ -195,7 +200,7 @@ int main(int argc, char** argv){
     app.stt_btn->color(app.style_colors.accent_2);
     app.stt_btn->selection_color(app.style_colors.accent_2);          // Prevents button turning grey when clicked.
     app.stt_btn->clear_visible_focus();                 // Prevents the GTK+ scheme from grey-boxing it.
-    app.stt_btn->box(FL_UP_BOX);
+    app.stt_btn->box(app.style_colors.theme_box);
     app.stt_btn->callback(on_stt_btn, &app);
     // Create a new Fl_PNG_Image.
     Fl_PNG_Image* mic_icon = new Fl_PNG_Image((executable_path + "/images/microphone.png").c_str());
@@ -208,7 +213,7 @@ int main(int argc, char** argv){
 
     // Create and configure the main search button.
     app.search_btn = new Fl_Button(655, 10, 80, 30, "Search");
-    app.search_btn->box(FL_UP_BOX);
+    app.search_btn->box(app.style_colors.theme_box);
     set_widget_fill(app.search_btn, app.style_colors.accent_2);
     app.search_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     app.search_btn->labelsize(medium_font);
@@ -221,7 +226,7 @@ int main(int argc, char** argv){
     }else{
         history_btn->image(history_icon);
     }
-    history_btn->box(FL_UP_BOX);
+    history_btn->box(app.style_colors.theme_box);
     history_btn->callback(on_history_btn, &app);
     set_widget_fill(history_btn, app.style_colors.bg_color);
 
@@ -233,7 +238,7 @@ int main(int argc, char** argv){
     }else{
         settings_btn->image(settings_icon);
     }
-    settings_btn->box(FL_UP_BOX);
+    settings_btn->box(app.style_colors.theme_box);
     set_widget_fill(settings_btn, app.style_colors.accent_2);
     settings_btn->callback(open_settings, &app);
 
@@ -273,7 +278,7 @@ int main(int argc, char** argv){
     app.settings_win = new Fl_Window(700, 550, "Settings");
     app.settings_win->color(app.style_colors.bg_color);
     // Fl_Box* box = new Fl_Box(4, 40, 692, 4);
-    // box->box(FL_UP_BOX);
+    // box->box(app.style_colors.theme_box);
     // box->color(app.style_colors.bg_color);
 
     app.settings_content = new Fl_Group(180, 0, 520, 550);
@@ -287,42 +292,42 @@ int main(int argc, char** argv){
 
     Fl_Button* general_btn = new Fl_Button(10, 10, 160, 30, "General");
     general_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    general_btn->box(FL_UP_BOX);
+    general_btn->box(app.style_colors.theme_box);
     set_widget_fill(general_btn, app.style_colors.accent_2);
     general_btn->callback(on_settings_win_change, &app);
     app.general_settings_btn = general_btn;
 
     Fl_Button* history_settings_btn = new Fl_Button(10, 45, 160, 30, "History");
     history_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    history_settings_btn->box(FL_UP_BOX);
+    history_settings_btn->box(app.style_colors.theme_box);
     set_widget_fill(history_settings_btn, app.style_colors.accent_2);
     history_settings_btn->callback(on_settings_win_change, &app);
     app.history_settings_btn = history_settings_btn;
 
     Fl_Button* api_settings_btn = new Fl_Button(10, 80, 160, 30, "API");
     api_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    api_settings_btn->box(FL_UP_BOX);
+    api_settings_btn->box(app.style_colors.theme_box);
     set_widget_fill(api_settings_btn, app.style_colors.accent_2);
     api_settings_btn->callback(on_settings_win_change, &app);
     app.api_settings_btn = api_settings_btn;
 
     Fl_Button* stt_settings_btn = new Fl_Button(10, 115, 160, 30, "Speech-to-Text");
     stt_settings_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    stt_settings_btn->box(FL_UP_BOX);
+    stt_settings_btn->box(app.style_colors.theme_box);
     set_widget_fill(stt_settings_btn, app.style_colors.accent_2);
     stt_settings_btn->callback(on_settings_win_change, &app);
     app.stt_settings_btn = stt_settings_btn;
 
     // Create and configure the save button that saves config and closes window.
     Fl_Button* save_button = new Fl_Button(7.5, app.settings_win->h() - 35, 80, 30, "Apply");
-    save_button->box(FL_UP_BOX);
+    save_button->box(app.style_colors.theme_box);
     set_widget_fill(save_button, app.style_colors.accent_2);
     save_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     save_button->callback(on_apply_btn, &app);
 
     // Create and configure the cancel button that closes the window.
     Fl_Button* cancel_button = new Fl_Button(92.5, app.settings_win->h() - 35, 80, 30, "Cancel");
-    cancel_button->box(FL_UP_BOX);
+    cancel_button->box(app.style_colors.theme_box);
     set_widget_fill(cancel_button, app.style_colors.accent_0);
     cancel_button->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     cancel_button->callback(on_cancel_btn, &app);
@@ -376,21 +381,21 @@ int main(int argc, char** argv){
     
     Fl_Button* general_info_btn = new Fl_Button(10, 5, 180, 30, "General");
     general_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    general_info_btn->box(FL_UP_BOX);
+    general_info_btn->box(app.style_colors.theme_box);
     set_widget_fill(general_info_btn, app.style_colors.accent_2);
     general_info_btn->callback(on_info_win_change, &app);
     app.general_info_btn = general_info_btn;
 
     Fl_Button* api_info_btn = new Fl_Button(10, 40, 180, 30, "API");
     api_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    api_info_btn->box(FL_UP_BOX);
+    api_info_btn->box(app.style_colors.theme_box);
     set_widget_fill(api_info_btn, app.style_colors.accent_2);
     api_info_btn->callback(on_info_win_change, &app);
     app.api_info_btn = api_info_btn;
 
     Fl_Button* whisper_info_btn = new Fl_Button(10, 75, 180, 30, "Whisper");
     whisper_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    whisper_info_btn->box(FL_UP_BOX);
+    whisper_info_btn->box(app.style_colors.theme_box);
     set_widget_fill(whisper_info_btn, app.style_colors.accent_2);
     whisper_info_btn->callback(on_info_win_change, &app);
     app.whisper_info_btn = whisper_info_btn;

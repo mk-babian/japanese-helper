@@ -517,6 +517,7 @@ void on_history_btn(Fl_Widget* w, void* data){
 
             Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
             set_widget_fill(btn, app->style_colors.bg_color);
+            btn->box(app->style_colors.theme_box);
 
             std::string query   = app->history_buf->data[idx];
             std::string date    = app->history_buf->time[idx];
@@ -588,25 +589,25 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         
         // Display general settings
         Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
-        show_data_btn->box(FL_UP_BOX);
+        show_data_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_data_btn, app->style_colors.accent_2);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
         Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
-        show_config_file_btn->box(FL_UP_BOX);
+        show_config_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_config_file_btn, app->style_colors.accent_2);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
         Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
-        show_history_file_btn->box(FL_UP_BOX);
+        show_history_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_history_file_btn, app->style_colors.accent_2);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
-        show_github_repo_btn->box(FL_UP_BOX);
+        show_github_repo_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_github_repo_btn, app->style_colors.bg_color);
         show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_github_repo_btn->callback(on_show_github_repo_btn, app);
@@ -619,13 +620,13 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Display history settings
         Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
-        clear_history_btn->box(FL_UP_BOX);
+        clear_history_btn->box(app->style_colors.theme_box);
         set_widget_fill(clear_history_btn, app->style_colors.bg_color);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
         Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
-        history_capacity_input->box(FL_UP_BOX);
+        history_capacity_input->box(app->style_colors.theme_box);
         history_capacity_input->value(app->history_buf->capacity);
         set_widget_fill(history_capacity_input, app->style_colors.bg_color);
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
@@ -644,7 +645,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         app->key_shown = false;
 
-        // Display API settings
+        // Display API settingsapp.style_colors.theme_box
         app->settings_key_input = new Fl_Input(310, 10, 350, 30, "DeepL API Key:");
         set_widget_fill(app->settings_key_input, app->style_colors.bg_color);
         app->settings_key_input->value(app->deepl_key.c_str());
@@ -657,12 +658,12 @@ void on_settings_win_change(Fl_Widget* w, void* data){
             app->key_shown = false;
         }
 
-        app->settings_key_input->box(FL_UP_BOX);
+        app->settings_key_input->box(app->style_colors.theme_box);
         app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
 
         Fl_Button* show_btn = new Fl_Button(665, 10, 30, 30);
         show_btn->color(app->style_colors.accent_2);
-        show_btn->box(FL_UP_BOX);
+        show_btn->box(app->style_colors.theme_box);
         Fl_PNG_Image* show_icon = new Fl_PNG_Image((executable_path.string() + "/images/show.png").c_str());
         if (show_icon->fail()){
             std::println("W | Couldn't load show-icon image!");
@@ -674,7 +675,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Optional email for MyMemory; raises the daily limit from 5,000 to 50,000 chars
         app->settings_email_input = new Fl_Input(310, 50, 350, 30, "MyMemory Email:");
         app->settings_email_input->value(app->mymemory_email.c_str());
-        app->settings_email_input->box(FL_UP_BOX);
+        app->settings_email_input->box(app->style_colors.theme_box);
         app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         set_widget_fill(app->settings_email_input, app->style_colors.bg_color);
         app->settings_email_input->tooltip("Optional. Giving MyMemory a valid email raises the free daily limit from 5,000 to 50,000 characters.");
@@ -697,7 +698,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_model_selector->value(app->selected_model);
 
         app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
-        app->install_whisper_model->box(FL_UP_BOX);
+        app->install_whisper_model->box(app->style_colors.theme_box);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         set_widget_fill(app->install_whisper_model, app->style_colors.accent_2);
         app->install_whisper_model->callback(download_button, app);
@@ -1036,7 +1037,7 @@ void show_anki_card_window(void* data){
 
     // "Add" button that submits the card to the selected deck.
     Fl_Button* add_btn = new Fl_Button(150, 220, 100, 30, "Add");
-    add_btn->box(FL_UP_BOX);
+    add_btn->box(card->app->style_colors.theme_box);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     set_widget_fill(add_btn, card->app->style_colors.bg_color);
     add_btn->color(card->app->style_colors.accent_2);

@@ -42,8 +42,17 @@ StyleColors read_color_from_file(){
     sc.accent_2 = hex_to_color(sc.colors_vector.at(6));
     sc.accent_3 = hex_to_color(sc.colors_vector.at(11));
     sc.bg_accent = hex_to_color(sc.colors_vector.at(8));
-    
+
+    set_theme(sc);
+
     return sc;
+}
+
+void set_theme(StyleColors& sc) {
+    uchar r, g, b;
+    Fl::get_color(sc.bg_color, r, g, b);
+    double luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b; // 0–255 scale, fast approx
+    sc.light_theme = luminance > 140;
 }
 
 Fl_Color hex_to_color(const std::string& hex) {

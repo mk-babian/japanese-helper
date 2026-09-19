@@ -1,6 +1,4 @@
 #pragma once
-// I don't know where this include came from
-// It just kinda appeared here so it will stay
 #include <FL/Enumerations.H>
 
 #include <vector>
@@ -25,4 +23,8 @@ struct StyleColors{
     Fl_Color accent_3;
     // A slightly darker color than the background
     Fl_Color bg_accent;
+
+    bool light_theme;
+
+    Fl_Boxtype theme_box;
 };
