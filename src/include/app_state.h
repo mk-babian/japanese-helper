@@ -15,6 +15,7 @@
 #include "colors.h"
 #include "speech_to_text.h"
 #include "history_circ_buffer.h"
+#include "overrides.h"
 
 struct AppState{
     // Everything related to the settings window
@@ -71,7 +72,7 @@ struct AppState{
     Fl_Button* anki_button;
 
     // Main window input and output
-    Fl_Input* input;
+    MainInput* input;
     Fl_Multiline_Output* output;
     bool transparent_output_style = false;
 

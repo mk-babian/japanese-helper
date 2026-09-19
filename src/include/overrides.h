@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 
@@ -38,9 +40,14 @@ public:
 class MainInput : public Fl_Input{
 private:
     bool default_text_deleted = false;
+    Fl_Color text_color = FL_BLACK;
 
 public:
     MainInput(int x, int y, int width, int height, const char* label) : Fl_Input(x, y, width, height, label) {}
+
+    // Called from main.cpp after construction so the typed-text color
+    // follows the active theme instead of a hardcoded literal.
+    void set_text_color(Fl_Color c){ text_color = c; }
 
     int handle(int event) override{
         const std::string text = Fl_Input::value();
@@ -54,7 +61,7 @@ public:
                 default_text_deleted = true;
                 Fl::set_font(FL_FREE_FONT, "Noto Sans JP");
                 Fl_Input::textfont(FL_FREE_FONT); 
-                Fl_Input::textcolor(fl_rgb_color(0, 0, 0));
+                Fl_Input::textcolor(text_color);
                 Fl_Input::value("");
             }
         }

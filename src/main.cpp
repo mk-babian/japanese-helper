@@ -130,29 +130,25 @@ int main(int argc, char** argv){
     // Create and configure the main "search" input box.
     app.input = new MainInput(250, 10, 400, 30, "");
     app.input->box(FL_UP_BOX);
-    app.input->color(FL_WHITE);
     app.input->value("Input text here...");
     app.input->textfont(FL_FREE_FONT);
     app.input->textsize(small_font);
-    app.input->textcolor(FL_BLACK);
     app.input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     app.input->labelsize(medium_font);
-    app.input->labelcolor(FL_BLACK);
+    set_widget_fill(app.input, app.style_colors.bg_color);
+    const Fl_Color input_text_color = readable_label_color(app.style_colors.bg_color);
+    app.input->set_text_color(input_text_color);
+    app.input->textcolor(input_text_color);
 
     // Create and configure the output box.
     // The output box is an OverlayOutput; see `overrides.h`
     OverlayOutput* output = new OverlayOutput(10, 50, 880, 540);
     app.output = output;
     app.output->wrap(1);
-    if (app.transparent_output_style == false){
-        app.output->box(FL_UP_BOX);
-        app.output->color(FL_WHITE);
-    }else if(app.transparent_output_style == true){
-        app.output->box(FL_FLAT_BOX);
-        app.output->color(app.style_colors.bg_color);
-    }
     app.output->textfont(FL_FREE_FONT);
     app.output->textsize(large_font);
+    set_widget_fill(app.output, app.style_colors.bg_color);
+    app.output->textcolor(readable_label_color(app.style_colors.bg_color));
 
     // Hide the output until the user performs a search.
     app.output->hide();
@@ -160,10 +156,9 @@ int main(int argc, char** argv){
     // Show a small hint in its place.
     app.search_hint = new Fl_Box(10, 50, 880, 540, "Search to get started.");
     app.search_hint->box(FL_FLAT_BOX);
-    app.search_hint->color(app.style_colors.bg_color);
+    set_widget_fill(app.search_hint, app.style_colors.bg_color);
     app.search_hint->labelfont((Fl_Font)(FL_FREE_FONT + 2));
     app.search_hint->labelsize(medium_font);
-    app.search_hint->labelcolor(fl_rgb_color(110, 110, 110));
     app.search_hint->align(FL_ALIGN_CENTER);
 
     app.anki_button = new Fl_Button(850, 550, 30, 30, "A");
@@ -181,6 +176,7 @@ int main(int argc, char** argv){
     app.api_selector->value(app.selected_api);
     app.api_selector->callback(choice_callback, &app);
     set_widget_fill(app.api_selector, app.style_colors.bg_color);
+    app.api_selector->textcolor(readable_label_color(app.style_colors.bg_color));
 
     Fl_Button* info_button = new Fl_Button(10, 10, 30, 30);
     info_button->box(FL_UP_BOX);

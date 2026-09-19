@@ -28,9 +28,9 @@ StyleColors read_color_from_file(){
         }
 
         if (data.contains("colors")){
-            for (json::iterator it = data["colors"].begin(); it != data["colors"].end(); ++it){
-                std::string key = it.key();
-                sc.colors_vector.push_back(it.value());
+            const std::size_t n = data["colors"].size();
+            for (std::size_t i = 0; i < n; ++i){
+                sc.colors_vector.push_back(data["colors"]["color" + std::to_string(i)]);
             }
         }
     } catch (const json::parse_error& e){
@@ -66,5 +66,6 @@ Fl_Color readable_label_color(Fl_Color bg) {
 void set_widget_fill(Fl_Widget* w, Fl_Color fill) {
     w->color(fill);
     w->labelcolor(readable_label_color(fill));
+    w->selection_color(readable_label_color(fill));
     w->redraw();
 }
