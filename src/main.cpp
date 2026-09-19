@@ -367,40 +367,39 @@ int main(int argc, char** argv){
 
     
     app.info_win = new Fl_Window(500, 600, "Info");
+    set_widget_fill(app.info_win, app.style_colors.bg_color);
 
     app.info_content = new Fl_Group(200, 0, 300, 600);
     app.info_content->box(FL_FLAT_BOX);
-    app.info_content->color(app.style_colors.bg_color);
+    set_widget_fill(app.info_content, app.style_colors.bg_color);
     app.info_content->end();
 
     Fl_Box* info_left_box = new Fl_Box(0, 0, 200, 600);
     info_left_box->box(FL_FLAT_BOX);
-    info_left_box->color(fl_rgb_color(180, 180, 185));
-
-    Fl_Button* general_info_btn = new Fl_Button(10, 10, 180, 30, "General");
+    info_left_box->color(app.style_colors.bg_color);
+    
+    Fl_Button* general_info_btn = new Fl_Button(10, 5, 180, 30, "General");
     general_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     general_info_btn->box(FL_UP_BOX);
     set_widget_fill(general_info_btn, app.style_colors.accent_2);
     general_info_btn->callback(on_info_win_change, &app);
     app.general_info_btn = general_info_btn;
 
-    Fl_Button* api_info_btn = new Fl_Button(10, 50, 180, 30, "API");
+    Fl_Button* api_info_btn = new Fl_Button(10, 40, 180, 30, "API");
     api_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     api_info_btn->box(FL_UP_BOX);
     set_widget_fill(api_info_btn, app.style_colors.accent_2);
     api_info_btn->callback(on_info_win_change, &app);
     app.api_info_btn = api_info_btn;
 
-    Fl_Button* whisper_info_btn = new Fl_Button(10, 90, 180, 30, "Whisper");
+    Fl_Button* whisper_info_btn = new Fl_Button(10, 75, 180, 30, "Whisper");
     whisper_info_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     whisper_info_btn->box(FL_UP_BOX);
     set_widget_fill(whisper_info_btn, app.style_colors.accent_2);
     whisper_info_btn->callback(on_info_win_change, &app);
     app.whisper_info_btn = whisper_info_btn;
 
-    app.info_win->color(app.style_colors.bg_color);
     app.info_win->end();
-
 
     curl_global_init(CURL_GLOBAL_ALL);  // Must be called before any threads use curl.
     Pa_Initialize();                    // Start PortAudio.
