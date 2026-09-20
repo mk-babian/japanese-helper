@@ -3,6 +3,7 @@
 #include "app_state.h"
 #include "get_data_dir.h"
 
+void write_default_colors();
 StyleColors read_color_from_file();
 Fl_Color hex_to_color(const std::string& hex);
 Fl_Color readable_label_color(Fl_Color bg);

@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <print>
 
@@ -7,11 +8,55 @@
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
-StyleColors read_color_from_file(){
+void write_default_colors() {
     std::string executable_path = get_data_dir("JapaneseHelper").string();
-    std::ifstream file(executable_path + "/colors.json");
+
+    json default_colors = {
+        {"special", {
+            {"background", "#fcfcfc"},
+            {"foreground", "#3f3f3f"},
+            {"cursor", "#3f3f3f"}
+        }},
+        {"colors", {
+            {"color0", "#fcfcfc"},
+            {"color1", "#c3c5c3"},
+            {"color2", "#6391aa"},
+            {"color3", "#7e94ab"},
+            {"color4", "#94a0ae"},
+            {"color5", "#a9b2bd"},
+            {"color6", "#1641aa"},
+            {"color7", "#3f3f3f"},
+            {"color8", "#bdbdbd"},
+            {"color9", "#c3c5c3"},
+            {"color10", "#6391aa"},
+            {"color11", "#7e94ab"},
+            {"color12", "#94a0ae"},
+            {"color13", "#a9b2bd"},
+            {"color14", "#1641aa"},
+            {"color15", "#3f3f3f"}
+        }}
+    };
+
+    std::ofstream file(executable_path + "/colors.json");
+    if (!file.is_open()){
+        throw std::runtime_error("ERR | Writing to color file failed!\n");
+    }
+
+    file << default_colors.dump(4) << std::endl;
+}
+
+StyleColors read_color_from_file(){
+    std::string data_path = get_data_dir("JapaneseHelper").string();
 
     StyleColors sc;
+
+    // If the color file doesn't exist yet, write the defaults first so the
+    // app can start with a sane theme instead of crashing.
+    if (!std::filesystem::exists(data_path + "/colors.json")){
+        write_default_colors();
+    }
+
+    std::ifstream file(data_path + "/colors.json");
 
     if (!file.is_open()){
         throw std::runtime_error("ERR | Reading from color file failed!\n");
