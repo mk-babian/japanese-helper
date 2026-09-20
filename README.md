@@ -2,15 +2,19 @@
 
 A **minimalistic** desktop application for Japanese vocabulary lookup and translation.
 
-It has multiple API integrations, a classic-style user interface using FLTK, and speech-to-text. Compatible both with Windows and Linux.
+It has multiple API integrations, a classic-style user interface using FLTK, speech-to-text, Anki flashcard export, and a JSON-based theming system. Compatible with both Windows and Linux.
 
 ## Preview:
 
 ![](images/screenshots/general.gif)
 
+## 📦 Download
+
+Tagged releases are built automatically for Linux and Windows (bundled with the whisper.cpp models directory) via GitHub Actions. Grab the latest zip from the repository's **Releases** page instead of building from source if you just want to run the app.
+
 ## Usage:
 
-There are 3 APIs integrated into the application:
+There are 3 APIs integrated into the application, switchable from the dropdown in the main window or by cycling with **Ctrl+S**:
 
 # 🔍 Lookup
 
@@ -21,7 +25,6 @@ The **Jisho API** can be used to look up any Japanese words in all the writing s
 The **API** provides all Japanese words associated with the input text, their reading (in Hiragana), and their different meanings in English.
 
 # 🌐 Translation
-
 
 ### DeepL (Needs API Key)
 
@@ -61,8 +64,48 @@ Choose based on your hardware and accuracy needs. **Tiny** and **base** are fast
 | medium | 1.5 GiB | ~2.1 GB |
 | large  | 2.9 GiB | ~3.9 GB |
 
-You can also modify the settings and paramaters for **whisper.cpp** and its structs in `speech_to_text.cpp`.
+You can also modify the settings and parameters for **whisper.cpp** and its structs in `speech_to_text.cpp`.
 Notably, you can change the language that **whisper.cpp** takes in as input.
+
+## 📇 Anki Integration
+
+Japanese Helper can send a lookup result straight to Anki as a new flashcard, via [AnkiConnect](https://foosoft.net/projects/anki-connect/).
+
+1. Make sure Anki is running with the **AnkiConnect** add-on installed.
+2. Perform a search — an **"A"** button appears next to the result.
+3. Click it to open the **Add Card** window, pre-filled with the front (kanji/reading) and back (meanings) from the lookup.
+4. Pick a deck from the dropdown (pulled live from Anki) and hit **Add**.
+
+The app remembers your last-used deck and API across sessions. If Anki or AnkiConnect isn't running, you'll get a warning dialog instead of a silent failure.
+
+## 🎨 Theming
+
+The UI reads its color scheme from a `colors.json` file in the app's data directory (see paths below). It follows a base16-style layout:
+
+```json
+{
+    "special": {
+        "background": "#1e1e2e",
+        "foreground": "#cdd6f4"
+    },
+    "colors": {
+        "color0": "#45475a",
+        "color1": "#f38ba8",
+        "color2": "#a6e3a1",
+        "color3": "#f9e2af",
+        "color4": "#89b4fa",
+        "color5": "#f5c2e7",
+        "color6": "#94e2d5",
+        "color7": "#bac2de",
+        "color8": "#585b70",
+        "color9": "#f38ba8",
+        "color10": "#a6e3a1",
+        "color11": "#f9e2af"
+    }
+}
+```
+
+At minimum, `special.background`/`special.foreground` and `color0` through `color11` need to be present — the app pulls its accent colors from specific indices in the `colors` array. Light vs. dark mode is auto-detected from the background's luminance, and label/text colors are chosen automatically for readability against whatever theme is loaded. There's no in-app theme picker yet — you place the file manually.
 
 ## 🖇️ Dependencies:
 
@@ -70,7 +113,7 @@ If you're planning to build this yourself, you'll need these:
 
 - **CMake**
 
-- **GNU Compiler Collection (GCC)**
+- **GNU Compiler Collection (GCC)** — a C++23-capable compiler
 
 - **FLTK (Fast Light Toolkit)**
 
@@ -78,7 +121,9 @@ If you're planning to build this yourself, you'll need these:
 
 - **PortAudio (real-time audio I/O)**
 
-**NOTE:** The `CMakeLists.txt` file sort of handles the acqusition of necessary dependencies.
+- **Cairo development headers** (Linux) — the system FLTK build pulls in `cairo.h` even though the app doesn't use Cairo directly. `pkg-config` is used to locate it.
+
+**NOTE:** The `CMakeLists.txt` file sort of handles the acquisition of necessary dependencies.
 
 ## 🔨 Building:
 
@@ -113,17 +158,37 @@ There is a `CMakeLists.txt` in the root directory of the project. It can be used
   cmake --build build/ --target download_whisper_model
   ```
 
+## ⌨️ Command Line Arguments
+
+Japanese Helper accepts a couple of optional flags for launching straight into a search:
+
+| Flag | Description |
+| ---- | ----------- |
+| `-a`, `--api <jisho\|deepl\|mymemory>` | Select which API is active on startup. |
+| `-t`, `--term <text>` | Pre-fill the search box with `<text>` and immediately trigger a search. |
+
+Example:
+
+```bash
+./translator --api jisho --term 猫
+```
+
 ## ⚙️ Configuration & Misc:
+
 Add your DeepL API key under `Settings → API`.
 
-Your search history and settings are saved in the user's local data directory:
-- **Windows**: `%APPDATA%/Japanese Helper/`
-- **Linux**: `$HOME/.config/japanese-helper/` or `$XDG_CONFIG_HOME/japanese-helper/`
+Your search history, config, and color theme are saved in the user's local data directory:
+- **Windows**: `%LOCALAPPDATA%/JapaneseHelper/`
+- **Linux**: `$XDG_CONFIG_HOME/JapaneseHelper/` or `$HOME/.config/JapaneseHelper/`
+
+The Settings window has quick-access buttons to jump straight to the data folder, the history file, the config file, and the project's GitHub page (`Settings → General`).
 
 History entries can be interacted with:
 - **Hover** to see more info
 - **Click** to re-search a previous query
 - **Clear History** button to wipe it clean from `Settings → History`
+
+History capacity is configurable from `Settings → History` (0–1000 entries); invalid values are rejected with an alert rather than crashing the app.
 
 Example of the `history.json` file:
 ```json
@@ -139,13 +204,14 @@ Example of the `history.json` file:
     ]
 }
 ```
-**NOTE:** The history file and buffer only hold 100 entries. This can be changed by resizing the vectors in `main.cpp`.
 
 ## 🙏 Acknowledgments:
 
 - Big thanks for Georgi Gerganov [(ggerganov)](https://github.com/ggerganov) and contributors of **whisper.cpp** for creating an accessible and high-performance automatic speech recognition (ASR) model.
 
 - Thanks to the [MyMemory](https://mymemory.translated.net/doc/) API, we can be allowed quick and easy access to a translation service without the need to get an API key.
+
+- Thanks to the [AnkiConnect](https://foosoft.net/projects/anki-connect/) add-on for making flashcard export possible.
 
 ## 📜 License:
 
