@@ -55,7 +55,7 @@ int main(int argc, char** argv){
     AppState app;
     app.style_colors = read_color_from_file();
     if (app.style_colors.light_theme == true) app.style_colors.theme_box = FL_GTK_UP_BOX;
-    else app.style_colors.theme_box = FL_BORDER_BOX;
+    else app.style_colors.theme_box = FL_DOWN_BOX;
 
     Fl_Tooltip::color(app.style_colors.bg_color);
     Fl_Tooltip::textcolor(readable_label_color(app.style_colors.bg_color));
@@ -139,8 +139,8 @@ int main(int argc, char** argv){
     app.input->textsize(small_font);
     app.input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
     app.input->labelsize(medium_font);
-    set_widget_fill(app.input, app.style_colors.bg_color);
-    const Fl_Color input_text_color = readable_label_color(app.style_colors.bg_color);
+    set_widget_fill(app.input, app.style_colors.bg_accent);
+    const Fl_Color input_text_color = readable_label_color(app.style_colors.bg_accent);
     app.input->set_text_color(input_text_color);
     app.input->textcolor(input_text_color);
 
@@ -151,8 +151,8 @@ int main(int argc, char** argv){
     app.output->wrap(1);
     app.output->textfont(FL_FREE_FONT);
     app.output->textsize(large_font);
-    set_widget_fill(app.output, app.style_colors.bg_color);
-    app.output->textcolor(readable_label_color(app.style_colors.bg_color));
+    set_widget_fill(app.output, app.style_colors.bg_accent);
+    app.output->textcolor(readable_label_color(app.style_colors.bg_accent));
 
     // Hide the output until the user performs a search.
     app.output->hide();
@@ -160,7 +160,7 @@ int main(int argc, char** argv){
     // Show a small hint in its place.
     app.search_hint = new Fl_Box(10, 50, 880, 540, "Search to get started.");
     app.search_hint->box(FL_FLAT_BOX);
-    set_widget_fill(app.search_hint, app.style_colors.bg_color);
+    set_widget_fill(app.search_hint, app.style_colors.bg_accent);
     app.search_hint->labelfont((Fl_Font)(FL_FREE_FONT + 2));
     app.search_hint->labelsize(medium_font);
     app.search_hint->align(FL_ALIGN_CENTER);
@@ -347,8 +347,8 @@ int main(int argc, char** argv){
     Fl_Scroll* scroll = new Fl_Scroll(0, 0, 310, 500);
     app.history_scroll = scroll;
     app.history_scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
-    app.history_scroll->color(app.style_colors.bg_color);
-    app.history_scroll->scrollbar.color(app.style_colors.bg_color);
+    app.history_scroll->color(app.style_colors.bg_accent);
+    app.history_scroll->scrollbar.color(app.style_colors.bg_accent);
     app.history_scroll->scrollbar.selection_color(app.style_colors.accent_2);
     app.history_scroll->end();
     app.history_win->color(app.style_colors.bg_color);

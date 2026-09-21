@@ -292,6 +292,18 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->selected_info_win = 2;
     }
 
+    // Highlight the active tab with accent_3 and reset the rest to accent_2.
+    set_widget_fill(app->api_info_btn, app->style_colors.accent_2);
+    set_widget_fill(app->general_info_btn, app->style_colors.accent_2);
+    set_widget_fill(app->whisper_info_btn, app->style_colors.accent_2);
+    if (app->selected_info_win == 0){
+        set_widget_fill(app->api_info_btn, app->style_colors.accent_3);
+    }else if (app->selected_info_win == 1){
+        set_widget_fill(app->general_info_btn, app->style_colors.accent_3);
+    }else if (app->selected_info_win == 2){
+        set_widget_fill(app->whisper_info_btn, app->style_colors.accent_3);
+    }
+
     std::println("INFO | Selected info tab: {}", app->selected_info_win);
 
     if (app->selected_info_win == 0){
@@ -302,7 +314,8 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->info_text->box(FL_NO_BOX);
         app->info_text->color();
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
-        app->info_text->textcolor(FL_BLACK);
+        set_widget_fill(app->info_text, app->style_colors.bg_color);
+        app->info_text->textcolor(readable_label_color(app->style_colors.bg_color));
         app->info_text->wrap(1);
         app->info_text->value(
             "\t  === Jisho ===\n\n"
@@ -331,7 +344,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->info_text->box(FL_NO_BOX);
         set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
-        app->info_text->textcolor(FL_BLACK);
+        app->info_text->textcolor(readable_label_color(app->style_colors.bg_color));
         app->info_text->wrap(1);
         app->info_text->value(
             "A simple lookup and translation desktop app for Japanese. Built with C++ and FLTK.\n\n"
@@ -346,7 +359,7 @@ void on_info_win_change(Fl_Widget* w, void* data){
         app->info_text->box(FL_NO_BOX);
         set_widget_fill(app->info_text, app->style_colors.bg_color);
         app->info_text->textfont((Fl_Font)(FL_FREE_FONT + 1));
-        app->info_text->textcolor(FL_BLACK);
+        app->info_text->textcolor(readable_label_color(app->style_colors.bg_color));
         app->info_text->wrap(1);
         app->info_text->value(
             "Whisper is a high-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model.\n\n"
@@ -506,7 +519,7 @@ void on_history_btn(Fl_Widget* w, void* data){
         Fl_Box* box = new Fl_Box(10, y, 280, 30, "No history yet!");
         box->align(FL_ALIGN_CENTER);
         box->labelfont(FL_ITALIC);
-        box->labelcolor(FL_BLACK);
+        box->labelcolor(readable_label_color(app->style_colors.bg_accent));
     }
     else{
         app->history_win->size(history_width, history_height_default);
@@ -516,7 +529,7 @@ void on_history_btn(Fl_Widget* w, void* data){
             int idx = (app->history_buf->head + i) % app->history_buf->capacity;
 
             Fl_Button* btn = new Fl_Button(10, y, 280, 30, "");
-            set_widget_fill(btn, app->style_colors.bg_color);
+            set_widget_fill(btn, app->style_colors.bg_accent);
             btn->box(app->style_colors.theme_box);
 
             std::string query   = app->history_buf->data[idx];
@@ -582,6 +595,21 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->selected_settings_win = 3;
     }
 
+    // Highlight the active tab with accent_3 and reset the rest to accent_2.
+    set_widget_fill(app->general_settings_btn, app->style_colors.accent_2);
+    set_widget_fill(app->history_settings_btn, app->style_colors.accent_2);
+    set_widget_fill(app->api_settings_btn, app->style_colors.accent_2);
+    set_widget_fill(app->stt_settings_btn, app->style_colors.accent_2);
+    if (app->selected_settings_win == 0){
+        set_widget_fill(app->general_settings_btn, app->style_colors.accent_3);
+    } else if (app->selected_settings_win == 1){
+        set_widget_fill(app->history_settings_btn, app->style_colors.accent_3);
+    } else if (app->selected_settings_win == 2){
+        set_widget_fill(app->api_settings_btn, app->style_colors.accent_3);
+    } else if (app->selected_settings_win == 3){
+        set_widget_fill(app->stt_settings_btn, app->style_colors.accent_3);
+    }
+
     std::println("INFO | Selected settings tab: {}", app->selected_settings_win);
 
     if (app->selected_settings_win == 0){
@@ -614,7 +642,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(app->style_colors.theme_box);
-        set_widget_fill(show_github_repo_btn, app->style_colors.bg_color);
+        set_widget_fill(show_github_repo_btn, app->style_colors.bg_accent);
         show_github_repo_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_github_repo_btn->callback(on_show_github_repo_btn, app);
 
@@ -627,14 +655,15 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         Fl_Button* clear_history_btn = new Fl_Button(535, 515, 160, 30, "Clear History");
         clear_history_btn->align(FL_ALIGN_CENTER);
         clear_history_btn->box(app->style_colors.theme_box);
-        set_widget_fill(clear_history_btn, app->style_colors.bg_color);
+        set_widget_fill(clear_history_btn, app->style_colors.bg_accent);
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
         Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
         history_capacity_input->box(app->style_colors.theme_box);
         history_capacity_input->value(app->history_buf->capacity);
-        set_widget_fill(history_capacity_input, app->style_colors.bg_color);
+        set_widget_fill(history_capacity_input, app->style_colors.bg_accent);
+        history_capacity_input->textcolor(readable_label_color(app->style_colors.bg_color));
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->history_capacity_input = history_capacity_input;
 
@@ -653,7 +682,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         // Display API settingsapp.style_colors.theme_box
         app->settings_key_input = new Fl_Input(310, 10, 350, 30, "DeepL API Key:");
-        set_widget_fill(app->settings_key_input, app->style_colors.bg_color);
+        set_widget_fill(app->settings_key_input, app->style_colors.bg_accent);
+        app->settings_key_input->textcolor(readable_label_color(app->style_colors.bg_color));
         app->settings_key_input->value(app->deepl_key.c_str());
 
         if (app->deepl_key.empty()) {
@@ -683,7 +713,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_email_input->value(app->mymemory_email.c_str());
         app->settings_email_input->box(app->style_colors.theme_box);
         app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        set_widget_fill(app->settings_email_input, app->style_colors.bg_color);
+        set_widget_fill(app->settings_email_input, app->style_colors.bg_accent);
+        app->settings_email_input->textcolor(readable_label_color(app->style_colors.bg_color));
         app->settings_email_input->tooltip("Optional. Giving MyMemory a valid email raises the free daily limit from 5,000 to 50,000 characters.");
 
         app->settings_content->end();
@@ -699,7 +730,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_model_selector->add("small");
         app->whisper_model_selector->add("medium");
         app->whisper_model_selector->add("large");
-        set_widget_fill(app->whisper_model_selector, app->style_colors.bg_color);
+        set_widget_fill(app->whisper_model_selector, app->style_colors.bg_accent);
+        app->whisper_model_selector->textcolor(readable_label_color(app->style_colors.bg_color));
         app->whisper_model_selector->callback(model_choice_callback, app);
         app->whisper_model_selector->value(app->selected_model);
 
@@ -728,7 +760,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         // Input device selector: list every PortAudio device that has input channels.
         app->whisper_device_selector = new Fl_Choice(310, 50, 380, 30, "Input Device:");
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-        set_widget_fill(app->whisper_device_selector, app->style_colors.bg_color);
+        set_widget_fill(app->whisper_device_selector, app->style_colors.bg_accent);
+        app->whisper_device_selector->textcolor(readable_label_color(app->style_colors.bg_color));
         app->whisper_device_selector->callback(device_choice_callback, app);
 
         int n_devices = Pa_GetDeviceCount();
