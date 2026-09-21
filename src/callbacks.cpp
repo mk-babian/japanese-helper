@@ -606,6 +606,12 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
+        Fl_Button* show_colors_file_btn = new Fl_Button(190, 115, 500, 30, "Show Colors File");
+        show_colors_file_btn->box(app->style_colors.theme_box);
+        set_widget_fill(show_colors_file_btn, app->style_colors.accent_2);
+        show_colors_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        show_colors_file_btn->callback(on_show_colors_file_btn, app);
+
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_github_repo_btn, app->style_colors.bg_color);
@@ -834,6 +840,15 @@ void on_show_history_file_btn(Fl_Widget* w, void* data){
     (void)data;
 
     std::string path = get_data_dir("JapaneseHelper").string() + "/history.json";
+    std::string uri = "file://" + path;
+    fl_open_uri(uri.c_str());
+}
+
+void on_show_colors_file_btn(Fl_Widget* w, void* data){
+    (void)w;
+    (void)data;
+
+    std::string path = get_data_dir("JapaneseHelper").string() + "/colors.json";
     std::string uri = "file://" + path;
     fl_open_uri(uri.c_str());
 }
