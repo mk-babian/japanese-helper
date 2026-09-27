@@ -13,29 +13,29 @@ void write_default_colors() {
 
     json default_colors = {
         {"special", {
-            {"background", "#fcfcfc"},
-            {"foreground", "#3f3f3f"},
-            {"cursor", "#3f3f3f"}
+            {"background", "#f7f4ed"},   // washi paper
+            {"foreground", "#2b2b2e"},   // sumi ink
+            {"cursor",     "#165e83"}
         }},
         {"colors", {
-            {"color0", "#fcfcfc"},
-            {"color1", "#c3c5c3"},
-            {"color2", "#6391aa"},
-            {"color3", "#7e94ab"},
-            {"color4", "#94a0ae"},
-            {"color5", "#a9b2bd"},
-            {"color6", "#1641aa"},
-            {"color7", "#3f3f3f"},
-            {"color8", "#bdbdbd"},
-            {"color9", "#c3c5c3"},
-            {"color10", "#6391aa"},
-            {"color11", "#7e94ab"},
-            {"color12", "#94a0ae"},
-            {"color13", "#a9b2bd"},
-            {"color14", "#1641aa"},
-            {"color15", "#3f3f3f"}
+            {"color0",  "#f7f4ed"},
+            {"color1",  "#b3372b"},   // beni red: errors, wrong answers
+            {"color2",  "#4a6b2a"},   // matcha green: correct answers
+            {"color3",  "#8a5d0c"},   // ochre
+            {"color4",  "#165e83"},   // ai indigo: primary accent (accent_0)
+            {"color5",  "#7a3b69"},   // murasaki
+            {"color6",  "#1e6b6b"},   // teal (accent_2)
+            {"color7",  "#2b2b2e"},
+            {"color8",  "#e6e0d4"},   // surface/panel (bg_accent)
+            {"color9",  "#c0402f"},
+            {"color10", "#3f7a3a"},   // accent_1
+            {"color11", "#946300"},   // accent_3
+            {"color12", "#2a6f9e"},
+            {"color13", "#8d4a7c"},
+            {"color14", "#247878"},
+            {"color15", "#1c1c1f"}
         }}
-    };
+};
 
     std::ofstream file(executable_path + "/colors.json");
     if (!file.is_open()){
