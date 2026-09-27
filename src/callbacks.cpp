@@ -14,6 +14,7 @@
 #include <FL/filename.H>
 #include <FL/Fl_Input.H>
 #include <FL/fl_ask.H>
+#include <FL/fl_draw.H>
 
 
 #include "include/api.h"
@@ -61,6 +62,25 @@ static void hide_history_capacity_alert(void* data){
         app->history_capacity_input->activate();
         app->history_capacity_input->redraw();
     }
+}
+
+// Adds a labeled section divider to the settings content: the label on the left,
+// followed by a thin line that runs to the right edge of the content area.
+// Must be called between settings_content->begin() and end().
+static void add_settings_divider(AppState* app, int y, const char* label){
+    const Fl_Font font = (Fl_Font)(FL_FREE_FONT + 1);
+    fl_font(font, FL_NORMAL_SIZE);
+    int label_w = (int)fl_width(label) + 4;
+
+    Fl_Box* divider_label = new Fl_Box(190, y, label_w, 20, label);
+    divider_label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+    divider_label->labelfont(font);
+    divider_label->labelcolor(readable_label_color(app->style_colors.bg_color));
+
+    int line_x = 190 + label_w + 5;
+    Fl_Box* divider_line = new Fl_Box(line_x, y + 9, 690 - line_x, 2);
+    divider_line->box(FL_FLAT_BOX);
+    divider_line->color(app->style_colors.accent_2);
 }
 
 void master_on_search(Fl_Widget* w, void* data){
@@ -617,31 +637,35 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
         
         // Display general settings
-        Fl_Button* show_data_btn = new Fl_Button(190, 10, 500, 30, "Show Data Folder");
+        add_settings_divider(app, 10, "Files");
+
+        Fl_Button* show_data_btn = new Fl_Button(190, 40, 500, 30, "Show Data Folder");
         show_data_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_data_btn, app->style_colors.accent_2);
         show_data_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_data_btn->callback(on_show_data_btn, app);
 
-        Fl_Button* show_config_file_btn = new Fl_Button(190, 45, 500, 30, "Show Config File");
+        Fl_Button* show_config_file_btn = new Fl_Button(190, 75, 500, 30, "Show Config File");
         show_config_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_config_file_btn, app->style_colors.accent_2);
         show_config_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_config_file_btn->callback(on_show_config_file_btn, app);
 
-        Fl_Button* show_history_file_btn = new Fl_Button(190, 80, 500, 30, "Show History File");
+        Fl_Button* show_history_file_btn = new Fl_Button(190, 110, 500, 30, "Show History File");
         show_history_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_history_file_btn, app->style_colors.accent_2);
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
-        Fl_Button* show_colors_file_btn = new Fl_Button(445, 115, 245, 30, "Show Colors File");
+        add_settings_divider(app, 150, "Style");
+
+        Fl_Button* show_colors_file_btn = new Fl_Button(445, 180, 245, 30, "Show Colors File");
         show_colors_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_colors_file_btn, app->style_colors.accent_2);
         show_colors_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_colors_file_btn->callback(on_show_colors_file_btn, app);
 
-        Fl_Check_Button* use_default_colors_btn = new Fl_Check_Button(190, 115, 250, 30, "Use Default Colors");
+        Fl_Check_Button* use_default_colors_btn = new Fl_Check_Button(190, 180, 250, 30, "Use Default Colors");
         if (app->use_default_colors == true) use_default_colors_btn->value(1);
         else use_default_colors_btn->value(0);
         use_default_colors_btn->align(FL_ALIGN_CENTER);
@@ -669,7 +693,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         clear_history_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         clear_history_btn->callback(on_clear_history_btn, app);
 
-        Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 10, 335, 30, "History Capacity:");
+        add_settings_divider(app, 10, "History");
+
+        Fl_Int_Input* history_capacity_input = new Fl_Int_Input(330, 40, 335, 30, "History Capacity:");
         history_capacity_input->box(app->style_colors.theme_box);
         history_capacity_input->value(app->history_buf->capacity);
         set_widget_fill(history_capacity_input, app->style_colors.bg_accent);
@@ -677,7 +703,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         history_capacity_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->history_capacity_input = history_capacity_input;
 
-        Fl_Box* history_capacity_alert = new Fl_Box(345, 10, 300, 30);
+        Fl_Box* history_capacity_alert = new Fl_Box(345, 40, 300, 30);
         app->history_capacity_alert = history_capacity_alert;
         app->history_capacity_alert->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         set_widget_fill(history_capacity_alert, app->style_colors.bg_color);
@@ -690,8 +716,10 @@ void on_settings_win_change(Fl_Widget* w, void* data){
 
         app->key_shown = false;
 
-        // Display API settingsapp.style_colors.theme_box
-        app->settings_key_input = new Fl_Input(310, 10, 350, 30, "DeepL API Key:");
+        // Display API settings
+        add_settings_divider(app, 10, "DeepL");
+
+        app->settings_key_input = new Fl_Input(310, 40, 350, 30, "DeepL API Key:");
         set_widget_fill(app->settings_key_input, app->style_colors.bg_accent);
         app->settings_key_input->textcolor(readable_label_color(app->style_colors.bg_color));
         app->settings_key_input->value(app->deepl_key.c_str());
@@ -707,7 +735,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_key_input->box(app->style_colors.theme_box);
         app->settings_key_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
 
-        Fl_Button* show_btn = new Fl_Button(665, 10, 30, 30);
+        Fl_Button* show_btn = new Fl_Button(665, 40, 30, 30);
         show_btn->color(app->style_colors.accent_2);
         show_btn->box(app->style_colors.theme_box);
         Fl_PNG_Image* show_icon = new Fl_PNG_Image((executable_path.string() + "/images/show.png").c_str());
@@ -719,7 +747,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         show_btn->callback(show_deepl_key_btn, app);
 
         // Optional email for MyMemory; raises the daily limit from 5,000 to 50,000 chars
-        app->settings_email_input = new Fl_Input(310, 50, 350, 30, "MyMemory Email:");
+        add_settings_divider(app, 80, "MyMemory");
+
+        app->settings_email_input = new Fl_Input(310, 110, 350, 30, "MyMemory Email:");
         app->settings_email_input->value(app->mymemory_email.c_str());
         app->settings_email_input->box(app->style_colors.theme_box);
         app->settings_email_input->labelfont((Fl_Font)(FL_FREE_FONT + 1));
@@ -733,7 +763,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->settings_content->begin();
 
         // Display STT settings
-        app->whisper_model_selector = new Fl_Choice(310, 10, 80, 30, "Whisper Model:");
+        add_settings_divider(app, 10, "Whisper");
+
+        app->whisper_model_selector = new Fl_Choice(310, 40, 80, 30, "Whisper Model:");
         app->whisper_model_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         app->whisper_model_selector->add("tiny");
         app->whisper_model_selector->add("base");
@@ -745,7 +777,7 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         app->whisper_model_selector->callback(model_choice_callback, app);
         app->whisper_model_selector->value(app->selected_model);
 
-        app->install_whisper_model = new Fl_Button(400, 10, 290, 30, "Download");
+        app->install_whisper_model = new Fl_Button(400, 40, 290, 30, "Download");
         app->install_whisper_model->box(app->style_colors.theme_box);
         app->install_whisper_model->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         set_widget_fill(app->install_whisper_model, app->style_colors.accent_2);
@@ -768,7 +800,9 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         }
 
         // Input device selector: list every PortAudio device that has input channels.
-        app->whisper_device_selector = new Fl_Choice(310, 50, 380, 30, "Input Device:");
+        add_settings_divider(app, 80, "Microphone");
+
+        app->whisper_device_selector = new Fl_Choice(310, 110, 380, 30, "Input Device:");
         app->whisper_device_selector->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         set_widget_fill(app->whisper_device_selector, app->style_colors.bg_accent);
         app->whisper_device_selector->textcolor(readable_label_color(app->style_colors.bg_color));
