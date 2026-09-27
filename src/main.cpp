@@ -53,12 +53,6 @@ int main(int argc, char** argv){
     // std::print("{}", executable_path);
 
     AppState app;
-    app.style_colors = read_color_from_file();
-    if (app.style_colors.light_theme == true) app.style_colors.theme_box = FL_GTK_UP_BOX;
-    else app.style_colors.theme_box = FL_DOWN_BOX;
-
-    Fl_Tooltip::color(app.style_colors.bg_color);
-    Fl_Tooltip::textcolor(readable_label_color(app.style_colors.bg_color));
     
     std::string api = "";
     std::string term = "";
@@ -94,6 +88,18 @@ int main(int argc, char** argv){
     app.history_buf->head = 0;
     app.history_buf->tail = 0;
     app.history_buf->size = 0;
+
+    // Right now, we're writing to file every time use_default_colors is true
+    // so, on every launch. Not really performant, but it's like it is a hard
+    // operation
+    if (app.use_default_colors == false) app.style_colors = read_color_from_file();
+    else{ write_default_colors(); app.style_colors = read_color_from_file(); }
+
+    if (app.style_colors.light_theme == true) app.style_colors.theme_box = FL_GTK_UP_BOX;
+    else app.style_colors.theme_box = FL_DOWN_BOX;
+
+    Fl_Tooltip::color(app.style_colors.bg_color);
+    Fl_Tooltip::textcolor(readable_label_color(app.style_colors.bg_color));
 
     load_buffer(&app);
     print_buffers(&app);

@@ -34,6 +34,7 @@ void on_show_data_btn(Fl_Widget* w, void* data);
 void on_show_config_file_btn(Fl_Widget* w, void* data);
 void on_show_history_file_btn(Fl_Widget* w, void* data);
 void on_show_colors_file_btn(Fl_Widget* w, void* data);
+void on_use_default_colors_btn(Fl_Widget* w, void* data);
 void on_show_github_repo_btn(Fl_Widget* w, void* data);
 void on_history_entry_click(Fl_Widget* w, void* user_data);
 void model_choice_callback(Fl_Widget* w, void* data);

@@ -80,6 +80,11 @@ void load_config(AppState* app){
             if (value == "0") app->transparent_output_style = false;
             else if (value == "1") app->transparent_output_style = true;
         }
+
+        if (key == "use_default_colors"){
+            if (value == "0") app->use_default_colors = false;
+            else if (value == "1") app->use_default_colors = true;
+        }
     }
 }
 
@@ -100,6 +105,7 @@ void save_config(const AppState* app){
     config << "last_selected_deck=" + app->last_selected_deck + '\n';
     config << "last_selected_api=" + std::to_string(app->selected_api) + '\n';
     config << "transparent_output_style=" + std::to_string(app->transparent_output_style) + '\n';
+    config << "use_default_colors=" + std::to_string(app->use_default_colors) + '\n';
 
     #ifdef _WIN32
         capture_windows();

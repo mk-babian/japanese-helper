@@ -108,6 +108,8 @@ struct AppState{
 
     // The colors we use in the app
     StyleColors style_colors;
+
+    bool use_default_colors = 0;
 };
 
 struct AnkiWarning {

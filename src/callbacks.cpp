@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdint>
 
+#include <FL/Fl_Check_Button.H>
 #include <FL/Fl_PNG_Image.H>
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Slider.H>
@@ -634,11 +635,20 @@ void on_settings_win_change(Fl_Widget* w, void* data){
         show_history_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_history_file_btn->callback(on_show_history_file_btn, app);
 
-        Fl_Button* show_colors_file_btn = new Fl_Button(190, 115, 500, 30, "Show Colors File");
+        Fl_Button* show_colors_file_btn = new Fl_Button(445, 115, 245, 30, "Show Colors File");
         show_colors_file_btn->box(app->style_colors.theme_box);
         set_widget_fill(show_colors_file_btn, app->style_colors.accent_2);
         show_colors_file_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
         show_colors_file_btn->callback(on_show_colors_file_btn, app);
+
+        Fl_Check_Button* use_default_colors_btn = new Fl_Check_Button(190, 115, 250, 30, "Use Default Colors");
+        if (app->use_default_colors == true) use_default_colors_btn->value(1);
+        else use_default_colors_btn->value(0);
+        use_default_colors_btn->align(FL_ALIGN_CENTER);
+        use_default_colors_btn->box(app->style_colors.theme_box);
+        set_widget_fill(use_default_colors_btn, app->style_colors.accent_2);
+        use_default_colors_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
+        use_default_colors_btn->callback(on_use_default_colors_btn, app);
 
         Fl_Button* show_github_repo_btn = new Fl_Button(190, 515, 500, 30, "Visit GitHub Repository");
         show_github_repo_btn->box(app->style_colors.theme_box);
@@ -884,6 +894,19 @@ void on_show_colors_file_btn(Fl_Widget* w, void* data){
     std::string path = get_data_dir("JapaneseHelper").string() + "/colors.json";
     std::string uri = "file://" + path;
     fl_open_uri(uri.c_str());
+}
+
+void on_use_default_colors_btn(Fl_Widget* w, void* data){
+    Fl_Check_Button* check = static_cast<Fl_Check_Button*>(w);
+    AppState* app = static_cast<AppState*>(data);
+
+    if (check->value() == 1){
+        app->use_default_colors = true;
+    }else{
+        app->use_default_colors = false;
+    }
+
+    // std::println("INFO | Default Colors: {}", app->use_default_colors);
 }
 
 void on_show_github_repo_btn(Fl_Widget* w, void* data){
