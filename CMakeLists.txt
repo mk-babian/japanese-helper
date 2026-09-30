@@ -22,84 +22,14 @@ if(TRANSLATOR_STATIC)
     endif()
 endif()
 
-# Used to download dependencies
-include(FetchContent)
-
-if(WIN32)
-    set(CURL_INCLUDE_DIR "C:/libs/curl/include")
-    set(CURL_LIBRARIES "C:/libs/curl/lib/libcurl.lib")
-endif()
-
-# --- Cairo (system FLTK here is built with cairo support, so its
-# public header needs cairo.h even though we don't use cairo directly) ---
-find_package(CURL QUIET)
-if(PkgConfig_FOUND)
-    pkg_check_modules(CAIRO QUIET cairo)
-endif()
-
-# --- CURL ---
-find_package(CURL QUIET)
-if(NOT CURL_FOUND)
-    message(STATUS "CURL not found, trying to fetch...")
-    FetchContent_Declare(
-        curl
-        GIT_REPOSITORY https://github.com/curl/curl.git
-        GIT_TAG curl-8_7_1 # Or your preferred version
-        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl-src
-    )
-    set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
-    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-    set(CURL_USE_LIBPSL OFF CACHE INTERNAL "")
-    
-    if(WIN32)
-        set(CURL_USE_SCHANNEL ON CACHE INTERNAL "")
-    else()
-        set(CURL_USE_OPENSSL ON CACHE INTERNAL "")
-    endif()
-
-    FetchContent_MakeAvailable(curl)
-endif()
-
-# --- FLTK ---
-find_package(FLTK QUIET)
-if(NOT FLTK_FOUND)
-    message(STATUS "FLTK not found, trying to fetch...")
-    FetchContent_Declare(
-        fltk
-        GIT_REPOSITORY https://github.com/fltk/fltk.git
-        GIT_TAG release-1.4.4
-    )
-    FetchContent_MakeAvailable(fltk)
-    # FetchContent doesn't set find_package variables, so set them manually.
-    # fltk_BINARY_DIR is needed because FL/fl_config.h is generated there.
-    set(FLTK_INCLUDE_DIR ${fltk_SOURCE_DIR} ${fltk_BINARY_DIR})
-    set(FLTK_LIBRARIES fltk fltk_images)
-endif()
-
-# --- PortAudio ---
-find_package(PkgConfig QUIET)
-if(PkgConfig_FOUND)
-    pkg_check_modules(PORTAUDIO QUIET portaudio-2.0)
-endif()
-
-if(NOT PORTAUDIO_FOUND)
-    message(STATUS "PortAudio not found, trying to fetch...")
-
-    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-
-    # Build PortAudio statically
-    set(PA_BUILD_SHARED OFF CACHE INTERNAL "")
-    set(PA_BUILD_STATIC ON  CACHE INTERNAL "")
-
-    FetchContent_Declare(
-        portaudio
-        GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
-        GIT_TAG v19.7.0
-    )
-    FetchContent_MakeAvailable(portaudio)
-    set(PORTAUDIO_LIBRARIES portaudio_static)
-    set(PORTAUDIO_INCLUDE_DIRS ${portaudio_SOURCE_DIR}/include)
-endif()
+# --- Dependencies (must be installed on the system) ---
+find_package(PkgConfig REQUIRED)
+find_package(CURL REQUIRED)
+find_package(FLTK REQUIRED)
+pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+# System FLTK may be built with cairo support, so its public header needs
+# cairo.h even though we don't use cairo directly.
+pkg_check_modules(CAIRO QUIET cairo)
 
 # Whisper.cpp
 set(WHISPER_BUILD_TESTS OFF CACHE BOOL "Disable whisper tests" FORCE)
@@ -208,6 +138,7 @@ if(WIN32)
 else()
     set(CPACK_GENERATOR "TGZ")
 endif()
+
 set(CPACK_PACKAGE_NAME "translator")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

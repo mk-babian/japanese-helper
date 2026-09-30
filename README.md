@@ -123,7 +123,7 @@ If you're planning to build this yourself, you'll need these:
 
 - **Cairo development headers** (Linux) — the system FLTK build pulls in `cairo.h` even though the app doesn't use Cairo directly. `pkg-config` is used to locate it.
 
-**NOTE:** The `CMakeLists.txt` file sort of handles the acquisition of necessary dependencies.
+**NOTE:** The `CMakeLists.txt` requires dependencies: **libcurl4-openssl-dev** **libfltk1.3-dev**, **portaudio19-dev**, **libcairo2-dev**, and **pkg-config** on Debian/Ubuntu, or the **mingw-w64-x86_64-{curl,fltk,portaudio}** packages on MSYS2 to be installed on the system.
 
 ## 🔨 Building:
 
