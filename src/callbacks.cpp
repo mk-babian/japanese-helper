@@ -1129,23 +1129,32 @@ void show_anki_card_window(void* data){
     std::unique_ptr<AnkiCardData> card(static_cast<AnkiCardData*>(data));
 
     Fl_Window* win = new Fl_Window(400, 260, "Add Card");
+    win->color(card->app->style_colors.bg_color);
 
     // Populate widgets from card->front, card->back, card->deck_names, etc.
 
     Fl_Choice* choice = new Fl_Choice(50, 10, 340, 30, "Deck:");
+    choice->box(card->app->style_colors.theme_box);
+    set_widget_fill(choice, card->app->style_colors.bg_accent);
+    choice->textcolor(readable_label_color(card->app->style_colors.bg_accent));
 
     Fl_Input* front_input = new Fl_Input(50, 55, 340, 30, "Front:");
     front_input->value(card->front.c_str());
+    front_input->box(card->app->style_colors.theme_box);
+    set_widget_fill(front_input, card->app->style_colors.bg_accent);
+    front_input->textcolor(readable_label_color(card->app->style_colors.bg_accent));
 
     Fl_Input* back_input = new Fl_Input(50, 100, 340, 30, "Back:");
     back_input->value(card->back.c_str());
+    back_input->box(card->app->style_colors.theme_box);
+    set_widget_fill(back_input, card->app->style_colors.bg_accent);
+    back_input->textcolor(readable_label_color(card->app->style_colors.bg_accent));
 
     // "Add" button that submits the card to the selected deck.
     Fl_Button* add_btn = new Fl_Button(150, 220, 100, 30, "Add");
     add_btn->box(card->app->style_colors.theme_box);
     add_btn->labelfont((Fl_Font)(FL_FREE_FONT + 1));
-    set_widget_fill(add_btn, card->app->style_colors.bg_color);
-    add_btn->color(card->app->style_colors.accent_2);
+    set_widget_fill(add_btn, card->app->style_colors.accent_2);
     add_btn->callback(on_anki_add_note, new AnkiAddNoteData{card->app, front_input, back_input});
 
     // Keep the deck selection in AppState so the Add callback can use it.
