@@ -10,12 +10,15 @@
 #include "lib/json.hpp"
 using json = nlohmann::json;
 
-// Anki Connect
 #include <print>
+#include <fstream>
+#include <cctype>
 
 #include "include/api.h"
 #include "include/app_state.h"
+#include "include/get_data_dir.h"
 
+const std::string data_path = get_data_dir("JapaneseHelper").string();
 
 
 // COUNTS HOW MANY BYTES HANDLED IN CHUNK & COMPARE WITH RECEIVED AMOUNT
@@ -48,6 +51,37 @@ struct Cleanup{
         curl_slist_free_all(headers);
     }
 };
+
+// Returns obj[key] if it exists and is an array, otherwise an empty array.
+// Keeps loops over optional Jisho fields safe when a key is missing.
+static const json& get_array(const json& obj, const char* key){
+    static const json empty = json::array();
+    auto it = obj.find(key);
+    return (it != obj.end() && it->is_array()) ? *it : empty;
+}
+
+// Joins every string in a JSON array with a separator.
+// ["classroom", "lecture room"] -> "classroom; lecture room"
+static std::string join(const json& arr, const std::string& sep){
+    std::string out;
+    bool first = true;
+    for (const auto& item : arr){
+        if (!item.is_string()) continue;
+        if (!first) out += sep;
+        out += item.get<std::string>();
+        first = false;
+    }
+    return out;
+}
+
+// Formats one Japanese form as 漢字【かな】, or just かな for kana-only words.
+static std::string format_form(const json& jp){
+    std::string word    = jp.value("word", "");
+    std::string reading = jp.value("reading", "");
+    if (word.empty())    return reading;
+    if (reading.empty()) return word;
+    return word + "【" + reading + "】";
+}
 
 // Looks up a word on Jisho and returns a formatted string of definitions, Kanji, and Hiragana (reading).
 // Throws std::runtime_error on network failure or malformed response.
@@ -93,6 +127,9 @@ std::string jisho_lookup(const std::string& word, AppState* app){
     }
     
     app->raw_jisho_return = response;
+    std::ofstream debug_out_file(data_path + "/response.txt");
+    if (!debug_out_file) std::println("W | Could not open or create debug out file!");
+    else debug_out_file << app->raw_jisho_return;
 
     // Parse the raw bytes/characters into std::string result.
     auto parsed = json::parse(response);
@@ -104,35 +141,78 @@ std::string jisho_lookup(const std::string& word, AppState* app){
         return result;
     }
 
-    // Integer counter for the formatting
-    int n = 1;
-
     // Loops to extract all the definitions and etc. from the parsed data
-    // and puts them into std::string result.
+    // and puts them into std::string result. Each entry ends up looking like:
+    //
+    //   教育【きょういく】   common · JLPT N4
+    //     Noun, Suru verb, Transitive verb
+    //       1. education; schooling; training
+    //     Noun
+    //       2. culture; cultivation  [Archaic]
+    //          See also: 推挙
     /*
      * The ":" means "for each element in".
      * auto means to "figure out the type yourself, compiler-san".
      * & means "reference, not copy" - without it, entry would be a copy of each JSON element.
     */
-    for (auto& entry : data) {
-        for (auto& jp : entry["japanese"]) {
-            if (jp.contains("word"))    result += jp["word"].get<std::string>() + " ";              // Get the Kanji
-            if (jp.contains("reading")) result += "(" + jp["reading"].get<std::string>() + ") ";    // Get the Hiragana
+    for (const auto& entry : data) {
+        const json& forms = get_array(entry, "japanese");
+
+        // Headword line: the main form, followed by small badges.
+        if (!forms.empty()) result += format_form(forms[0]);
+
+        json badges = json::array();
+        if (entry.value("is_common", false)) badges.push_back("common");
+        for (const auto& level : get_array(entry, "jlpt")) {
+            // "jlpt-n5" -> "JLPT N5"
+            std::string s = level.get<std::string>();
+            std::string lvl = s.substr(s.rfind('-') + 1);
+            for (char& c : lvl) c = std::toupper((unsigned char)c);
+            badges.push_back("JLPT " + lvl);
         }
-        result += "\n\t";
-        // Reset the visual counter after each new form of the word.
-        n = 1;
-        for (auto& sense : entry["senses"]) {
-            result += std::to_string(n++) + ". "; 
-            for (auto& def : sense["english_definitions"]) {
-                result += def.get<std::string>() + ";  ";        // Get the english definitions
+        if (!badges.empty()) result += "   " + join(badges, " · ");
+        result += "\n";
+
+        // Any extra writings/readings (e.g. 松明 can also be written 炬).
+        if (forms.size() > 1) {
+            result += "  Other forms: ";
+            for (size_t i = 1; i < forms.size(); ++i) {
+                if (i > 1) result += ", ";
+                result += format_form(forms[i]);
             }
-            result += "\n\t";
+            result += "\n";
         }
-        result += "\n\n";
+
+        // Senses are numbered per entry, and grouped under their part of speech.
+        // The part of speech is only printed when it changes, like on jisho.org.
+        int n = 1;
+        std::string last_pos;
+        for (const auto& sense : get_array(entry, "senses")) {
+            std::string pos = join(get_array(sense, "parts_of_speech"), ", ");
+            if (!pos.empty() && pos != last_pos) {
+                result += "  " + pos + "\n";
+                last_pos = pos;
+            }
+
+            result += "    " + std::to_string(n++) + ". " + join(get_array(sense, "english_definitions"), "; ");
+
+            // Usage notes like "Archaic", "Botany", "usually written using kana alone".
+            std::string notes = join(get_array(sense, "tags"), ", ");
+            std::string info  = join(get_array(sense, "info"), ", ");
+            if (!notes.empty() && !info.empty()) notes += ", ";
+            notes += info;
+            if (!notes.empty()) result += "  [" + notes + "]";
+            result += "\n";
+
+            std::string see_also = join(get_array(sense, "see_also"), ", ");
+            if (!see_also.empty()) result += "       See also: " + see_also + "\n";
+            std::string antonyms = join(get_array(sense, "antonyms"), ", ");
+            if (!antonyms.empty()) result += "       Antonyms: " + antonyms + "\n";
+        }
+        result += "\n";
     }
 
-    return result + '\n';
+    return result;
 }
 
 // IN: std::string text and the DeepL API key
