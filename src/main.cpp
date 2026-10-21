@@ -52,7 +52,8 @@ int main(int argc, char** argv){
     std::string executable_path = get_executable_path().parent_path().string();
     // std::print("{}", executable_path);
 
-    AppState app;
+    // Value-initialize so every pointer member starts as nullptr
+    AppState app{};
     
     std::string api = "";
     std::string term = "";
