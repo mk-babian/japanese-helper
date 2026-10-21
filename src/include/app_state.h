@@ -31,9 +31,9 @@ struct AppState{
     Fl_Multiline_Output* info_text = nullptr;
 
     // History capacity
-    Fl_Int_Input* history_capacity_input;
+    Fl_Int_Input* history_capacity_input = nullptr;
     int history_capacity;
-    Fl_Box* history_capacity_alert;
+    Fl_Box* history_capacity_alert = nullptr;
 
     // The buttons on the left of the info window
     Fl_Button* general_info_btn;

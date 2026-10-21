@@ -602,6 +602,8 @@ void on_settings_win_change(Fl_Widget* w, void* data){
     app->whisper_model_selector = nullptr;
     app->install_whisper_model = nullptr;
     app->whisper_device_selector = nullptr;
+    app->history_capacity_input = nullptr;
+    app->history_capacity_alert = nullptr;
 
     app->settings_content->clear();
 
