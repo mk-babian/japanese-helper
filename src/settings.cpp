@@ -65,7 +65,9 @@ void load_config(AppState* app){
         }
 
         if (key == "history_capacity"){
-            app->history_buf->capacity = std::stoi(value);
+            // A capacity of 0 would divide by zero in the ring buffer math.
+            int capacity = std::stoi(value);
+            if (capacity > 0) app->history_buf->capacity = capacity;
         }
 
         if (key == "last_selected_deck"){

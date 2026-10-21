@@ -12,10 +12,10 @@ typedef struct CircularBuffer {
     std::vector<std::string> data;
     std::vector<std::string> time;
     std::vector<int> api;
-    int head;
-    int tail;
-    int size;
-    int capacity;
+    int head = 0;
+    int tail = 0;
+    int size = 0;
+    int capacity = 50;  // Used when config.ini has no valid history_capacity
 } CircularBuffer;
 
 void enqueue(AppState* app, const std::string& val);
