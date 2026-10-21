@@ -53,10 +53,15 @@ void capture_windows(void){
     SelectObject(h_mem, h_old);  // deselect before handing to GDI+
 
     // Wrap the HBITMAP and save it
-    Gdiplus::Bitmap bitmap(h_bmp, nullptr);
-    CLSID png_clsid;
-    get_encoder_clsid(L"image/png", &png_clsid);
-    bitmap.Save(path.c_str(), &png_clsid, nullptr);
+    // Scoped so the Bitmap is destroyed before GdiplusShutdown, otherwise its
+    // destructor runs after shutdown and crashes in GdipDisposeImage.
+    {
+        Gdiplus::Bitmap bitmap(h_bmp, nullptr);
+        CLSID png_clsid;
+        if (get_encoder_clsid(L"image/png", &png_clsid) >= 0){
+            bitmap.Save(path.c_str(), &png_clsid, nullptr);
+        }
+    }
 
     DeleteObject(h_bmp);
     DeleteDC(h_mem);
